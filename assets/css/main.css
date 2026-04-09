@@ -907,12 +907,6 @@ select {
   border-bottom: none;
 }
 
-.score-legacy-panel {
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
-}
-
 .event-tag {
   display: inline-flex;
   align-items: center;

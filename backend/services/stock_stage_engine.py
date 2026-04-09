@@ -11,27 +11,10 @@ from statistics import pstdev
 from typing import Optional
 
 from services.market_db import get_market_conn
+from services.utils import safe_float as _safe_float
+from services.constants import PATH_THRESHOLDS
 
 logger = logging.getLogger("cm-api")
-
-PATH_THRESHOLDS = {
-    "mild_gain_max": 10.0,
-    "warm_gain_max": 30.0,
-    "exhausted_min": 30.0,
-    "broken_drawdown": 15.0,
-}
-
-
-def _safe_float(value):
-    try:
-        if value is None:
-            return None
-        value = float(value)
-        if value != value:
-            return None
-        return value
-    except Exception:
-        return None
 
 
 def _mean(values: list[float]) -> Optional[float]:

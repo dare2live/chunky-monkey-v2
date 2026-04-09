@@ -12,6 +12,7 @@ from datetime import datetime
 from typing import Optional
 
 from services.market_db import get_market_conn, get_kline, get_kline_range
+from services.utils import normalize_ymd as _normalize_ymd
 
 logger = logging.getLogger("cm-api")
 
@@ -42,17 +43,6 @@ def _next_trading_day(biz_conn, date_str: str) -> Optional[str]:
         (normalized,)
     ).fetchone()
     return row["trade_date"] if row else None
-
-
-def _normalize_ymd(date_str: Optional[str]) -> Optional[str]:
-    """归一化日期到 YYYY-MM-DD。"""
-    if not date_str:
-        return None
-    raw = str(date_str).strip()
-    digits = raw.replace("-", "").replace("/", "")
-    if len(digits) != 8 or not digits.isdigit():
-        return None
-    return f"{digits[:4]}-{digits[4:6]}-{digits[6:8]}"
 
 
 def _resolve_cost_window(biz_conn, report_date: str) -> tuple[Optional[str], Optional[str], Optional[str]]:

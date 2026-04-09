@@ -14,6 +14,7 @@ import httpx
 from fastapi import APIRouter, Query
 
 from services.db import get_conn
+from services.utils import safe_float as _safe_float
 
 logger = logging.getLogger("cm-api")
 router = APIRouter()
@@ -33,13 +34,6 @@ def _compact_date(val) -> str:
         return ""
     s = str(val).strip()[:10]
     return s.replace("-", "").replace("/", "")
-
-
-def _safe_float(val):
-    try:
-        return float(val)
-    except (TypeError, ValueError):
-        return None
 
 
 def _safe_int(val):

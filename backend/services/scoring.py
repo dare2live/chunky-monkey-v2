@@ -12,6 +12,8 @@ from datetime import datetime
 from typing import Optional, Tuple
 
 from services.industry import industry_join_clause
+from services.utils import safe_float as _safe_float, percentile_ranks as _percentile_ranks
+from services.constants import PATH_THRESHOLDS
 
 logger = logging.getLogger("cm-api")
 
@@ -53,14 +55,6 @@ STOCK_SCORE_DEFAULTS = {
     "overheated_penalty": 20,       # 过热扣分
     "conflict_penalty": 15,         # 冲突扣分
     "path_exhausted_penalty": 15,   # 已充分演绎扣分
-}
-
-# 路径分类阈值
-PATH_THRESHOLDS = {
-    "mild_gain_max": 10,       # 未充分演绎上限 (%)
-    "warm_gain_max": 30,       # 温和验证上限 (%)
-    "exhausted_min": 30,       # 已充分演绎下限 (%)
-    "broken_drawdown": 15,     # 失效破坏回撤阈值 (%)
 }
 
 # 事件类型得分
@@ -131,45 +125,6 @@ def save_scoring_config(conn, prefix: str, config: dict):
 # 辅助函数
 # ============================================================
 
-def _percentile_ranks(values: list) -> list:
-    """
-    对一组数值计算百分位排名 (0-100)。
-    NaN/None 值保持为 None。
-    """
-    indexed = [(i, v) for i, v in enumerate(values) if v is not None]
-    if not indexed:
-        return [None] * len(values)
-
-    indexed.sort(key=lambda x: x[1])
-    n = len(indexed)
-    ranks = [None] * len(values)
-
-    i = 0
-    while i < n:
-        # 处理相同值（取平均排名）
-        j = i
-        while j < n and indexed[j][1] == indexed[i][1]:
-            j += 1
-        avg_rank = (i + j - 1) / 2.0
-        percentile = (avg_rank / (n - 1) * 100) if n > 1 else 50.0
-        for k in range(i, j):
-            ranks[indexed[k][0]] = round(percentile, 2)
-        i = j
-
-    return ranks
-
-
-def _safe_float(val):
-    """安全提取浮点值，None/NaN 返回 None。"""
-    if val is None:
-        return None
-    try:
-        f = float(val)
-        return f if f == f else None  # NaN check
-    except (ValueError, TypeError):
-        return None
-
-
 def _parse_any_date(value):
     if not value:
         return None
@@ -193,8 +148,8 @@ def _report_recency_grade(days: Optional[int]) -> int:
     """
     披露时效等级（1 最优，5 最弱）。
 
-    这里不再假设“越新越强”，而是根据历史 replay 结果使用
-    “最佳披露窗口” 口径：
+    这里不再假设"越新越强"，而是根据历史 replay 结果使用
+    "最佳披露窗口" 口径：
     - 46-60 天最强
     - 0-30 天次强
     - 61-90 天仍可用

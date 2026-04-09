@@ -13,22 +13,13 @@ from typing import Optional
 
 from services.industry import load_industry_map
 from services.market_db import get_market_conn
+from services.utils import safe_float as _safe_float
 
 logger = logging.getLogger("cm-api")
 
 
 def _today_str() -> str:
     return datetime.now().strftime("%Y-%m-%d")
-
-
-def _safe_float(value) -> Optional[float]:
-    if value is None:
-        return None
-    try:
-        f = float(value)
-        return f if f == f else None
-    except (TypeError, ValueError):
-        return None
 
 
 def _resolve_snapshot_date() -> str:

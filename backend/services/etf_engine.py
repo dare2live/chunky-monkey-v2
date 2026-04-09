@@ -4,6 +4,13 @@ from datetime import datetime, timedelta
 import math
 from typing import List, Dict, Optional, Callable
 
+from services.utils import safe_float as _safe_float, clamp as _clamp
+from services.constants import (
+    ETF_NON_INDUSTRY_CATS, ETF_INDUSTRY_MAP, ETF_CATEGORY_SORT_ORDER,
+    ETF_FALLBACK_INDUSTRY, ETF_CROSS_BORDER_KW, ETF_COMMODITY_KW,
+    ETF_BOND_KW, ETF_MONEY_KW, ETF_BROAD_KW,
+)
+
 # 用 cm-api logger，让 ETF 日志走入 routers/updater.py 的 _UILogHandler，
 # 进而出现在工作台/ETF 页的实时日志面板
 logger = logging.getLogger("cm-api")
@@ -16,22 +23,6 @@ logger = logging.getLogger("cm-api")
 ProgressCb = Optional[Callable[[str, int, int, str], None]]
 
 
-def _safe_float(value):
-    try:
-        if value is None:
-            return None
-        value = float(value)
-        if value != value:
-            return None
-        return value
-    except Exception:
-        return None
-
-
-def _clamp(value: float, lo: float, hi: float) -> float:
-    return max(lo, min(hi, value))
-
-
 def _mean(values):
     clean = [_safe_float(v) for v in values if _safe_float(v) is not None]
     if not clean:
@@ -42,49 +33,20 @@ def _mean(values):
 def _infer_etf_category(code: str, name: str) -> str:
     """根据代码和名称精确分类 ETF 类别，行业类进一步细分到具体行业"""
     n = (name or "").lower()
-    # 跨境
-    cross_kw = ["纳指", "标普", "纳斯达克", "恒生", "港股", "中概", "海外", "亚太", "德国", "日经", "美国", "h股", "巴西", "印度", "越南", "法国", "欧洲", "日本"]
-    if any(k in name for k in cross_kw) or any(k in n for k in cross_kw):
+    if any(k in name for k in ETF_CROSS_BORDER_KW) or any(k in n for k in ETF_CROSS_BORDER_KW):
         return "跨境"
-    # 商品
-    commodity_kw = ["黄金", "白银", "豆粕", "有色", "能化", "原油", "商品"]
-    if any(k in name for k in commodity_kw):
+    if any(k in name for k in ETF_COMMODITY_KW):
         return "商品"
-    # 债券
-    bond_kw = ["国债", "信用债", "可转债", "城投", "公司债", "债券", "短融"]
-    if any(k in name for k in bond_kw):
+    if any(k in name for k in ETF_BOND_KW):
         return "债券"
-    # 货币
-    money_kw = ["货币", "货a", "货b", "现金", "快线", "添益", "日利", "日日盈", "保证金"]
-    if any(k in name for k in money_kw) or any(k in n for k in money_kw):
+    if any(k in name for k in ETF_MONEY_KW) or any(k in n for k in ETF_MONEY_KW):
         return "货币"
-    # 宽基
-    broad_kw = ["沪深300", "中证500", "中证1000", "上证50", "科创50", "科创100",
-                "创业板", "深证100", "中证800", "中证2000", "A50", "msci", "MSCI"]
-    if any(k in name for k in broad_kw):
+    if any(k in name for k in ETF_BROAD_KW):
         return "宽基"
-    # 行业细分：按关键词映射到具体行业
-    _INDUSTRY_MAP = [
-        (["医疗", "医药", "生物科技", "医健", "生科", "中药", "医械", "创新药", "健康", "医疗器械", "疫苗"], "医疗健康"),
-        (["半导体", "芯片", "集成电路", "科创芯", "晶圆"], "半导体"),
-        (["新能源", "光伏", "风电", "储能", "氢能", "电池", "锂电", "碳中和", "绿色电力", "清洁能源"], "新能源"),
-        (["消费", "白酒", "食品", "饮料", "家电", "零售", "酒", "家居", "纺织"], "消费"),
-        (["银行", "券商", "保险", "金融", "证券", "理财", "非银"], "金融"),
-        (["军工", "航空", "航天", "国防", "船舶"], "军工"),
-        (["地产", "房产", "建筑", "建材", "基建"], "地产建筑"),
-        (["农业", "农林", "畜牧", "化工", "煤炭", "钢铁", "矿业", "稀土", "有色金属", "资源"], "周期资源"),
-        (["游戏", "传媒", "文化", "互联网", "数字", "云计算", "大数据", "人工智能", "AI", "信息", "软件", "计算机", "通信", "5G", "物联网"], "数字科技"),
-        (["交通", "港口", "铁路", "物流", "高速", "公路", "航运"], "交通物流"),
-        (["电力", "电气", "电网", "公用事业", "水务", "燃气", "环保"], "电力公用"),
-        (["汽车", "智能车", "新能车", "车联网", "无人驾驶"], "汽车"),
-        (["科技", "高端制造", "机器人", "工业母机", "先进制造", "装备"], "高端制造"),
-        (["红利", "央企", "国企", "价值", "高股息"], "红利策略"),
-    ]
-    for keywords, industry_name in _INDUSTRY_MAP:
+    for keywords, industry_name in ETF_INDUSTRY_MAP:
         if any(k in name for k in keywords):
             return industry_name
-    # 未匹配到具体行业
-    return "行业·其他"
+    return ETF_FALLBACK_INDUSTRY
 
 
 def _calc_amplitude_pct(highs: list, lows: list, window: int) -> Optional[float]:
@@ -150,8 +112,7 @@ def _classify_etf_setup(
 def _classify_etf_strategy(row: Dict) -> tuple[str, str, Optional[float], float]:
     cat = row.get("category") or ""
     # 行业类包含具体行业名（医疗健康、半导体等）和"行业·其他"
-    _NON_INDUSTRY = {"跨境", "商品", "债券", "货币", "宽基"}
-    is_industry_like = cat not in _NON_INDUSTRY
+    is_industry_like = cat not in ETF_NON_INDUSTRY_CATS
     trend = row.get("trend_status") or ""
     setup_state = row.get("setup_state") or ""
     rotation_bucket = row.get("rotation_bucket") or ""
@@ -534,17 +495,9 @@ def calc_etf_momentum(conn, mkt_conn) -> List[Dict]:
         item["grid_step_pct"] = grid_step_pct
         item["grid_score"] = grid_score
 
-    _NON_INDUSTRY_CATS = {"跨境", "商品", "债券", "货币", "宽基"}
-    category_rank = {
-        "宽基": 0,
-        "跨境": 2,
-        "商品": 3,
-        "债券": 4,
-        "货币": 5,
-    }
     results.sort(
         key=lambda x: (
-            category_rank.get(x.get("category") or "", 1),
+            ETF_CATEGORY_SORT_ORDER.get(x.get("category") or "", 1),
             0 if x.get("rotation_bucket") == "leader" else 1 if x.get("rotation_bucket") == "neutral" else 2,
             -(x.get("rotation_score") or 0),
             -(x.get("score") or 0),
@@ -636,8 +589,7 @@ def calc_etf_overview(rows: List[Dict]) -> Dict:
         "它的作用是约束追高和解释过冷区的潜在缓冲，而不是替代市场温度和排序信号。"
     )
 
-    _NON_IND = {"跨境", "商品", "债券", "货币", "宽基"}
-    industry_rows = [item for item in rows if item.get("category") not in _NON_IND]
+    industry_rows = [item for item in rows if item.get("category") not in ETF_NON_INDUSTRY_CATS]
     leader_rows = [item for item in industry_rows if item.get("rotation_bucket") == "leader"][:3]
     laggard_rows = [item for item in sorted(industry_rows, key=lambda item: item.get("rotation_rank") or 999) if item.get("rotation_bucket") == "blacklist"][:3]
     strategy_counts = {

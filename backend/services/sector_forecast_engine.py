@@ -14,19 +14,9 @@ import logging
 from datetime import date, datetime
 from typing import Optional
 
+from services.utils import safe_float as _safe_float
+
 logger = logging.getLogger("cm-api")
-
-
-def _safe_float(value):
-    try:
-        if value is None:
-            return None
-        value = float(value)
-        if value != value:
-            return None
-        return value
-    except Exception:
-        return None
 
 
 def _clamp_score(value: Optional[float], lo: float = 0.0, hi: float = 100.0) -> float:

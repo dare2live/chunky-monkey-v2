@@ -13,6 +13,8 @@
 import logging
 from datetime import datetime
 
+from services.utils import safe_float as _safe_float
+
 logger = logging.getLogger("cm-api")
 
 
@@ -27,15 +29,6 @@ def _parse_date_like(value):
             return datetime.strptime(digits, "%Y%m%d")
         return datetime.strptime(raw[:10], "%Y-%m-%d")
     except (ValueError, TypeError):
-        return None
-
-
-def _safe_float(value):
-    try:
-        if value is None or value == "":
-            return None
-        return float(value)
-    except (TypeError, ValueError):
         return None
 
 

@@ -183,6 +183,7 @@ def init_db():
             );
             CREATE INDEX IF NOT EXISTS idx_event_type ON fact_institution_event(event_type);
             CREATE INDEX IF NOT EXISTS idx_event_date ON fact_institution_event(report_date);
+            CREATE INDEX IF NOT EXISTS idx_event_notice ON fact_institution_event(notice_date);
 
             -- 收益字段已合并入 fact_institution_event
 

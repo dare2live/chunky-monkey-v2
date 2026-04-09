@@ -7,16 +7,49 @@
   const SHORT_CACHE_TTL_MS = 15 * 1000;
   var _shortApiCache = {};
 
+  // ─── Toast 通知 ───────────────────────────────────────────
+  var _toastContainer = null;
+  function showToast(msg, type) {
+    if (!_toastContainer) {
+      _toastContainer = document.createElement('div');
+      _toastContainer.id = 'toast-container';
+      _toastContainer.style.cssText = 'position:fixed;top:16px;right:16px;z-index:99999;display:flex;flex-direction:column;gap:8px;pointer-events:none;';
+      document.body.appendChild(_toastContainer);
+    }
+    var el = document.createElement('div');
+    var bg = type === 'error' ? '#ef4444' : type === 'warn' ? '#f59e0b' : '#10b981';
+    el.style.cssText = 'padding:10px 18px;border-radius:8px;color:#fff;font-size:13px;background:' + bg + ';opacity:0;transition:opacity .3s;pointer-events:auto;max-width:360px;box-shadow:0 4px 12px rgba(0,0,0,.15);';
+    el.textContent = msg;
+    _toastContainer.appendChild(el);
+    requestAnimationFrame(function () { el.style.opacity = '1'; });
+    setTimeout(function () {
+      el.style.opacity = '0';
+      setTimeout(function () { el.remove(); }, 350);
+    }, 4000);
+  }
+
+  // ─── API 层（带重试 + 用户提示）────────────────────────────
   async function api(path, opts) {
-    try {
-      const r = await fetch(BASE + path, {
-        cache: 'no-store',
-        headers: { 'Content-Type': 'application/json' },
-        ...opts
-      });
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return await r.json();
-    } catch (e) { console.warn('[API]', path, e.message); return null; }
+    var maxRetries = 1;
+    for (var attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        var r = await fetch(BASE + path, {
+          cache: 'no-store',
+          headers: { 'Content-Type': 'application/json' },
+          ...opts
+        });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return await r.json();
+      } catch (e) {
+        console.warn('[API]', path, 'attempt', attempt + 1, e.message);
+        if (attempt < maxRetries) {
+          await new Promise(function (resolve) { setTimeout(resolve, 1000 * (attempt + 1)); });
+          continue;
+        }
+        showToast('请求失败: ' + path.split('?')[0] + ' (' + e.message + ')', 'error');
+        return null;
+      }
+    }
   }
 
   async function apiCached(path, ttlMs, opts) {

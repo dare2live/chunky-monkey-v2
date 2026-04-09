@@ -14,6 +14,8 @@ from datetime import date, datetime
 from statistics import median, pstdev
 from typing import Optional
 
+from services.utils import safe_float as _safe_float
+
 logger = logging.getLogger("cm-api")
 
 # ─── 周期型行业集合（申万一级）────────────────────────────────────────
@@ -24,18 +26,6 @@ CYCLICAL_INDUSTRIES = {
 
 
 # ─── 通用辅助函数 ─────────────────────────────────────────────────────
-
-def _safe_float(value):
-    try:
-        if value is None:
-            return None
-        value = float(value)
-        if value != value:
-            return None
-        return value
-    except Exception:
-        return None
-
 
 def _parse_report_date(value: Optional[str]) -> Optional[date]:
     if not value:

@@ -9,6 +9,8 @@ import logging
 from datetime import date, datetime
 from typing import Optional
 
+from services.utils import safe_float as _safe_float, percentile_ranks as _percentile_ranks
+
 logger = logging.getLogger("cm-api")
 
 
@@ -22,18 +24,6 @@ def _ensure_columns(conn, table_name: str, columns: dict[str, str]) -> None:
     for col, ddl in columns.items():
         if col not in existing:
             conn.execute(f"ALTER TABLE {table_name} ADD COLUMN {col} {ddl}")
-
-
-def _safe_float(value):
-    try:
-        if value is None:
-            return None
-        value = float(value)
-        if value != value:
-            return None
-        return value
-    except Exception:
-        return None
 
 
 def _clamp_score(value: Optional[float], lo: float = 0.0, hi: float = 100.0) -> float:
@@ -64,21 +54,6 @@ def _rank_score(rank: Optional[float], max_score: float) -> float:
     if rank is None:
         return round(max_score * 0.5, 2)
     return round(max_score * max(min(rank, 100.0), 0.0) / 100.0, 2)
-
-
-def _percentile_ranks(values: list[Optional[float]]) -> list[Optional[float]]:
-    pairs = [(idx, val) for idx, val in enumerate(values) if val is not None]
-    if not pairs:
-        return [None] * len(values)
-    pairs.sort(key=lambda item: item[1])
-    total = len(pairs)
-    result = [None] * len(values)
-    if total == 1:
-        result[pairs[0][0]] = 100.0
-        return result
-    for pos, (idx, _) in enumerate(pairs):
-        result[idx] = round(pos / (total - 1) * 100.0, 2)
-    return result
 
 
 def _days_since(date_str: Optional[str]) -> Optional[int]:

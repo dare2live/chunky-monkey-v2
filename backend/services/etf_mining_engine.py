@@ -17,22 +17,8 @@ from __future__ import annotations
 from typing import Dict, List, Optional
 
 from services.etf_engine import calc_etf_momentum
-
-
-def _safe_float(value):
-    try:
-        if value is None:
-            return None
-        value = float(value)
-        if value != value:
-            return None
-        return value
-    except Exception:
-        return None
-
-
-def _clamp(value: float, lo: float, hi: float) -> float:
-    return max(lo, min(hi, value))
+from services.utils import safe_float as _safe_float, clamp as _clamp
+from services.constants import ETF_NON_INDUSTRY_CATS
 
 
 def _load_price_rows(mkt_conn, code: str, limit: int = 180) -> list[dict]:
@@ -233,7 +219,7 @@ def build_etf_mining_snapshot(conn, mkt_conn, *, grid_topn: int = 6,
                               trend_topn: int = 6, rotation_topn: int = 5) -> dict:
     rows = calc_etf_momentum(conn, mkt_conn)
 
-    _NON_INDUSTRY = {"跨境", "商品", "债券", "货币"}
+    _NON_INDUSTRY = ETF_NON_INDUSTRY_CATS
     grid_candidates = [
         row for row in rows
         if row.get("strategy_type") == "网格候选"
