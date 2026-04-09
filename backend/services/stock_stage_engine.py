@@ -11,7 +11,7 @@ from statistics import pstdev
 from typing import Optional
 
 from services.market_db import get_market_conn
-from services.utils import safe_float as _safe_float
+from services.utils import safe_float as _safe_float, clamp_score as _clamp_score
 from services.constants import PATH_THRESHOLDS
 
 logger = logging.getLogger("cm-api")
@@ -22,12 +22,6 @@ def _mean(values: list[float]) -> Optional[float]:
     if not clean:
         return None
     return sum(clean) / len(clean)
-
-
-def _clamp_score(value: Optional[float], lo: float = 0.0, hi: float = 100.0) -> float:
-    if value is None:
-        return lo
-    return round(max(lo, min(hi, float(value))), 2)
 
 
 def _days_since(value: Optional[str]) -> Optional[int]:

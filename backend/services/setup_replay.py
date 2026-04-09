@@ -30,11 +30,11 @@ from services.scoring import (
     _premium_grade,
     _report_recency_grade,
     _reliability_grade,
-    _safe_float,
     _setup_confidence_text,
     _setup_execution_from_grades,
     _setup_priority_from_grades,
 )
+from services.utils import safe_float as _safe_float, clamp as _clamp
 
 logger = logging.getLogger("cm-api")
 
@@ -54,10 +54,6 @@ def _parse_any_date(value) -> Optional[datetime]:
 def _iso_date(value) -> Optional[str]:
     dt = _parse_any_date(value)
     return dt.strftime("%Y-%m-%d") if dt else None
-
-
-def _clamp(value: float, low: float = 0.0, high: float = 100.0) -> float:
-    return max(low, min(high, value))
 
 
 def _avg(sum_value: float, count: int) -> Optional[float]:
@@ -120,7 +116,8 @@ def _build_inst_baseline(buy_agg: dict, safe_agg: dict) -> dict:
             + buy_avg30 * 3.0
             + (buy_wr30 - 50.0) * 0.9
             + max(0.0, 18.0 - (buy_dd30 if buy_dd30 is not None else 18.0)) * 1.0
-            + min(buy_count, 40) / 40.0 * 8.0
+            + min(buy_count, 40) / 40.0 * 8.0,
+            0.0, 100.0
         ), 2)
 
     transfer_eff = None
@@ -136,7 +133,8 @@ def _build_inst_baseline(buy_agg: dict, safe_agg: dict) -> dict:
             + max(0.0, 18.0 - (safe_dd30 if safe_dd30 is not None else 18.0)) * 0.9
             + ((transfer_eff or 50.0) - 50.0) * 0.18
             - max(avg_premium or 0.0, 0.0) * 0.22
-            + min(safe_count, 20) / 20.0 * 10.0
+            + min(safe_count, 20) / 20.0 * 10.0,
+            0.0, 100.0
         ), 2)
 
     return {

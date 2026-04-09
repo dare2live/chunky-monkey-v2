@@ -62,3 +62,10 @@ def normalize_ymd(date_str: Optional[str]) -> Optional[str]:
 def clamp(value: float, lo: float, hi: float) -> float:
     """限制值在 [lo, hi] 范围内。"""
     return max(lo, min(hi, value))
+
+
+def clamp_score(value: Optional[float], lo: float = 0.0, hi: float = 100.0) -> float:
+    """将评分限制在 [lo, hi]，None 返回 lo，结果保留两位小数。"""
+    if value is None:
+        return lo
+    return round(max(lo, min(hi, float(value))), 2)

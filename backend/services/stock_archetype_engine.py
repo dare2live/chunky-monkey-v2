@@ -14,7 +14,7 @@ from datetime import date, datetime
 from statistics import median, pstdev
 from typing import Optional
 
-from services.utils import safe_float as _safe_float
+from services.utils import safe_float as _safe_float, clamp as _clamp
 
 logger = logging.getLogger("cm-api")
 
@@ -114,10 +114,6 @@ def _percentile_rank(value: float, series: list) -> float:
         return 0.5
     below = sum(1 for v in clean if v < value)
     return below / len(clean)
-
-
-def _clamp(v: float, lo: float, hi: float) -> float:
-    return max(lo, min(hi, v))
 
 
 # ─── 表结构管理 ────────────────────────────────────────────────────────

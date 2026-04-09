@@ -9,7 +9,7 @@ import logging
 from datetime import date, datetime
 from typing import Optional
 
-from services.utils import safe_float as _safe_float, percentile_ranks as _percentile_ranks
+from services.utils import safe_float as _safe_float, percentile_ranks as _percentile_ranks, clamp_score as _clamp_score
 
 logger = logging.getLogger("cm-api")
 
@@ -24,12 +24,6 @@ def _ensure_columns(conn, table_name: str, columns: dict[str, str]) -> None:
     for col, ddl in columns.items():
         if col not in existing:
             conn.execute(f"ALTER TABLE {table_name} ADD COLUMN {col} {ddl}")
-
-
-def _clamp_score(value: Optional[float], lo: float = 0.0, hi: float = 100.0) -> float:
-    if value is None:
-        return lo
-    return round(max(lo, min(hi, float(value))), 2)
 
 
 def _score_ge(value: Optional[float], rules, default: float = 0.0) -> float:

@@ -1718,7 +1718,8 @@ async def delete_scoring_config_api(card_type: str):
 @router.get("/scoring/breakdown/{card_type}/{object_id}")
 async def scoring_breakdown(card_type: str, object_id: str):
     """评分拆解：展示某个机构/股票的评分贡献明细（三可原则：可见+可追溯+可复核）"""
-    from services.scoring import load_scoring_config, _safe_float, INST_SCORE_DEFAULTS
+    from services.scoring import load_scoring_config, INST_SCORE_DEFAULTS
+    from services.utils import safe_float as _safe_float
     import math
     conn = get_conn()
     try:

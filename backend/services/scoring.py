@@ -1060,6 +1060,7 @@ def classify_price_path(conn, stock_code: str, notice_date: str) -> str:
 # ============================================================
 
 def _clamp_score(value: Optional[float], low: float = 0.0, high: float = 100.0) -> float:
+    """本模块大量使用 low/high 参数名，保持兼容。"""
     if value is None:
         return low
     return round(max(min(float(value), high), low), 2)

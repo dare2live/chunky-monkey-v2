@@ -16,15 +16,9 @@ from typing import Optional
 
 from services.qlib_full_engine import ensure_tables as ensure_qlib_tables
 from services.qlib_full_engine import sync_latest_predictions_to_stock_trend
-from services.utils import safe_float as _safe_float, percentile_ranks as _percentile_ranks
+from services.utils import safe_float as _safe_float, percentile_ranks as _percentile_ranks, clamp_score as _clamp_score
 
 logger = logging.getLogger("cm-api")
-
-
-def _clamp_score(value: Optional[float], lo: float = 0.0, hi: float = 100.0) -> float:
-    if value is None:
-        return lo
-    return round(max(lo, min(hi, float(value))), 2)
 
 
 def ensure_tables(conn):
