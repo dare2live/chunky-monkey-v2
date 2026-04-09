@@ -5,7 +5,7 @@ import logging
 from datetime import datetime
 
 from services.etf_engine import sync_etf_universe, calc_etf_momentum, calc_etf_overview
-from services.etf_mining_engine import build_etf_mining_snapshot
+from services.etf_mining_engine import build_etf_mining_snapshot, analyze_etf_deep
 from services.market_db import get_market_conn
 
 router = APIRouter(tags=["ETF_Quant"])
@@ -198,6 +198,36 @@ async def get_etf_mining(
         return {"status": "ok", "data": data}
     except Exception as e:
         logger.error(f"[ETF] ETF 挖掘建议生成失败: {e}")
+        return {"status": "error", "message": str(e)}
+    finally:
+        conn.close()
+        mkt_conn.close()
+
+
+@router.get("/analysis/{code}")
+async def get_etf_analysis(code: str) -> Dict[str, Any]:
+    """单只 ETF 深度量化分析。
+
+    返回多步长回测对比、买入持有基准、多周期稳定性检验、量化结论。
+    前端用于展示详细分析面板。
+    """
+    import re
+    if not re.match(r"^\d{6}$", code):
+        raise HTTPException(status_code=400, detail="ETF 代码格式错误")
+
+    from services.db import get_conn
+
+    conn = get_conn()
+    mkt_conn = get_market_conn()
+    try:
+        result = analyze_etf_deep(conn, mkt_conn, code)
+        if result is None:
+            raise HTTPException(status_code=404, detail=f"ETF {code} 不存在或数据不足")
+        return {"status": "ok", "data": result}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"[ETF] 深度分析 {code} 失败: {e}")
         return {"status": "error", "message": str(e)}
     finally:
         conn.close()

@@ -14,6 +14,7 @@ etf_mining_engine.py — ETF 挖掘建议引擎
 
 from __future__ import annotations
 
+import math
 from typing import Dict, List, Optional
 
 from services.etf_engine import calc_etf_momentum
@@ -51,28 +52,40 @@ def _max_drawdown(values: list[float]) -> Optional[float]:
 
 
 def _run_grid_backtest(price_rows: list[dict], step_pct: float,
-                       tranche_count: int = 8, fee_bps: float = 5.0) -> Optional[dict]:
+                       tranche_count: int = 8, fee_bps: float = 5.0,
+                       *, full_curve: bool = False) -> Optional[dict]:
+    """网格回测，返回收益/回撤/交易次数等指标。
+    full_curve=True 时额外返回每日净值序列（用于画图和高级分析）。
+    """
     closes = [_safe_float(row.get("close")) for row in price_rows]
-    closes = [value for value in closes if value not in (None, 0)]
+    dates = [row.get("date") for row in price_rows]
+    closes = [(c, d) for c, d in zip(closes, dates) if c not in (None, 0)]
     if len(closes) < 40:
         return None
 
     fee = fee_bps / 10000.0
-    initial_price = closes[0]
+    initial_price = closes[0][0]
     cash = 0.5
     units = 0.5 / initial_price
     tranche_cash = 1.0 / tranche_count
     anchor_price = initial_price
     trade_count = 0
+    buy_count = 0
+    sell_count = 0
+    win_trades = 0
+    last_buy_price = initial_price
     portfolio_values = [1.0]
+    curve_dates = [closes[0][1]]
 
-    for close in closes[1:]:
+    for close, date in closes[1:]:
         while close <= anchor_price * (1 - step_pct / 100.0) and cash >= tranche_cash * 0.5:
             invest = min(tranche_cash, cash)
             units += (invest * (1 - fee)) / close
             cash -= invest
             anchor_price *= (1 - step_pct / 100.0)
             trade_count += 1
+            buy_count += 1
+            last_buy_price = close
         while close >= anchor_price * (1 + step_pct / 100.0) and units * close >= tranche_cash * 0.5:
             gross_value = min(tranche_cash, units * close)
             sell_units = gross_value / close
@@ -80,15 +93,76 @@ def _run_grid_backtest(price_rows: list[dict], step_pct: float,
             cash += gross_value * (1 - fee)
             anchor_price *= (1 + step_pct / 100.0)
             trade_count += 1
-        portfolio_values.append(cash + units * close)
+            sell_count += 1
+            if close > last_buy_price:
+                win_trades += 1
+        pv = cash + units * close
+        portfolio_values.append(pv)
+        curve_dates.append(date)
 
-    final_value = cash + units * closes[-1]
-    return {
+    final_value = cash + units * closes[-1][0]
+    max_dd = _max_drawdown(portfolio_values)
+    days = len(closes)
+
+    # 日收益率序列
+    daily_returns = []
+    for i in range(1, len(portfolio_values)):
+        if portfolio_values[i - 1] > 0:
+            daily_returns.append(portfolio_values[i] / portfolio_values[i - 1] - 1.0)
+
+    # 年化收益
+    annual_return = None
+    if days > 1:
+        annual_return = round(((final_value) ** (252.0 / days) - 1.0) * 100.0, 2)
+
+    # Sharpe ratio (假设无风险利率 2%)
+    sharpe = None
+    if daily_returns:
+        mean_ret = sum(daily_returns) / len(daily_returns)
+        rf_daily = 0.02 / 252.0
+        variance = sum((r - mean_ret) ** 2 for r in daily_returns) / len(daily_returns)
+        std = math.sqrt(variance) if variance > 0 else 0
+        if std > 0:
+            sharpe = round((mean_ret - rf_daily) / std * math.sqrt(252), 2)
+
+    # Calmar ratio
+    calmar = None
+    if annual_return is not None and max_dd and max_dd > 0:
+        calmar = round(annual_return / max_dd, 2)
+
+    # 胜率
+    win_rate = None
+    total_sell = sell_count
+    if total_sell > 0:
+        win_rate = round(win_trades / total_sell * 100.0, 1)
+
+    result = {
         "step_pct": round(step_pct, 1),
         "return_pct": round((final_value - 1.0) * 100.0, 2),
+        "annual_return_pct": annual_return,
         "trade_count": trade_count,
-        "max_drawdown_pct": _max_drawdown(portfolio_values),
+        "buy_count": buy_count,
+        "sell_count": sell_count,
+        "win_rate": win_rate,
+        "max_drawdown_pct": max_dd,
+        "sharpe": sharpe,
+        "calmar": calmar,
+        "days": days,
     }
+    if full_curve:
+        # 采样净值曲线：最多 60 个点（足够前端画 SVG）
+        step = max(1, len(portfolio_values) // 60)
+        result["curve"] = [
+            {"date": curve_dates[i], "nav": round(portfolio_values[i], 4)}
+            for i in range(0, len(portfolio_values), step)
+        ]
+        # 确保最后一个点
+        if len(portfolio_values) > 1:
+            result["curve"].append({
+                "date": curve_dates[-1],
+                "nav": round(portfolio_values[-1], 4),
+            })
+    return result
 
 
 def _optimize_grid(price_rows: list[dict]) -> Optional[dict]:
@@ -108,6 +182,291 @@ def _optimize_grid(price_rows: list[dict]) -> Optional[dict]:
         )
     )
     return results[0]
+
+
+# ------------------------------------------------------------------
+# 买入持有基准 + 多周期对比
+# ------------------------------------------------------------------
+
+def _buy_hold_stats(price_rows: list[dict]) -> Optional[dict]:
+    """买入持有基准计算：收益率、年化、最大回撤、Sharpe。"""
+    closes = [_safe_float(row.get("close")) for row in price_rows]
+    dates = [row.get("date") for row in price_rows]
+    pairs = [(c, d) for c, d in zip(closes, dates) if c not in (None, 0)]
+    if len(pairs) < 10:
+        return None
+
+    first = pairs[0][0]
+    values = [c / first for c, _ in pairs]
+    final = values[-1]
+    days = len(pairs)
+    max_dd = _max_drawdown(values)
+
+    annual_return = round(((final) ** (252.0 / days) - 1.0) * 100.0, 2)
+
+    daily_returns = []
+    for i in range(1, len(values)):
+        daily_returns.append(values[i] / values[i - 1] - 1.0)
+
+    sharpe = None
+    if daily_returns:
+        mean_ret = sum(daily_returns) / len(daily_returns)
+        rf_daily = 0.02 / 252.0
+        variance = sum((r - mean_ret) ** 2 for r in daily_returns) / len(daily_returns)
+        std = math.sqrt(variance) if variance > 0 else 0
+        if std > 0:
+            sharpe = round((mean_ret - rf_daily) / std * math.sqrt(252), 2)
+
+    calmar = None
+    if max_dd and max_dd > 0:
+        calmar = round(annual_return / max_dd, 2)
+
+    # 采样净值曲线
+    step = max(1, len(values) // 60)
+    curve = [
+        {"date": pairs[i][1], "nav": round(values[i], 4)}
+        for i in range(0, len(values), step)
+    ]
+    if len(values) > 1:
+        curve.append({"date": pairs[-1][1], "nav": round(values[-1], 4)})
+
+    return {
+        "return_pct": round((final - 1.0) * 100.0, 2),
+        "annual_return_pct": annual_return,
+        "max_drawdown_pct": max_dd,
+        "sharpe": sharpe,
+        "calmar": calmar,
+        "days": days,
+        "curve": curve,
+    }
+
+
+def _multi_period_backtest(mkt_conn, code: str) -> list[dict]:
+    """对 60/120/180/250 天窗口分别做最优网格回测。"""
+    windows = [
+        (60, "近60天"),
+        (120, "近120天"),
+        (180, "近半年"),
+        (250, "近一年"),
+    ]
+    results = []
+    for limit, label in windows:
+        rows = _load_price_rows(mkt_conn, code, limit)
+        if len(rows) < 40:
+            results.append({"window": label, "days": len(rows), "best": None, "buy_hold": None})
+            continue
+        best = _optimize_grid(rows)
+        bh = _buy_hold_stats(rows)
+        if best:
+            best["window"] = label
+        results.append({
+            "window": label,
+            "days": len(rows),
+            "best": best,
+            "buy_hold": bh,
+        })
+    return results
+
+
+def analyze_etf_deep(conn, mkt_conn, code: str) -> Optional[dict]:
+    """单只 ETF 深度量化分析。
+
+    返回:
+    - info: 基本信息 + 当前技术状态
+    - all_steps: 9 个步长的完整回测数据
+    - best_step: 最优步长（按综合排名）
+    - buy_hold: 买入持有基准
+    - best_curve / bh_curve: 最优策略 vs 买入持有的净值曲线
+    - multi_period: 不同窗口下的最优策略对比
+    - verdict: 量化基金经理视角的结论
+    """
+    # 获取 ETF 基础信息
+    etf_row = conn.execute(
+        "SELECT code, name, category FROM dim_asset_universe "
+        "WHERE code = ? AND asset_type = 'etf'",
+        (code,),
+    ).fetchone()
+    if not etf_row:
+        return None
+
+    # 加载 K 线（最多 250 天用于深度分析）
+    price_rows = _load_price_rows(mkt_conn, code, 250)
+    if len(price_rows) < 40:
+        return None
+
+    # 计算 ETF 动量指标（单只）
+    all_etfs = calc_etf_momentum(conn, mkt_conn)
+    etf_info = None
+    for row in all_etfs:
+        if row.get("code") == code:
+            etf_info = row
+            break
+    if not etf_info:
+        etf_info = {"code": code, "name": dict(etf_row).get("name"), "category": dict(etf_row).get("category")}
+
+    # 1) 全部 9 个步长的回测
+    step_candidates = [0.8, 1.2, 1.6, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5]
+    all_steps = []
+    for step in step_candidates:
+        bt = _run_grid_backtest(price_rows, step, full_curve=False)
+        if bt:
+            all_steps.append(bt)
+
+    # 2) 找最优步长（综合排名: 收益 40% + Sharpe 30% + 最大回撤逆序 30%）
+    best_step_result = None
+    if all_steps:
+        ranked = list(all_steps)
+        n = len(ranked)
+        # 分项排名
+        by_return = sorted(range(n), key=lambda i: -(ranked[i].get("return_pct") or -999))
+        by_sharpe = sorted(range(n), key=lambda i: -(ranked[i].get("sharpe") or -999))
+        by_dd = sorted(range(n), key=lambda i: ranked[i].get("max_drawdown_pct") or 999)
+        ranks = {}
+        for order, indices in [(by_return, 0.4), (by_sharpe, 0.3), (by_dd, 0.3)]:
+            for rank, idx in enumerate(order):
+                ranks.setdefault(idx, 0.0)
+                ranks[idx] += rank * indices
+        best_idx = min(ranks, key=ranks.get)
+        best_step_result = ranked[best_idx]
+
+    # 3) 最优步长的完整净值曲线
+    best_curve_result = None
+    if best_step_result:
+        best_curve_result = _run_grid_backtest(
+            price_rows, best_step_result["step_pct"], full_curve=True
+        )
+
+    # 4) 买入持有基准
+    bh = _buy_hold_stats(price_rows)
+
+    # 5) 多周期对比
+    multi_period = _multi_period_backtest(mkt_conn, code)
+
+    # 6) 量化基金经理视角结论
+    verdict = _build_verdict(etf_info, best_step_result, bh, all_steps, multi_period)
+
+    return {
+        "info": {
+            "code": etf_info.get("code"),
+            "name": etf_info.get("name"),
+            "category": etf_info.get("category"),
+            "setup_state": etf_info.get("setup_state"),
+            "strategy_type": etf_info.get("strategy_type"),
+            "grid_score": etf_info.get("grid_score"),
+            "volatility_20d": etf_info.get("volatility_20d"),
+            "momentum_20d": etf_info.get("momentum_20d"),
+            "momentum_60d": etf_info.get("momentum_60d"),
+            "max_drawdown_60d": etf_info.get("max_drawdown_60d"),
+            "rotation_bucket": etf_info.get("rotation_bucket"),
+            "relative_strength_4w": etf_info.get("relative_strength_4w"),
+            "relative_strength_12w": etf_info.get("relative_strength_12w"),
+        },
+        "all_steps": all_steps,
+        "best_step": best_curve_result or best_step_result,
+        "buy_hold": bh,
+        "multi_period": multi_period,
+        "verdict": verdict,
+    }
+
+
+def _build_verdict(info: dict, best: Optional[dict], bh: Optional[dict],
+                   all_steps: list, multi_period: list) -> dict:
+    """基于回测数据生成量化基金经理视角的投资结论。"""
+    lines = []
+    strategy = info.get("strategy_type") or "观察池"
+    setup = info.get("setup_state") or "待补结构"
+    name = info.get("name") or info.get("code") or "-"
+
+    # 策略适配性
+    if strategy == "网格候选":
+        lines.append(f"{name} 波动特征适合网格交易，振幅和波动率处于网格策略甜蜜区。")
+    elif strategy == "趋势持有":
+        lines.append(f"{name} 处于趋势上行通道，建议持有为主，不宜频繁做网格。")
+    elif strategy == "暂不参与":
+        lines.append(f"{name} 结构偏弱，建议回避等待趋势修复后再介入。")
+    else:
+        lines.append(f"{name} 当前处于 {strategy} 状态。")
+
+    # 最优步长 vs 买入持有
+    if best and bh:
+        grid_ret = best.get("return_pct") or 0
+        bh_ret = bh.get("return_pct") or 0
+        excess = round(grid_ret - bh_ret, 2)
+        if excess > 2:
+            lines.append(f"最优网格步长 {best.get('step_pct')}% 回测超额收益 +{excess}%，网格策略显著优于买入持有。")
+        elif excess > 0:
+            lines.append(f"最优网格步长 {best.get('step_pct')}% 小幅跑赢买入持有 {excess}%，波段增强效果温和。")
+        else:
+            lines.append(f"网格策略回测未能跑赢买入持有（差 {excess}%），此标的更适合趋势跟随而非区间震荡。")
+
+        grid_dd = best.get("max_drawdown_pct") or 0
+        bh_dd = bh.get("max_drawdown_pct") or 0
+        if bh_dd > 0 and grid_dd < bh_dd * 0.8:
+            lines.append(f"网格策略最大回撤 {grid_dd}% 显著低于持有的 {bh_dd}%，风控效果好。")
+
+        grid_sharpe = best.get("sharpe")
+        bh_sharpe = bh.get("sharpe")
+        if grid_sharpe is not None and bh_sharpe is not None:
+            if grid_sharpe > bh_sharpe:
+                lines.append(f"网格 Sharpe {grid_sharpe} > 持有 Sharpe {bh_sharpe}，风险调整后收益更优。")
+
+    # 步长敏感性
+    if len(all_steps) >= 3:
+        returns = [s.get("return_pct") or 0 for s in all_steps]
+        spread = max(returns) - min(returns)
+        if spread < 3:
+            lines.append("不同步长之间收益差异小，策略对参数不敏感，鲁棒性好。")
+        elif spread > 10:
+            lines.append("步长选择对收益影响大，建议严格使用最优步长，避免偏离。")
+
+    # 多周期一致性
+    consistent_windows = 0
+    for period in multi_period:
+        pb = period.get("best")
+        pbh = period.get("buy_hold")
+        if pb and pbh and (pb.get("return_pct") or 0) > (pbh.get("return_pct") or 0):
+            consistent_windows += 1
+    if multi_period:
+        ratio = consistent_windows / len(multi_period)
+        if ratio >= 0.75:
+            lines.append(f"网格策略在 {consistent_windows}/{len(multi_period)} 个时间窗口跑赢持有，跨周期稳定性优秀。")
+        elif ratio >= 0.5:
+            lines.append(f"网格策略在 {consistent_windows}/{len(multi_period)} 个窗口跑赢，稳定性尚可。")
+        else:
+            lines.append(f"仅在 {consistent_windows}/{len(multi_period)} 个窗口跑赢持有，策略一致性不佳。")
+
+    # 最终评级
+    rating = "中性"
+    if best:
+        score = 0
+        if (best.get("sharpe") or 0) > 1.0:
+            score += 2
+        elif (best.get("sharpe") or 0) > 0.5:
+            score += 1
+        if (best.get("return_pct") or 0) > 5:
+            score += 2
+        elif (best.get("return_pct") or 0) > 0:
+            score += 1
+        if (best.get("max_drawdown_pct") or 99) < 5:
+            score += 2
+        elif (best.get("max_drawdown_pct") or 99) < 10:
+            score += 1
+        if (best.get("win_rate") or 0) > 60:
+            score += 1
+        if score >= 6:
+            rating = "强烈推荐"
+        elif score >= 4:
+            rating = "推荐"
+        elif score >= 2:
+            rating = "中性"
+        else:
+            rating = "谨慎"
+
+    return {
+        "rating": rating,
+        "summary": "；".join(lines) if lines else "数据不足以给出完整结论。",
+        "lines": lines,
+    }
 
 
 def _trend_action(row: Dict) -> dict:

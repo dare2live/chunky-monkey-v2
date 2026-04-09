@@ -4676,7 +4676,7 @@
       var strategyTone = etfStrategyTone(e.strategy_type);
       var setupTone = etfSetupTone(e.setup_state);
       var rotationText = e.rotation_score != null ? etfNum(e.rotation_score, 1) + (e.rotation_bucket === 'leader' ? ' · 前排' : e.rotation_bucket === 'blacklist' ? ' · 回避' : '') : '-';
-      return '<tr>' +
+      return '<tr style="cursor:pointer" data-etf-code="' + esc(e.code) + '">' +
         '<td>' + esc(e.code) + '</td>' +
         '<td>' + esc(e.name) + '</td>' +
         '<td><span style="padding:2px 8px;border-radius:999px;background:' + catColor + '14;color:' + catColor + ';font-size:11px;font-weight:600">' + esc(e.category) + '</span></td>' +
@@ -4689,7 +4689,13 @@
         '<td style="color:' + trendColor + '">' + esc(e.trend_status) + '</td>' +
         '</tr>';
     }).join('');
-    c.innerHTML = head + body + '</tbody></table>';
+    c.innerHTML = head + body + '</tbody></table><div id="etfListAnalysisPanel"></div>';
+    // 点击行打开深度分析
+    c.querySelectorAll('tr[data-etf-code]').forEach(function (row) {
+      row.addEventListener('click', function () {
+        loadEtfDeepAnalysis(row.dataset.etfCode, 'etfListAnalysisPanel');
+      });
+    });
   }
 
   async function loadEtfMining() {
@@ -4703,11 +4709,11 @@
     }
     var d = r.data || {};
 
-    function miningRow(title, sub, tone) {
+    function miningRow(title, sub, tone, extra) {
       var palette = tone || { bg: '#eff6ff', fg: '#1d4ed8' };
-      return '<div style="padding:8px 10px;border-radius:10px;background:' + palette.bg + ';color:' + palette.fg + ';margin-bottom:8px">' +
+      return '<div style="padding:8px 10px;border-radius:10px;background:' + palette.bg + ';color:' + palette.fg + ';margin-bottom:8px;' + (extra?.cursor ? 'cursor:pointer' : '') + '"' + (extra?.attr || '') + '>' +
         '<div style="font-weight:700;font-size:12px">' + esc(title) + '</div>' +
-        (sub ? '<div style="font-size:11px;line-height:1.6;margin-top:4px">' + esc(sub) + '</div>' : '') +
+        (sub ? '<div style="font-size:11px;line-height:1.6;margin-top:4px">' + sub + '</div>' : '') +
         '</div>';
     }
 
@@ -4715,8 +4721,10 @@
       ? d.grid_candidates.map(function (item) {
         return miningRow(
           (item.name || item.code || '-') + ' · 最优步长 ' + scoreNum(item.best_step_pct) + '%',
-          '120-180日回测 ' + signedPct(item.backtest_return_pct) + ' · 交易 ' + fmt(item.backtest_trade_count || 0) + ' 次 · 最大回撤 ' + pct(item.backtest_max_drawdown_pct),
-          { bg: '#dbeafe', fg: '#1d4ed8' }
+          esc('120-180日回测 ' + signedPct(item.backtest_return_pct) + ' · 交易 ' + fmt(item.backtest_trade_count || 0) + ' 次 · 最大回撤 ' + pct(item.backtest_max_drawdown_pct)) +
+          ' <span style="margin-left:6px;font-size:10px;opacity:0.7">▶ 点击查看深度分析</span>',
+          { bg: '#dbeafe', fg: '#1d4ed8' },
+          { cursor: true, attr: ' data-etf-analyze="' + esc(item.code) + '"' }
         );
       }).join('')
       : '<div class="muted" style="font-size:12px">暂无可用的网格候选。</div>';
@@ -4725,8 +4733,10 @@
       ? d.trend_candidates.map(function (item) {
         return miningRow(
           (item.name || item.code || '-') + ' · ' + (item.action || '观察'),
-          '相强 4周 ' + signedPct(item.relative_strength_4w) + ' / 12周 ' + signedPct(item.relative_strength_12w) + ' · ' + (item.reason || '-'),
-          { bg: '#dcfce7', fg: '#166534' }
+          esc('相强 4周 ' + signedPct(item.relative_strength_4w) + ' / 12周 ' + signedPct(item.relative_strength_12w) + ' · ' + (item.reason || '-')) +
+          ' <span style="margin-left:6px;font-size:10px;opacity:0.7">▶ 深度分析</span>',
+          { bg: '#dcfce7', fg: '#166534' },
+          { cursor: true, attr: ' data-etf-analyze="' + esc(item.code) + '"' }
         );
       }).join('')
       : '<div class="muted" style="font-size:12px">暂无明确的趋势持有候选。</div>';
@@ -4735,8 +4745,7 @@
       ? d.next_rotation_watchlist.map(function (item) {
         return miningRow(
           (item.sector_name || '-') + ' · 预轮动 ' + scoreNum(item.next_rotation_score),
-          'Qlib均分位 ' + scoreNum(item.avg_qlib_percentile) + ' · 高置信股票 ' + fmt(item.high_conviction_count || 0) + ' · 当前 ' + (item.rotation_bucket || '观察'),
-          { bg: '#fef3c7', fg: '#b45309' }
+          esc('Qlib均分位 ' + scoreNum(item.avg_qlib_percentile) + ' · 高置信股票 ' + fmt(item.high_conviction_count || 0) + ' · 当前 ' + (item.rotation_bucket || '观察'))
         );
       }).join('')
       : '<div class="muted" style="font-size:12px">暂无可用的 Qlib 预轮动行业名单。</div>';
@@ -4748,7 +4757,220 @@
     box.innerHTML =
       '<div style="margin-bottom:12px"><div style="font-weight:700;margin-bottom:6px">网格候选</div>' + gridHtml + '</div>' +
       '<div style="margin-bottom:12px"><div style="font-weight:700;margin-bottom:6px">趋势持有建议</div>' + trendHtml + '</div>' +
-      '<div><div style="font-weight:700;margin-bottom:6px">Qlib 预轮动行业</div>' + rotationHtml + modelNote + '</div>';
+      '<div><div style="font-weight:700;margin-bottom:6px">Qlib 预轮动行业</div>' + rotationHtml + modelNote + '</div>' +
+      '<div id="etfDeepAnalysisPanel"></div>';
+
+    // 绑定点击事件
+    box.querySelectorAll('[data-etf-analyze]').forEach(function (el) {
+      el.addEventListener('click', function () { loadEtfDeepAnalysis(el.dataset.etfAnalyze); });
+    });
+  }
+
+  // ============================================================
+  // ETF 深度量化分析面板
+  // ============================================================
+  async function loadEtfDeepAnalysis(code, panelId) {
+    panelId = panelId || 'etfDeepAnalysisPanel';
+    var panel = el(panelId);
+    if (!panel) return;
+    panel.innerHTML = '<div class="panel" style="margin-top:14px"><div class="muted" style="padding:20px;text-align:center">加载 ' + esc(code) + ' 深度分析中...</div></div>';
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    var r = await api('/api/etf/analysis/' + encodeURIComponent(code));
+    if (r?.status !== 'ok' || !r?.data) {
+      panel.innerHTML = '<div class="panel" style="margin-top:14px"><div class="muted" style="padding:20px;text-align:center">分析失败: ' + esc(r?.message || r?.detail || '未知错误') + '</div></div>';
+      return;
+    }
+    var d = r.data;
+    var info = d.info || {};
+    var verdict = d.verdict || {};
+    var best = d.best_step || {};
+    var bh = d.buy_hold || {};
+
+    // --- 1. 头部信息卡 ---
+    var ratingColors = { '强烈推荐': { bg: '#dcfce7', fg: '#166534' }, '推荐': { bg: '#dbeafe', fg: '#1d4ed8' }, '中性': { bg: '#fef3c7', fg: '#b45309' }, '谨慎': { bg: '#fee2e2', fg: '#991b1b' } };
+    var rc = ratingColors[verdict.rating] || ratingColors['中性'];
+    var headerHtml =
+      '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px">' +
+      '<div style="font-weight:700;font-size:16px">' + esc(info.name || code) + ' <span class="muted" style="font-size:12px;font-weight:400">' + esc(code) + '</span></div>' +
+      '<span style="padding:3px 12px;border-radius:var(--radius-pill);background:' + rc.bg + ';color:' + rc.fg + ';font-size:12px;font-weight:700">' + esc(verdict.rating || '分析中') + '</span>' +
+      (info.strategy_type ? '<span style="padding:2px 8px;border-radius:var(--radius-pill);background:var(--primary-light);color:var(--primary);font-size:11px;font-weight:600">' + esc(info.strategy_type) + '</span>' : '') +
+      (info.setup_state ? '<span style="padding:2px 8px;border-radius:var(--radius-pill);background:var(--line-light);color:var(--text-2);font-size:11px;font-weight:600">' + esc(info.setup_state) + '</span>' : '') +
+      '</div>';
+
+    // --- 2. 核心指标对比卡 ---
+    function metricCard(label, gridVal, bhVal, unit, better) {
+      var gv = gridVal != null ? (typeof gridVal === 'number' ? gridVal.toFixed(2) : gridVal) : '-';
+      var bv = bhVal != null ? (typeof bhVal === 'number' ? bhVal.toFixed(2) : bhVal) : '-';
+      var gColor = 'var(--text)';
+      var bColor = 'var(--text)';
+      if (better === 'higher' && gridVal != null && bhVal != null) {
+        gColor = gridVal >= bhVal ? 'var(--success)' : 'var(--muted)';
+        bColor = bhVal >= gridVal ? 'var(--success)' : 'var(--muted)';
+      } else if (better === 'lower' && gridVal != null && bhVal != null) {
+        gColor = gridVal <= bhVal ? 'var(--success)' : 'var(--danger)';
+        bColor = bhVal <= gridVal ? 'var(--success)' : 'var(--danger)';
+      }
+      return '<div style="text-align:center;min-width:100px">' +
+        '<div class="muted" style="font-size:10px;margin-bottom:4px">' + esc(label) + '</div>' +
+        '<div style="font-size:14px;font-weight:700;color:' + gColor + '">' + gv + (unit || '') + '</div>' +
+        '<div style="font-size:11px;color:' + bColor + '">' + bv + (unit || '') + '</div>' +
+        '</div>';
+    }
+
+    var comparisonHtml =
+      '<div style="margin-bottom:14px">' +
+      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">' +
+      '<span style="font-weight:600;font-size:13px">核心指标对比</span>' +
+      '<span style="padding:2px 8px;border-radius:var(--radius-pill);background:#dbeafe;color:#1d4ed8;font-size:10px;font-weight:600">网格 ' + (best.step_pct || '-') + '%</span>' +
+      '<span style="padding:2px 8px;border-radius:var(--radius-pill);background:var(--line-light);color:var(--text-2);font-size:10px;font-weight:600">买入持有</span>' +
+      '</div>' +
+      '<div style="display:flex;gap:4px;flex-wrap:wrap;padding:12px;background:var(--bg-subtle);border-radius:var(--radius);border:1px solid var(--line)">' +
+      metricCard('总收益', best.return_pct, bh.return_pct, '%', 'higher') +
+      metricCard('年化收益', best.annual_return_pct, bh.annual_return_pct, '%', 'higher') +
+      metricCard('最大回撤', best.max_drawdown_pct, bh.max_drawdown_pct, '%', 'lower') +
+      metricCard('Sharpe', best.sharpe, bh.sharpe, '', 'higher') +
+      metricCard('Calmar', best.calmar, bh.calmar, '', 'higher') +
+      metricCard('胜率', best.win_rate, null, '%', null) +
+      metricCard('交易次数', best.trade_count, null, '', null) +
+      metricCard('回测天数', best.days, bh.days, '天', null) +
+      '</div></div>';
+
+    // --- 3. 全步长对比表 ---
+    var stepsHtml = '';
+    if (d.all_steps && d.all_steps.length) {
+      var bestStep = best.step_pct;
+      stepsHtml = '<div style="margin-bottom:14px">' +
+        '<div style="font-weight:600;font-size:13px;margin-bottom:8px">全步长回测对比</div>' +
+        '<div style="overflow-x:auto"><table class="data-table" style="font-size:11px"><thead><tr>' +
+        '<th>步长</th><th>总收益</th><th>年化</th><th>最大回撤</th><th>Sharpe</th><th>Calmar</th><th>胜率</th><th>买卖次数</th>' +
+        '</tr></thead><tbody>';
+      d.all_steps.forEach(function (s) {
+        var isBest = s.step_pct === bestStep;
+        var rowStyle = isBest ? 'background:var(--primary-light);font-weight:600' : '';
+        stepsHtml += '<tr style="' + rowStyle + '">' +
+          '<td>' + s.step_pct + '%' + (isBest ? ' ★' : '') + '</td>' +
+          '<td style="color:' + (s.return_pct >= 0 ? 'var(--danger)' : 'var(--success)') + '">' + signedPct(s.return_pct) + '</td>' +
+          '<td>' + (s.annual_return_pct != null ? s.annual_return_pct.toFixed(1) + '%' : '-') + '</td>' +
+          '<td>' + (s.max_drawdown_pct != null ? s.max_drawdown_pct.toFixed(2) + '%' : '-') + '</td>' +
+          '<td>' + (s.sharpe != null ? s.sharpe.toFixed(2) : '-') + '</td>' +
+          '<td>' + (s.calmar != null ? s.calmar.toFixed(1) : '-') + '</td>' +
+          '<td>' + (s.win_rate != null ? s.win_rate.toFixed(0) + '%' : '-') + '</td>' +
+          '<td>' + (s.buy_count || 0) + '买 / ' + (s.sell_count || 0) + '卖</td>' +
+          '</tr>';
+      });
+      stepsHtml += '</tbody></table></div></div>';
+    }
+
+    // --- 4. 净值曲线 SVG ---
+    var curveHtml = '';
+    if (best.curve && best.curve.length > 2 && bh.curve && bh.curve.length > 2) {
+      curveHtml = '<div style="margin-bottom:14px">' +
+        '<div style="font-weight:600;font-size:13px;margin-bottom:8px">净值走势对比</div>' +
+        _buildNavCurveSvg(best.curve, bh.curve, best.step_pct) +
+        '</div>';
+    }
+
+    // --- 5. 多周期稳定性 ---
+    var periodHtml = '';
+    if (d.multi_period && d.multi_period.length) {
+      periodHtml = '<div style="margin-bottom:14px">' +
+        '<div style="font-weight:600;font-size:13px;margin-bottom:8px">多周期稳定性检验</div>' +
+        '<div style="overflow-x:auto"><table class="data-table" style="font-size:11px"><thead><tr>' +
+        '<th>窗口</th><th>天数</th><th>网格收益</th><th>持有收益</th><th>超额</th><th>网格DD</th><th>持有DD</th><th>最优步长</th>' +
+        '</tr></thead><tbody>';
+      d.multi_period.forEach(function (p) {
+        var gb = p.best;
+        var pbh = p.buy_hold;
+        var gridR = gb ? gb.return_pct : null;
+        var bhR = pbh ? pbh.return_pct : null;
+        var excess = (gridR != null && bhR != null) ? (gridR - bhR).toFixed(2) : '-';
+        var excessColor = excess !== '-' ? (parseFloat(excess) >= 0 ? 'var(--danger)' : 'var(--success)') : 'var(--muted)';
+        periodHtml += '<tr>' +
+          '<td style="font-weight:600">' + esc(p.window) + '</td>' +
+          '<td>' + p.days + '</td>' +
+          '<td style="color:' + ((gridR || 0) >= 0 ? 'var(--danger)' : 'var(--success)') + '">' + (gridR != null ? signedPct(gridR) : '-') + '</td>' +
+          '<td style="color:' + ((bhR || 0) >= 0 ? 'var(--danger)' : 'var(--success)') + '">' + (bhR != null ? signedPct(bhR) : '-') + '</td>' +
+          '<td style="color:' + excessColor + ';font-weight:600">' + (excess !== '-' ? (parseFloat(excess) >= 0 ? '+' : '') + excess + '%' : '-') + '</td>' +
+          '<td>' + (gb ? (gb.max_drawdown_pct != null ? gb.max_drawdown_pct.toFixed(2) + '%' : '-') : '-') + '</td>' +
+          '<td>' + (pbh ? (pbh.max_drawdown_pct != null ? pbh.max_drawdown_pct.toFixed(2) + '%' : '-') : '-') + '</td>' +
+          '<td>' + (gb ? gb.step_pct + '%' : '-') + '</td>' +
+          '</tr>';
+      });
+      periodHtml += '</tbody></table></div></div>';
+    }
+
+    // --- 6. 量化结论 ---
+    var verdictHtml = '';
+    if (verdict.lines && verdict.lines.length) {
+      verdictHtml = '<div style="padding:12px 14px;background:' + rc.bg + ';border-radius:var(--radius);border:1px solid ' + rc.fg + '22">' +
+        '<div style="font-weight:700;font-size:13px;margin-bottom:6px;color:' + rc.fg + '">量化基金经理结论 · ' + esc(verdict.rating) + '</div>' +
+        verdict.lines.map(function (line) {
+          return '<div style="font-size:12px;line-height:1.7;color:' + rc.fg + '">· ' + esc(line) + '</div>';
+        }).join('') +
+        '</div>';
+    }
+
+    panel.innerHTML = '<div class="panel" style="margin-top:14px">' +
+      '<div class="panel-head" style="justify-content:space-between">' +
+      '<span style="font-weight:600">深度量化分析</span>' +
+      '<button class="btn-text" onclick="document.getElementById(\'' + panelId + '\').innerHTML=\'\'">关闭</button>' +
+      '</div>' +
+      headerHtml + comparisonHtml + curveHtml + stepsHtml + periodHtml + verdictHtml +
+      '</div>';
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // 净值曲线 SVG 生成（网格 vs 买入持有）
+  function _buildNavCurveSvg(gridCurve, bhCurve, stepPct) {
+    var W = 580, H = 200, padL = 50, padR = 20, padT = 20, padB = 30;
+    var plotW = W - padL - padR, plotH = H - padT - padB;
+
+    // 合并日期，找公共范围
+    var allNavs = gridCurve.map(function (p) { return p.nav; }).concat(bhCurve.map(function (p) { return p.nav; }));
+    var minNav = Math.min.apply(null, allNavs) * 0.98;
+    var maxNav = Math.max.apply(null, allNavs) * 1.02;
+    if (maxNav <= minNav) maxNav = minNav + 0.01;
+
+    function toPath(curve, color) {
+      if (!curve.length) return '';
+      var pts = curve.map(function (p, i) {
+        var x = padL + (i / (curve.length - 1)) * plotW;
+        var y = padT + plotH - ((p.nav - minNav) / (maxNav - minNav)) * plotH;
+        return (i === 0 ? 'M' : 'L') + x.toFixed(1) + ',' + y.toFixed(1);
+      }).join(' ');
+      return '<path d="' + pts + '" fill="none" stroke="' + color + '" stroke-width="2" stroke-linejoin="round"/>';
+    }
+
+    // Y 轴刻度
+    var yTicks = 5;
+    var yLines = '';
+    for (var i = 0; i <= yTicks; i++) {
+      var val = minNav + (maxNav - minNav) * (i / yTicks);
+      var y = padT + plotH - (i / yTicks) * plotH;
+      yLines += '<line x1="' + padL + '" y1="' + y.toFixed(1) + '" x2="' + (W - padR) + '" y2="' + y.toFixed(1) + '" stroke="var(--line)" stroke-width="0.5" stroke-dasharray="3,3"/>';
+      yLines += '<text x="' + (padL - 4) + '" y="' + (y + 3).toFixed(1) + '" text-anchor="end" font-size="10" fill="var(--muted)">' + val.toFixed(2) + '</text>';
+    }
+
+    // X 轴日期标签（首尾 + 中间）
+    var xLabels = '';
+    [gridCurve[0], gridCurve[Math.floor(gridCurve.length / 2)], gridCurve[gridCurve.length - 1]].forEach(function (p, i) {
+      if (!p) return;
+      var x = padL + ([0, 0.5, 1][i]) * plotW;
+      xLabels += '<text x="' + x.toFixed(1) + '" y="' + (H - 4) + '" text-anchor="middle" font-size="10" fill="var(--muted)">' + (p.date || '').slice(0, 10) + '</text>';
+    });
+
+    // 图例
+    var legend =
+      '<text x="' + (padL + 8) + '" y="' + (padT + 14) + '" font-size="11" fill="#3b82f6" font-weight="600">— 网格 ' + stepPct + '%</text>' +
+      '<text x="' + (padL + 120) + '" y="' + (padT + 14) + '" font-size="11" fill="#94a3b8" font-weight="600">— 买入持有</text>';
+
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;max-width:' + W + 'px;height:auto;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-sm)">' +
+      yLines + xLabels +
+      toPath(bhCurve, '#94a3b8') +
+      toPath(gridCurve, '#3b82f6') +
+      legend +
+      '</svg>';
   }
 
   // 轮动预测 Top 5 — SVG 条形图
