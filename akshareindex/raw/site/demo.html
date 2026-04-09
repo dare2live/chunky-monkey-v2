@@ -1,0 +1,701 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="./">
+<head>
+  <meta charset="utf-8" />
+  <meta name="readthedocs-addons-api-version" content="1"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AKShare 策略示例 &mdash; AKShare 1.18.40 文档</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments%EF%B9%96v=b86133f3.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme%EF%B9%96v=9edc463e.css" />
+
+  
+      <script src="https://akshare.akfamily.xyz/_static/jquery.js?v=5d32c60e"></script>
+      <script src="https://akshare.akfamily.xyz/_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="https://akshare.akfamily.xyz/_static/documentation_options.js?v=5dffd886"></script>
+      <script src="https://akshare.akfamily.xyz/_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="https://akshare.akfamily.xyz/_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="https://akshare.akfamily.xyz/_static/translations.js?v=540d3cec"></script>
+    <script src="https://akshare.akfamily.xyz/_static/js/theme.js"></script>
+    <script src="https://akshare.akfamily.xyz/_static/js/versions.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="搜索" href="search.html" />
+    <link rel="next" title="AKShare 版本更新" href="changelog.html" />
+    <link rel="prev" title="AKShare 量化专题" href="platform.html" /> 
+<script async type="text/javascript" src="https://akshare.akfamily.xyz/_/static/javascript/readthedocs-addons.js"></script><meta name="readthedocs-project-slug" content="akshare" /><meta name="readthedocs-version-slug" content="latest" /><meta name="readthedocs-resolver-filename" content="/demo.html" /><meta name="readthedocs-http-status" content="200" /></head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            AKShare
+          </a>
+              <div class="switch-menus">
+                <div class="version-switch"></div>
+                <div class="language-switch"></div>
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Table of contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">AKShare 项目概览</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">AKShare 安装指导</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data/index.html">AKShare 数据字典</a></li>
+<li class="toctree-l1"><a class="reference internal" href="indicator.html">AKShare 指标计算</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_tips.html">AKShare 数据说明</a></li>
+<li class="toctree-l1"><a class="reference internal" href="trade.html">AKShare 实盘交易</a></li>
+<li class="toctree-l1"><a class="reference internal" href="answer.html">AKShare 答疑专栏</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">AKShare 快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="articles.html">AKShare 相关文章</a></li>
+<li class="toctree-l1"><a class="reference internal" href="anaconda.html">AKShare 环境配置</a></li>
+<li class="toctree-l1"><a class="reference internal" href="platform.html">AKShare 量化专题</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">AKShare 策略示例</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#akquant">AKQuant 介绍（强烈推荐）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">AKQuant 安装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">AKQuant 教程</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">AKQuant 策略示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pybroker">PyBroker 介绍</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">PyBroker 安装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">PyBroker 系列教程</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">PyBroker 策略示例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#backtrader">Backtrader 介绍</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Backtrader 下载和安装</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">Backtrader 系列教程</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">Backtrader 策略教程</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id10">基本策略</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id11">代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id12">结果</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id13">可视化</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id14">参数优化</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id15">代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id16">结果</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">AKShare 版本更新</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">AKShare 贡献源码</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dependency.html">AKShare 依赖说明</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy_http.html">AKShare HTTP 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="akdocker/akdocker.html">AKShare Docker 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="special.html">AKShare 特别说明</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">AKShare</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">AKShare 策略示例</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/demo.md" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="akshare">
+<h1><a class="reference external" href="https://github.com/akfamily/akshare">AKShare</a> 策略示例<a class="headerlink" href="#akshare" title="链接到此标题。"></a></h1>
+<p>本策略示例文档的主要目的是为了方便的展示 <a class="reference external" href="https://github.com/akfamily/akshare">AKShare</a> 的数据接口
+调用、基本的数据处理和回测框架使用，并不涉及任何投资建议，提供的示例代码也仅供参考。</p>
+<p>本策略示例是基于 Python 编程语言的开源投研和交易框架 <a class="reference external" href="https://www.pybroker.com">PyBroker</a> 和
+<a class="reference external" href="https://www.backtrader.com">Backtrader</a> 来演示！
+注意：本教程的开发是基于：Python (64 位) 3.12.4 来进行的</p>
+<section id="akquant">
+<h2>AKQuant 介绍（强烈推荐）<a class="headerlink" href="#akquant" title="链接到此标题。"></a></h2>
+<p>AKQuant 是一款专为量化投研 (Quantitative Research) 打造的高性能混合架构引擎。它以
+Rust 铸造极速撮合内核，以 Python 链接数据与 AI 生态，旨在为量化投资者提供可靠高效的解决方案。
+它超越了传统工具的范畴，将<strong>事件驱动</strong>、<strong>机器学习</strong>与<strong>生产级风控</strong>深度融合，让量化交易不再受限于计算性能，专注于策略本身的逻辑与价值。</p>
+</section>
+<section id="id1">
+<h2>AKQuant 安装<a class="headerlink" href="#id1" title="链接到此标题。"></a></h2>
+<p>AKQuant 支持在 Windows、macOS 和 Linux 中的 Python 3.10（建议使用 Python 3.13）及以上版本使用。其安装非常简单，
+只需要 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">akquant</span></code> 就可以实现一键安装。</p>
+</section>
+<section id="id2">
+<h2>AKQuant 教程<a class="headerlink" href="#id2" title="链接到此标题。"></a></h2>
+<p>AKShare 拥有最齐全的量化投研和使用文档，请访问：<a class="reference external" href="https://akquant.akfamily.xyz">AKQuant</a></p>
+</section>
+<section id="id3">
+<h2>AKQuant 策略示例<a class="headerlink" href="#id3" title="链接到此标题。"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akquant</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">aq</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">akquant</span><span class="w"> </span><span class="kn">import</span> <span class="n">Strategy</span>
+
+<span class="c1"># 1. 准备数据</span>
+<span class="c1"># 使用 akshare 获取 A 股历史数据 (需安装: pip install akshare)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">stock_zh_a_daily</span><span class="p">(</span><span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;sh600000&quot;</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="s2">&quot;20230101&quot;</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="s2">&quot;20231231&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyStrategy</span><span class="p">(</span><span class="n">Strategy</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_bar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bar</span><span class="p">):</span>
+        <span class="c1"># 简单策略示例:</span>
+        <span class="c1"># 当收盘价 &gt; 开盘价 (阳线) -&gt; 买入</span>
+        <span class="c1"># 当收盘价 &lt; 开盘价 (阴线) -&gt; 卖出</span>
+
+        <span class="c1"># 获取当前持仓</span>
+        <span class="n">current_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_position</span><span class="p">(</span><span class="n">bar</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">current_pos</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">bar</span><span class="o">.</span><span class="n">close</span> <span class="o">&gt;</span> <span class="n">bar</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buy</span><span class="p">(</span><span class="n">bar</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">bar</span><span class="o">.</span><span class="n">timestamp_str</span><span class="si">}</span><span class="s2">] Buy 100 at </span><span class="si">{</span><span class="n">bar</span><span class="o">.</span><span class="n">close</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">current_pos</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">bar</span><span class="o">.</span><span class="n">close</span> <span class="o">&lt;</span> <span class="n">bar</span><span class="o">.</span><span class="n">open</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">close_position</span><span class="p">(</span><span class="n">bar</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">bar</span><span class="o">.</span><span class="n">timestamp_str</span><span class="si">}</span><span class="s2">] Sell 100 at </span><span class="si">{</span><span class="n">bar</span><span class="o">.</span><span class="n">close</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># 运行回测</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">aq</span><span class="o">.</span><span class="n">run_backtest</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">strategy</span><span class="o">=</span><span class="n">MyStrategy</span><span class="p">,</span>
+    <span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;sh600000&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># 打印回测结果</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== Backtest Result ===&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">metrics_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>运行结果示例:</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>=== Backtest Result ===
+                                            value
+name                                             
+start_time              2023-01-03 00:00:00+08:00
+end_time                2023-12-29 00:00:00+08:00
+duration                        360 days, 0:00:00
+total_bars                                    242
+trade_count                                  56.0
+initial_market_value                    1000000.0
+end_market_value                     999433.06461
+total_pnl                                    17.0
+unrealized_pnl                                2.0
+total_return_pct                        -0.056694
+annualized_return                       -0.000575
+volatility                               0.000091
+total_profit                                175.0
+total_loss                                 -158.0
+total_commission                        585.93539
+max_drawdown                            566.93539
+max_drawdown_pct                         0.056694
+win_rate                                33.928571
+loss_rate                               66.071429
+winning_trades                               19.0
+losing_trades                                37.0
+avg_pnl                                  0.303571
+avg_return_pct                           0.042808
+avg_trade_bars                           1.946429
+avg_profit                               9.210526
+avg_profit_pct                           1.269445
+avg_winning_trade_bars                   2.789474
+avg_loss                                 -4.27027
+avg_loss_pct                            -0.587086
+avg_losing_trade_bars                    1.513514
+largest_win                                  45.0
+largest_win_pct                          6.016043
+largest_win_bars                              4.0
+largest_loss                                -33.0
+largest_loss_pct                        -4.441454
+largest_loss_bars                             1.0
+max_wins                                      3.0
+max_losses                                    7.0
+sharpe_ratio                            -6.320253
+sortino_ratio                           -6.831061
+profit_factor                            1.107595
+ulcer_index                              0.000307
+upi                                     -1.874895
+equity_r2                                0.981117
+std_error                               22.958262
+calmar_ratio                            -1.013885
+exposure_time_pct                       45.867769
+var_95                                  -0.000009
+var_99                                  -0.000019
+cvar_95                                 -0.000015
+cvar_99                                 -0.000025
+sqn                                       0.20869
+kelly_criterion                          0.032959
+</pre></div>
+</div>
+</section>
+<section id="pybroker">
+<h2>PyBroker 介绍<a class="headerlink" href="#pybroker" title="链接到此标题。"></a></h2>
+<p>你是否希望借助 Python 和机器学习的力量来优化您的交易策略？ 那么你需要了解一下 PyBroker！这个 Python 框架专为开发算法交易策略而设计，
+尤其关注使用机器学习的策略。借助 PyBroker，你可以轻松创建和微调交易规则， 构建强大的模型，并深入了解你的策略表现。</p>
+</section>
+<section id="id4">
+<h2>PyBroker 安装<a class="headerlink" href="#id4" title="链接到此标题。"></a></h2>
+<p>PyBroker 支持在 Windows、macOS 和 Linux 中的 Python 3.9（建议使用 Python 3.11）及以上版本使用。其安装非常简单，
+只需要 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">lib-pybroker</span></code> 就可以实现一键安装。</p>
+</section>
+<section id="id5">
+<h2>PyBroker 系列教程<a class="headerlink" href="#id5" title="链接到此标题。"></a></h2>
+<ol class="simple">
+<li><p><a class="reference external" href="https://akbroker.akfamily.xyz">AKBroker-开源项目</a></p></li>
+</ol>
+</section>
+<section id="id6">
+<h2>PyBroker 策略示例<a class="headerlink" href="#id6" title="链接到此标题。"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 导入所需的库和模块</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pybroker</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pb</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybroker</span><span class="w"> </span><span class="kn">import</span> <span class="n">Strategy</span><span class="p">,</span> <span class="n">ExecContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pybroker.ext.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">AKShare</span>
+
+<span class="c1"># 定义全局参数 &quot;stock_code&quot;（股票代码）、&quot;percent&quot;（持仓百分比）和 &quot;stop_profit_pct&quot;（止盈百分比）</span>
+<span class="n">pb</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;stock_code&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s1">&#39;600000&#39;</span><span class="p">)</span>
+<span class="n">pb</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;percent&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">pb</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;stop_loss_pct&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">pb</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;stop_profit_pct&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># 初始化 AKShare 数据源</span>
+<span class="n">akshare</span> <span class="o">=</span> <span class="n">AKShare</span><span class="p">()</span>
+
+<span class="c1"># 使用 AKShare 数据源查询特定股票（由 &quot;stock_code&quot; 参数指定）在指定日期范围内的数据</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">akshare</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">symbols</span><span class="o">=</span><span class="p">[</span><span class="n">pb</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;stock_code&#39;</span><span class="p">)],</span> <span class="n">start_date</span><span class="o">=</span><span class="s1">&#39;20200131&#39;</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="s1">&#39;20230228&#39;</span><span class="p">)</span>
+
+
+<span class="c1"># 定义交易策略：如果当前没有持有该股票，则买入股票，并设置止盈点位</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">buy_with_stop_loss</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">ExecContext</span><span class="p">):</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">long_pos</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">pos</span><span class="p">:</span>
+        <span class="c1"># 计算目标股票数量，根据 &quot;percent&quot; 参数确定应购买的股票数量</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">buy_shares</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">calc_target_shares</span><span class="p">(</span><span class="n">pb</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;percent&#39;</span><span class="p">))</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">hold_bars</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">sell_shares</span> <span class="o">=</span> <span class="n">pos</span><span class="o">.</span><span class="n">shares</span>
+        <span class="c1"># 设置止盈点位，根据 &quot;stop_profit_pct&quot; 参数确定止盈点位</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">stop_profit_pct</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;stop_profit_pct&#39;</span><span class="p">)</span>
+
+
+<span class="c1"># 创建策略配置，初始资金为 500000</span>
+<span class="n">my_config</span> <span class="o">=</span> <span class="n">pb</span><span class="o">.</span><span class="n">StrategyConfig</span><span class="p">(</span><span class="n">initial_cash</span><span class="o">=</span><span class="mi">500000</span><span class="p">)</span>
+<span class="c1"># 使用配置、数据源、起始日期、结束日期，以及刚才定义的交易策略创建策略对象</span>
+<span class="n">strategy</span> <span class="o">=</span> <span class="n">Strategy</span><span class="p">(</span><span class="n">akshare</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="s1">&#39;20200131&#39;</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="s1">&#39;20230228&#39;</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">my_config</span><span class="p">)</span>
+<span class="c1"># 添加执行策略，设置股票代码和要执行的函数</span>
+<span class="n">strategy</span><span class="o">.</span><span class="n">add_execution</span><span class="p">(</span><span class="n">fn</span><span class="o">=</span><span class="n">buy_with_stop_loss</span><span class="p">,</span> <span class="n">symbols</span><span class="o">=</span><span class="p">[</span><span class="n">pb</span><span class="o">.</span><span class="n">param</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;stock_code&#39;</span><span class="p">)])</span>
+<span class="c1"># 执行回测，并打印出回测结果的度量值（四舍五入到小数点后四位）</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">strategy</span><span class="o">.</span><span class="n">backtest</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">metrics_df</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Loading<span class="w"> </span>bar<span class="w"> </span>data...
+Loaded<span class="w"> </span>bar<span class="w"> </span>data:<span class="w"> </span><span class="m">0</span>:00:00
+Backtesting:<span class="w"> </span><span class="m">2020</span>-01-31<span class="w"> </span><span class="m">00</span>:00:00<span class="w"> </span>to<span class="w"> </span><span class="m">2023</span>-02-28<span class="w"> </span><span class="m">00</span>:00:00
+Loading<span class="w"> </span>bar<span class="w"> </span>data...
+Loaded<span class="w"> </span>bar<span class="w"> </span>data:<span class="w"> </span><span class="m">0</span>:00:00
+Test<span class="w"> </span>split:<span class="w"> </span><span class="m">2020</span>-02-03<span class="w"> </span><span class="m">00</span>:00:00<span class="w"> </span>to<span class="w"> </span><span class="m">2023</span>-02-28<span class="w"> </span><span class="m">00</span>:00:00
+<span class="m">100</span>%<span class="w"> </span><span class="o">(</span><span class="m">748</span><span class="w"> </span>of<span class="w"> </span><span class="m">748</span><span class="o">)</span><span class="w"> </span><span class="p">|</span><span class="c1">######################| Elapsed Time: 0:00:00 Time:  0:00:00</span>
+Finished<span class="w"> </span>backtest:<span class="w"> </span><span class="m">0</span>:00:03
+<span class="w">                      </span>name<span class="w">        </span>value
+<span class="m">0</span><span class="w">              </span>trade_count<span class="w">     </span><span class="m">373</span>.0000
+<span class="m">1</span><span class="w">     </span>initial_market_value<span class="w">  </span><span class="m">500000</span>.0000
+<span class="m">2</span><span class="w">         </span>end_market_value<span class="w">  </span><span class="m">467328</span>.0900
+<span class="m">3</span><span class="w">                </span>total_pnl<span class="w">  </span>-33322.7800
+<span class="m">4</span><span class="w">           </span>unrealized_pnl<span class="w">     </span><span class="m">650</span>.8700
+<span class="m">5</span><span class="w">         </span>total_return_pct<span class="w">      </span>-6.6646
+<span class="m">6</span><span class="w">             </span>total_profit<span class="w">  </span><span class="m">530528</span>.5100
+<span class="m">7</span><span class="w">               </span>total_loss<span class="w"> </span>-563851.2900
+<span class="m">8</span><span class="w">               </span>total_fees<span class="w">       </span><span class="m">0</span>.0000
+<span class="m">9</span><span class="w">             </span>max_drawdown<span class="w"> </span>-113004.2700
+<span class="m">10</span><span class="w">        </span>max_drawdown_pct<span class="w">     </span>-20.2704
+<span class="m">11</span><span class="w">                </span>win_rate<span class="w">      </span><span class="m">45</span>.9215
+<span class="m">12</span><span class="w">               </span>loss_rate<span class="w">      </span><span class="m">54</span>.0785
+<span class="m">13</span><span class="w">          </span>winning_trades<span class="w">     </span><span class="m">152</span>.0000
+<span class="m">14</span><span class="w">           </span>losing_trades<span class="w">     </span><span class="m">179</span>.0000
+<span class="m">15</span><span class="w">                 </span>avg_pnl<span class="w">     </span>-89.3372
+<span class="m">16</span><span class="w">          </span>avg_return_pct<span class="w">      </span>-0.0160
+<span class="m">17</span><span class="w">          </span>avg_trade_bars<span class="w">       </span><span class="m">1</span>.0000
+<span class="m">18</span><span class="w">              </span>avg_profit<span class="w">    </span><span class="m">3490</span>.3191
+<span class="m">19</span><span class="w">          </span>avg_profit_pct<span class="w">       </span><span class="m">0</span>.6958
+<span class="m">20</span><span class="w">  </span>avg_winning_trade_bars<span class="w">       </span><span class="m">1</span>.0000
+<span class="m">21</span><span class="w">                </span>avg_loss<span class="w">   </span>-3150.0072
+<span class="m">22</span><span class="w">            </span>avg_loss_pct<span class="w">      </span>-0.6241
+<span class="m">23</span><span class="w">   </span>avg_losing_trade_bars<span class="w">       </span><span class="m">1</span>.0000
+<span class="m">24</span><span class="w">             </span>largest_win<span class="w">   </span><span class="m">31157</span>.9400
+<span class="m">25</span><span class="w">         </span>largest_win_pct<span class="w">       </span><span class="m">5</span>.9200
+<span class="m">26</span><span class="w">        </span>largest_win_bars<span class="w">       </span><span class="m">1</span>.0000
+<span class="m">27</span><span class="w">            </span>largest_loss<span class="w">  </span>-12682.6000
+<span class="m">28</span><span class="w">        </span>largest_loss_pct<span class="w">      </span>-2.3100
+<span class="m">29</span><span class="w">       </span>largest_loss_bars<span class="w">       </span><span class="m">1</span>.0000
+<span class="m">30</span><span class="w">                </span>max_wins<span class="w">       </span><span class="m">8</span>.0000
+<span class="m">31</span><span class="w">              </span>max_losses<span class="w">       </span><span class="m">7</span>.0000
+<span class="m">32</span><span class="w">                  </span>sharpe<span class="w">      </span>-0.0132
+<span class="m">33</span><span class="w">                 </span>sortino<span class="w">      </span>-0.0231
+<span class="m">34</span><span class="w">           </span>profit_factor<span class="w">       </span><span class="m">0</span>.9638
+<span class="m">35</span><span class="w">             </span>ulcer_index<span class="w">       </span><span class="m">1</span>.7639
+<span class="m">36</span><span class="w">                     </span>upi<span class="w">      </span>-0.0039
+<span class="m">37</span><span class="w">               </span>equity_r2<span class="w">       </span><span class="m">0</span>.5876
+<span class="m">38</span><span class="w">               </span>std_error<span class="w">   </span><span class="m">27448</span>.1177
+</pre></div>
+</div>
+</section>
+<section id="backtrader">
+<h2>Backtrader 介绍<a class="headerlink" href="#backtrader" title="链接到此标题。"></a></h2>
+<p><a class="reference external" href="https://www.backtrader.com">Backtrader</a> 是基于 Python 编程语言的主要用于量化投资开源回测和交易的框架，可以用于多种资产的回测。
+目前，<a class="reference external" href="https://www.backtrader.com">Backtrader</a> 可以用于实现股票、期货、期权、外汇、加密货币等资产的回测，同时该开源框架也有强大的第三方社区支持，目前已经实现了
+基于 IB、Oanda、VC、CCXT、MT5 等接口量化交易，随着该框架的流行，后期会有更多的小伙伴提供更多的第三方模块，学习和使用该框架是一个不错的选择！</p>
+<section id="id7">
+<h3>Backtrader 下载和安装<a class="headerlink" href="#id7" title="链接到此标题。"></a></h3>
+<p><a class="reference external" href="https://www.backtrader.com">Backtrader</a> 的下载和安装都比较简单，尤其是在配置好 <a class="reference external" href="https://github.com/akfamily/akshare">AKShare</a> 的
+基础上，我们只需要 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">backtrader</span></code> 就可以实现一键安装。如果需要了解 <a class="reference external" href="https://github.com/akfamily/akshare">AKShare</a> 的
+环境配置，请参考 <a class="reference external" href="anaconda.html">AKShare 环境配置</a> 来设置本地环境。想要通过源码来安装的小伙伴，可以访问 <a class="reference external" href="https://github.com/mementum/backtrader">Backtrader 的 GitHub 地址</a> 来下
+载安装，由于源码安装比较繁琐，建议直接通过 <code class="docutils literal notranslate"><span class="pre">pip</span></code> 或 <code class="docutils literal notranslate"><span class="pre">conda</span></code> 来安装和使用。需要注意的是如果要输出图形，请安装 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">matplotlib==3.2.2</span></code></p>
+</section>
+</section>
+<section id="id8">
+<h2>Backtrader 系列教程<a class="headerlink" href="#id8" title="链接到此标题。"></a></h2>
+<ol class="simple">
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/418247765">Backtrader-系列教程-01-介绍</a></p></li>
+<li><p><a class="reference external" href="https://zhuanlan.zhihu.com/p/418255493">Backtrader-系列教程-02-环境配置</a></p></li>
+</ol>
+</section>
+<section id="id9">
+<h2>Backtrader 策略教程<a class="headerlink" href="#id9" title="链接到此标题。"></a></h2>
+<section id="id10">
+<h3>基本策略<a class="headerlink" href="#id10" title="链接到此标题。"></a></h3>
+<section id="id11">
+<h4>代码<a class="headerlink" href="#id11" title="链接到此标题。"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">backtrader</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">bt</span>  <span class="c1"># 升级到最新版</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>  <span class="c1"># 由于 Backtrader 的问题，此处要求 pip install matplotlib==3.2.2</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>  <span class="c1"># 升级到最新版</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;font.sans-serif&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;SimHei&quot;</span><span class="p">]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;axes.unicode_minus&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="c1"># 利用 AKShare 获取股票的后复权数据，这里只获取前 7 列</span>
+<span class="n">stock_hfq_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">stock_zh_a_hist</span><span class="p">(</span><span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;000001&quot;</span><span class="p">,</span> <span class="n">adjust</span><span class="o">=</span><span class="s2">&quot;hfq&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">7</span><span class="p">]</span>
+<span class="c1"># 删除 `股票代码` 列</span>
+<span class="k">del</span> <span class="n">stock_hfq_df</span><span class="p">[</span><span class="s1">&#39;股票代码&#39;</span><span class="p">]</span>
+<span class="c1"># 处理字段命名，以符合 Backtrader 的要求</span>
+<span class="n">stock_hfq_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;date&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;open&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;close&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;high&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;low&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;volume&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="c1"># 把 date 作为日期索引，以符合 Backtrader 的要求</span>
+<span class="n">stock_hfq_df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">stock_hfq_df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">])</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyStrategy</span><span class="p">(</span><span class="n">bt</span><span class="o">.</span><span class="n">Strategy</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    主策略程序</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">((</span><span class="s2">&quot;maperiod&quot;</span><span class="p">,</span> <span class="mi">20</span><span class="p">),)</span>  <span class="c1"># 全局设定交易策略的参数</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        初始化函数</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_close</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">datas</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">close</span>  <span class="c1"># 指定价格序列</span>
+        <span class="c1"># 初始化交易指令、买卖价格和手续费</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buy_price</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buy_comm</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># 添加移动均线指标</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sma</span> <span class="o">=</span> <span class="n">bt</span><span class="o">.</span><span class="n">indicators</span><span class="o">.</span><span class="n">SimpleMovingAverage</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">datas</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">period</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">maperiod</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        执行逻辑</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">:</span>  <span class="c1"># 检查是否有指令等待执行,</span>
+            <span class="k">return</span>
+        <span class="c1"># 检查是否持仓</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">:</span>  <span class="c1"># 没有持仓</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_close</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">sma</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>  <span class="c1"># 执行买入条件判断：收盘价格上涨突破20日均线</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buy</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>  <span class="c1"># 执行买入</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_close</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">sma</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>  <span class="c1"># 执行卖出条件判断：收盘价格跌破20日均线</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sell</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>  <span class="c1"># 执行卖出</span>
+
+
+<span class="n">cerebro</span> <span class="o">=</span> <span class="n">bt</span><span class="o">.</span><span class="n">Cerebro</span><span class="p">()</span>  <span class="c1"># 初始化回测系统</span>
+<span class="n">start_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1991</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>  <span class="c1"># 回测开始时间</span>
+<span class="n">end_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>  <span class="c1"># 回测结束时间</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">bt</span><span class="o">.</span><span class="n">feeds</span><span class="o">.</span><span class="n">PandasData</span><span class="p">(</span><span class="n">dataname</span><span class="o">=</span><span class="n">stock_hfq_df</span><span class="p">,</span> <span class="n">fromdate</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span> <span class="n">todate</span><span class="o">=</span><span class="n">end_date</span><span class="p">)</span>  <span class="c1"># 加载数据</span>
+<span class="n">cerebro</span><span class="o">.</span><span class="n">adddata</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>  <span class="c1"># 将数据传入回测系统</span>
+<span class="n">cerebro</span><span class="o">.</span><span class="n">addstrategy</span><span class="p">(</span><span class="n">MyStrategy</span><span class="p">)</span>  <span class="c1"># 将交易策略加载到回测系统中</span>
+<span class="n">start_cash</span> <span class="o">=</span> <span class="mi">1000000</span>
+<span class="n">cerebro</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">setcash</span><span class="p">(</span><span class="n">start_cash</span><span class="p">)</span>  <span class="c1"># 设置初始资本为 100000</span>
+<span class="n">cerebro</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">setcommission</span><span class="p">(</span><span class="n">commission</span><span class="o">=</span><span class="mf">0.002</span><span class="p">)</span>  <span class="c1"># 设置交易手续费为 0.2%</span>
+<span class="n">cerebro</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>  <span class="c1"># 运行回测系统</span>
+
+<span class="n">port_value</span> <span class="o">=</span> <span class="n">cerebro</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>  <span class="c1"># 获取回测结束后的总资金</span>
+<span class="n">pnl</span> <span class="o">=</span> <span class="n">port_value</span> <span class="o">-</span> <span class="n">start_cash</span>  <span class="c1"># 盈亏统计</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;初始资金: </span><span class="si">{</span><span class="n">start_cash</span><span class="si">}</span><span class="se">\n</span><span class="s2">回测期间：</span><span class="si">{</span><span class="n">start_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">end_date</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y%m</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;总资金: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">port_value</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;净收益: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">pnl</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">cerebro</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s1">&#39;candlestick&#39;</span><span class="p">)</span>  <span class="c1"># 画图</span>
+</pre></div>
+</div>
+</section>
+<section id="id12">
+<h4>结果<a class="headerlink" href="#id12" title="链接到此标题。"></a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>初始资金: 1000000
+回测期间：20000101:20200421
+总资金: 1010238.65
+净收益: 10238.65
+</pre></div>
+</div>
+</section>
+<section id="id13">
+<h4>可视化<a class="headerlink" href="#id13" title="链接到此标题。"></a></h4>
+<p><img alt="https://jfds-1252952517.cos.ap-chengdu.myqcloud.com/akshare/readme/strategy/Figure_0.png" src="https://jfds-1252952517.cos.ap-chengdu.myqcloud.com/akshare/readme/strategy/Figure_0.png" /></p>
+</section>
+</section>
+<section id="id14">
+<h3>参数优化<a class="headerlink" href="#id14" title="链接到此标题。"></a></h3>
+<section id="id15">
+<h4>代码<a class="headerlink" href="#id15" title="链接到此标题。"></a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">backtrader</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">bt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>  <span class="c1"># 由于 Backtrader 的问题，此处要求 pip install matplotlib==3.2.2</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;font.sans-serif&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;SimHei&quot;</span><span class="p">]</span>  <span class="c1"># 设置画图时的中文显示</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;axes.unicode_minus&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># 设置画图时的负号显示</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyStrategy</span><span class="p">(</span><span class="n">bt</span><span class="o">.</span><span class="n">Strategy</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    主策略程序</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">((</span><span class="s2">&quot;maperiod&quot;</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span>
+              <span class="p">(</span><span class="s1">&#39;printlog&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),)</span>  <span class="c1"># 全局设定交易策略的参数, maperiod是 MA 均值的长度</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        初始化函数</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_close</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">datas</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">close</span>  <span class="c1"># 指定价格序列</span>
+        <span class="c1"># 初始化交易指令、买卖价格和手续费</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buy_price</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">buy_comm</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># 添加移动均线指标</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sma</span> <span class="o">=</span> <span class="n">bt</span><span class="o">.</span><span class="n">indicators</span><span class="o">.</span><span class="n">SimpleMovingAverage</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">datas</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">period</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">maperiod</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        主逻辑</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># self.log(f&#39;收盘价, {data_close[0]}&#39;)  # 记录收盘价</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">:</span>  <span class="c1"># 检查是否有指令等待执行,</span>
+            <span class="k">return</span>
+        <span class="c1"># 检查是否持仓</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">:</span>  <span class="c1"># 没有持仓</span>
+            <span class="c1"># 执行买入条件判断：收盘价格上涨突破15日均线</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_close</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">sma</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;BUY CREATE, </span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_close</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="c1"># 执行买入</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># 执行卖出条件判断：收盘价格跌破15日均线</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_close</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">sma</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;SELL CREATE, </span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_close</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="c1"># 执行卖出</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sell</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">txt</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">do_print</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Logging function fot this strategy</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">printlog</span> <span class="ow">or</span> <span class="n">do_print</span><span class="p">:</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">datas</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">, </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span> <span class="n">txt</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">notify_order</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">order</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        记录交易执行情况</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># 如果 order 为 submitted/accepted,返回空</span>
+        <span class="k">if</span> <span class="n">order</span><span class="o">.</span><span class="n">status</span> <span class="ow">in</span> <span class="p">[</span><span class="n">order</span><span class="o">.</span><span class="n">Submitted</span><span class="p">,</span> <span class="n">order</span><span class="o">.</span><span class="n">Accepted</span><span class="p">]:</span>
+            <span class="k">return</span>
+        <span class="c1"># 如果order为buy/sell executed,报告价格结果</span>
+        <span class="k">if</span> <span class="n">order</span><span class="o">.</span><span class="n">status</span> <span class="ow">in</span> <span class="p">[</span><span class="n">order</span><span class="o">.</span><span class="n">Completed</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">order</span><span class="o">.</span><span class="n">isbuy</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;买入:</span><span class="se">\n</span><span class="s2">价格:</span><span class="si">{</span><span class="n">order</span><span class="o">.</span><span class="n">executed</span><span class="o">.</span><span class="n">price</span><span class="si">}</span><span class="s2">,</span><span class="se">\</span>
+<span class="s2">                成本:</span><span class="si">{</span><span class="n">order</span><span class="o">.</span><span class="n">executed</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">,</span><span class="se">\</span>
+<span class="s2">                手续费:</span><span class="si">{</span><span class="n">order</span><span class="o">.</span><span class="n">executed</span><span class="o">.</span><span class="n">comm</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">buyprice</span> <span class="o">=</span> <span class="n">order</span><span class="o">.</span><span class="n">executed</span><span class="o">.</span><span class="n">price</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">buycomm</span> <span class="o">=</span> <span class="n">order</span><span class="o">.</span><span class="n">executed</span><span class="o">.</span><span class="n">comm</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;卖出:</span><span class="se">\n</span><span class="s2">价格：</span><span class="si">{</span><span class="n">order</span><span class="o">.</span><span class="n">executed</span><span class="o">.</span><span class="n">price</span><span class="si">}</span><span class="s2">,</span><span class="se">\</span>
+<span class="s2">                成本: </span><span class="si">{</span><span class="n">order</span><span class="o">.</span><span class="n">executed</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">,</span><span class="se">\</span>
+<span class="s2">                手续费</span><span class="si">{</span><span class="n">order</span><span class="o">.</span><span class="n">executed</span><span class="o">.</span><span class="n">comm</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bar_executed</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+            <span class="c1"># 如果指令取消/交易失败, 报告结果</span>
+        <span class="k">elif</span> <span class="n">order</span><span class="o">.</span><span class="n">status</span> <span class="ow">in</span> <span class="p">[</span><span class="n">order</span><span class="o">.</span><span class="n">Canceled</span><span class="p">,</span> <span class="n">order</span><span class="o">.</span><span class="n">Margin</span><span class="p">,</span> <span class="n">order</span><span class="o">.</span><span class="n">Rejected</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;交易失败&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">order</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">notify_trade</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trade</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        记录交易收益情况</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">trade</span><span class="o">.</span><span class="n">isclosed</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;策略收益：</span><span class="se">\n</span><span class="s2">毛收益 </span><span class="si">{</span><span class="n">trade</span><span class="o">.</span><span class="n">pnl</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, 净收益 </span><span class="si">{</span><span class="n">trade</span><span class="o">.</span><span class="n">pnlcomm</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        回测结束后输出结果</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;(MA均线： </span><span class="si">%2d</span><span class="s2">日) 期末总资金 </span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">maperiod</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()),</span> <span class="n">do_print</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="s2">&quot;600070&quot;</span><span class="p">,</span> <span class="n">start_cash</span><span class="o">=</span><span class="mi">1000000</span><span class="p">,</span> <span class="n">stake</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">commission_fee</span><span class="o">=</span><span class="mf">0.001</span><span class="p">):</span>
+    <span class="n">cerebro</span> <span class="o">=</span> <span class="n">bt</span><span class="o">.</span><span class="n">Cerebro</span><span class="p">()</span>  <span class="c1"># 创建主控制器</span>
+    <span class="n">cerebro</span><span class="o">.</span><span class="n">optstrategy</span><span class="p">(</span><span class="n">MyStrategy</span><span class="p">,</span> <span class="n">maperiod</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">31</span><span class="p">))</span>  <span class="c1"># 导入策略参数寻优</span>
+    <span class="c1"># 利用 AKShare 获取股票的后复权数据，这里只获取前 7 列</span>
+    <span class="n">stock_hfq_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">stock_zh_a_hist</span><span class="p">(</span><span class="n">symbol</span><span class="o">=</span><span class="n">code</span><span class="p">,</span> <span class="n">adjust</span><span class="o">=</span><span class="s2">&quot;hfq&quot;</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="s1">&#39;20000101&#39;</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="s1">&#39;20210617&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">7</span><span class="p">]</span>
+    <span class="c1"># 删除 `股票代码` 列</span>
+    <span class="k">del</span> <span class="n">stock_hfq_df</span><span class="p">[</span><span class="s1">&#39;股票代码&#39;</span><span class="p">]</span>
+    <span class="c1"># 处理字段命名，以符合 Backtrader 的要求</span>
+    <span class="n">stock_hfq_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;date&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;open&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;close&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;high&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;low&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;volume&#39;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="c1"># 把 date 作为日期索引，以符合 Backtrader 的要求</span>
+    <span class="n">stock_hfq_df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">stock_hfq_df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">])</span>
+    <span class="n">start_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1991</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>  <span class="c1"># 回测开始时间</span>
+    <span class="n">end_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2021</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>  <span class="c1"># 回测结束时间</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">bt</span><span class="o">.</span><span class="n">feeds</span><span class="o">.</span><span class="n">PandasData</span><span class="p">(</span><span class="n">dataname</span><span class="o">=</span><span class="n">stock_hfq_df</span><span class="p">,</span> <span class="n">fromdate</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span> <span class="n">todate</span><span class="o">=</span><span class="n">end_date</span><span class="p">)</span>  <span class="c1"># 规范化数据格式</span>
+    <span class="n">cerebro</span><span class="o">.</span><span class="n">adddata</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>  <span class="c1"># 将数据加载至回测系统</span>
+    <span class="n">cerebro</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">setcash</span><span class="p">(</span><span class="n">start_cash</span><span class="p">)</span>  <span class="c1"># broker设置资金</span>
+    <span class="n">cerebro</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">setcommission</span><span class="p">(</span><span class="n">commission</span><span class="o">=</span><span class="n">commission_fee</span><span class="p">)</span>  <span class="c1"># broker手续费</span>
+    <span class="n">cerebro</span><span class="o">.</span><span class="n">addsizer</span><span class="p">(</span><span class="n">bt</span><span class="o">.</span><span class="n">sizers</span><span class="o">.</span><span class="n">FixedSize</span><span class="p">,</span> <span class="n">stake</span><span class="o">=</span><span class="n">stake</span><span class="p">)</span>  <span class="c1"># 设置买入数量</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;期初总资金: </span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">cerebro</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
+    <span class="n">cerebro</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">maxcpus</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># 用单核 CPU 做优化</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;期末总资金: </span><span class="si">%.2f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">cerebro</span><span class="o">.</span><span class="n">broker</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="s2">&quot;600070&quot;</span><span class="p">,</span> <span class="n">start_cash</span><span class="o">=</span><span class="mi">1000000</span><span class="p">,</span> <span class="n">stake</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">commission_fee</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id16">
+<h4>结果<a class="headerlink" href="#id16" title="链接到此标题。"></a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>期初总资金: 1000000.00
+2020-06-12, (MA均线：  3日) 期末总资金 1004105.69
+2020-06-12, (MA均线：  4日) 期末总资金 1002384.49
+2020-06-12, (MA均线：  5日) 期末总资金 1002063.96
+2020-06-12, (MA均线：  6日) 期末总资金 1002113.63
+2020-06-12, (MA均线：  7日) 期末总资金 1001715.32
+2020-06-12, (MA均线：  8日) 期末总资金 999702.60
+2020-06-12, (MA均线：  9日) 期末总资金 1001658.65
+2020-06-12, (MA均线： 10日) 期末总资金 999698.63
+2020-06-12, (MA均线： 11日) 期末总资金 1003370.08
+2020-06-12, (MA均线： 12日) 期末总资金 1002183.37
+2020-06-12, (MA均线： 13日) 期末总资金 1006154.29
+2020-06-12, (MA均线： 14日) 期末总资金 1007900.55
+2020-06-12, (MA均线： 15日) 期末总资金 1008421.63
+2020-06-12, (MA均线： 16日) 期末总资金 1008708.77
+2020-06-12, (MA均线： 17日) 期末总资金 1008734.88
+2020-06-12, (MA均线： 18日) 期末总资金 1010371.15
+2020-06-12, (MA均线： 19日) 期末总资金 1010186.34
+2020-06-12, (MA均线： 20日) 期末总资金 1010201.81
+2020-06-12, (MA均线： 21日) 期末总资金 1010782.44
+2020-06-12, (MA均线： 22日) 期末总资金 1011271.23
+2020-06-12, (MA均线： 23日) 期末总资金 1011711.92
+2020-06-12, (MA均线： 24日) 期末总资金 1012475.96
+2020-06-12, (MA均线： 25日) 期末总资金 1010726.64
+2020-06-12, (MA均线： 26日) 期末总资金 1012502.74
+2020-06-12, (MA均线： 27日) 期末总资金 1011219.53
+2020-06-12, (MA均线： 28日) 期末总资金 1013569.11
+2020-06-12, (MA均线： 29日) 期末总资金 1014176.30
+2020-06-12, (MA均线： 30日) 期末总资金 1014076.32
+期末总资金: 1014076.32
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="platform.html" class="btn btn-neutral float-left" title="AKShare 量化专题" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="changelog.html" class="btn btn-neutral float-right" title="AKShare 版本更新" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2019–2026, AKShare Developers。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,15 @@
+# 核心依赖
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+httpx>=0.24.0
+akshare>=1.12.0
+pandas
+numpy
+pydantic>=2.0
+
+# 数据源（必需：mootdx 是 K 线/财务数据的主数据源）
+mootdx
+
+# AI 模型（可选：缺失时 Qlib 功能降级但系统可用）
+lightgbm
+# pyqlib>=0.9.7         # 完整 Qlib 框架，需手动安装

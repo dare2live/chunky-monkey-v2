@@ -1,0 +1,15 @@
+.DS_Store
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+__pycache__/
+*.pyc
+.claude/
+Users/
+data/qlib_data/features/
+data/qlib_models/
+data/qlib_runs/
+mlruns/
+node_modules/
+.env

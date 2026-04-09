@@ -1,0 +1,199 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="./">
+<head>
+  <meta charset="utf-8" />
+  <meta name="readthedocs-addons-api-version" content="1"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AKShare 实盘交易 &mdash; AKShare 1.18.40 文档</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments%EF%B9%96v=b86133f3.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme%EF%B9%96v=9edc463e.css" />
+
+  
+      <script src="https://akshare.akfamily.xyz/_static/jquery.js?v=5d32c60e"></script>
+      <script src="https://akshare.akfamily.xyz/_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="https://akshare.akfamily.xyz/_static/documentation_options.js?v=5dffd886"></script>
+      <script src="https://akshare.akfamily.xyz/_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="https://akshare.akfamily.xyz/_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="https://akshare.akfamily.xyz/_static/translations.js?v=540d3cec"></script>
+    <script src="https://akshare.akfamily.xyz/_static/js/theme.js"></script>
+    <script src="https://akshare.akfamily.xyz/_static/js/versions.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="搜索" href="search.html" />
+    <link rel="next" title="AKShare 答疑专栏" href="answer.html" />
+    <link rel="prev" title="AKShare 数据说明" href="data_tips.html" /> 
+<script async type="text/javascript" src="https://akshare.akfamily.xyz/_/static/javascript/readthedocs-addons.js"></script><meta name="readthedocs-project-slug" content="akshare" /><meta name="readthedocs-version-slug" content="latest" /><meta name="readthedocs-resolver-filename" content="/trade.html" /><meta name="readthedocs-http-status" content="200" /></head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            AKShare
+          </a>
+              <div class="switch-menus">
+                <div class="version-switch"></div>
+                <div class="language-switch"></div>
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Table of contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">AKShare 项目概览</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">AKShare 安装指导</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data/index.html">AKShare 数据字典</a></li>
+<li class="toctree-l1"><a class="reference internal" href="indicator.html">AKShare 指标计算</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_tips.html">AKShare 数据说明</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">AKShare 实盘交易</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">证券实盘</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">股票量化交易服务</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">期货实盘</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id4">期货量化交易服务</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="answer.html">AKShare 答疑专栏</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">AKShare 快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="articles.html">AKShare 相关文章</a></li>
+<li class="toctree-l1"><a class="reference internal" href="anaconda.html">AKShare 环境配置</a></li>
+<li class="toctree-l1"><a class="reference internal" href="platform.html">AKShare 量化专题</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demo.html">AKShare 策略示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">AKShare 版本更新</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">AKShare 贡献源码</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dependency.html">AKShare 依赖说明</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy_http.html">AKShare HTTP 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="akdocker/akdocker.html">AKShare Docker 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="special.html">AKShare 特别说明</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">AKShare</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">AKShare 实盘交易</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/trade.md" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="akshare">
+<h1><a class="reference external" href="https://github.com/akfamily/akshare">AKShare</a> 实盘交易<a class="headerlink" href="#akshare" title="链接到此标题。"></a></h1>
+<section id="id1">
+<h2>证券实盘<a class="headerlink" href="#id1" title="链接到此标题。"></a></h2>
+<section id="id2">
+<h3>股票量化交易服务<a class="headerlink" href="#id2" title="链接到此标题。"></a></h3>
+<p>提供股票、期权、两融等账户的实盘 API 接口对接，让量化模型不仅仅停留在一次次的回测中，真正做到让策略跑起来。</p>
+<p>专注于为股票、可转债、ETF 期权以及两融策略提供全面的量化服务；针对各种个性化的量化策略，提供高效的解决方案。</p>
+<p>为了满足不同的客户需求，我们还提供策略编写、个性化工具开发等定制服务，确保不同阶段的量化投资者都能得到有效的支持。</p>
+<p>当下由<strong>上市证券</strong>专业量化服务团队提供支持，微信：cmdtzz168</p>
+<p><img alt="gj_wechat" src="https://jfds-1252952517.cos.ap-chengdu.myqcloud.com/akshare/ad/gj_wechat.png" /></p>
+<p>一、多维度的专业量化服务</p>
+<ol class="simple">
+<li><p>费用优惠：股票/ETF/可转债/港股通/北交所/两融等费率超优惠。</p></li>
+<li><p>专业服务：团队专注量化领域十载，提供多种定制化服务和量化工具，积累了大量的成功案例。</p></li>
+<li><p>高效服务：多对一，响应快，提供 7*12 小时服务。</p></li>
+</ol>
+<p>二、辅助量化工具的使用</p>
+<ol class="simple">
+<li><p>数据库：AKShare</p></li>
+<li><p>股票软件：通达信/大智慧/同花顺等</p></li>
+<li><p>量化软件：QMT/PTRADE/聚宽/bigquant等</p></li>
+</ol>
+<p>三、更多个性化定制服务</p>
+<ol class="simple">
+<li><p>【极速策略】如追涨停、盘前/盘中打板、尾盘强筹，根据具体需求，优化每个环节，给出极速解决方案，提高策略效率，快人一步。</p></li>
+<li><p>【指标定制】将通达信/大智慧/同花顺等指标转化为可执行的量化策略，做到条件预警、展示买卖点等。</p></li>
+<li><p>【量化工具定制】各种量化小插件随心定制，如自动止盈止损/自动仓位管理等。</p></li>
+</ol>
+<p>与<strong>某AA级期货公司</strong>量化服务团队携手开发对冲策略，股期联动，祝您一臂之力。</p>
+<p>在量化领域：专业、专心、专注。</p>
+</section>
+</section>
+<section id="id3">
+<h2>期货实盘<a class="headerlink" href="#id3" title="链接到此标题。"></a></h2>
+<section id="id4">
+<h3>期货量化交易服务<a class="headerlink" href="#id4" title="链接到此标题。"></a></h3>
+<p>什么是量化交易服务？</p>
+<p>以服务客户为核心的增值服务，服务包括量化咨询、量化软件指导、策略编写、软件定制、外接托管等服务，为客户量化交易之路保驾护航。
+目前我们发现<strong>某AA级期货公司</strong>在此服务上比较专业。<img alt="futures" src="https://jfds-1252952517.cos.ap-chengdu.myqcloud.com/akshare/ad/futures.jpg" /></p>
+<p>有什么样的量化交易服务综合方案？</p>
+<p>一、量化咨询，维度提升</p>
+<ol class="simple">
+<li><p>超优惠的政策：期货交易手续费的杀伤力非常大，手续费成本可能决定交易策略期望值是否为正；</p></li>
+<li><p>超高效的服务：为客户实行一对一、二对一私享服务，及时解决客户问题；</p></li>
+<li><p>超专业的咨询：宏源量化服务团队成员在期货领域经验丰富，可提供量化咨询服务，助力客户高效开发策略，少走弯路；</p></li>
+</ol>
+<p>二、软件指导，轻松上手</p>
+<p>AKShare 的金融数据能够给大家带来许多帮助，也可以结合其他量化交易软件进行实战应用，每个交易软件都有自己的特色功能，
+有了专业的指导，可以更高效的运用起来。</p>
+<p>三、编写策略，解放双手</p>
+<p>服务团队成员有交易经历丰富的私募基金交易员，能够高效的转化客户的主观交易策略，让客户实现程序化交易，解放双手。</p>
+<p>四、速度优化，快人一步</p>
+<p><img alt="futures_process" src="https://jfds-1252952517.cos.ap-chengdu.myqcloud.com/akshare/ad/futures_process.png" /></p>
+<p>提供托管定制服务：通过专用网络、专用系统、专用席位、服务器托管等手段来保障高效、稳定的交易。</p>
+<p>专业的事找专业的人！</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="data_tips.html" class="btn btn-neutral float-left" title="AKShare 数据说明" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="answer.html" class="btn btn-neutral float-right" title="AKShare 答疑专栏" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2019–2026, AKShare Developers。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

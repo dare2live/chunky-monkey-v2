@@ -1,0 +1,2424 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="readthedocs-addons-api-version" content="1"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AKShare 数据字典 &mdash; AKShare 1.18.40 文档</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments%EF%B9%96v=b86133f3.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme%EF%B9%96v=9edc463e.css" />
+
+  
+      <script src="https://akshare.akfamily.xyz/_static/jquery.js?v=5d32c60e"></script>
+      <script src="https://akshare.akfamily.xyz/_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="https://akshare.akfamily.xyz/_static/documentation_options.js?v=5dffd886"></script>
+      <script src="https://akshare.akfamily.xyz/_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="https://akshare.akfamily.xyz/_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="https://akshare.akfamily.xyz/_static/translations.js?v=540d3cec"></script>
+    <script src="https://akshare.akfamily.xyz/_static/js/theme.js"></script>
+    <script src="https://akshare.akfamily.xyz/_static/js/versions.js"></script>
+    <link rel="index" title="索引" href="../genindex.html" />
+    <link rel="search" title="搜索" href="../search.html" />
+    <link rel="next" title="AKShare 股票数据" href="stock/stock.html" />
+    <link rel="prev" title="AKShare 安装指导" href="../installation.html" /> 
+<script async type="text/javascript" src="https://akshare.akfamily.xyz/_/static/javascript/readthedocs-addons.js"></script><meta name="readthedocs-project-slug" content="akshare" /><meta name="readthedocs-version-slug" content="latest" /><meta name="readthedocs-resolver-filename" content="/data/index.html" /><meta name="readthedocs-http-status" content="200" /></head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            AKShare
+          </a>
+              <div class="switch-menus">
+                <div class="version-switch"></div>
+                <div class="language-switch"></div>
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Table of contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">AKShare 项目概览</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">AKShare 安装指导</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">AKShare 数据字典</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html">AKShare 股票数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="futures/futures.html">AKShare 期货数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bond/bond.html">AKShare 债券数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="option/option.html">AKShare 期权数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fx/fx.html">AKShare 外汇数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="currency/currency.html">AKShare 货币数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spot/spot.html">AKShare 现货数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interest_rate/interest_rate.html">AKShare 利率数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_private.html">AKShare 私募基金数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html">AKShare 公募基金数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html">AKShare 指数数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="macro/macro.html">AKShare 宏观数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dc/dc.html">AKShare 加密货币数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bank/bank.html">AKShare 银行数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="article/article.html">AKShare 波动率数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="article/article.html#id2">AKShare 多因子数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="article/article.html#id3">AKShare 政策不确定性数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="energy/energy.html">AKShare 能源数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="event/event.html">AKShare 迁徙数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hf/hf.html">AKShare 高频数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nlp/nlp.html">AKShare 自然语言处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qdii/qdii.html">AKShare QDII 数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="others/others.html">AKShare 另类数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qhkc/index.html">AKShare 奇货可查</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tool/tool.html">AKShare 工具箱</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../indicator.html">AKShare 指标计算</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../data_tips.html">AKShare 数据说明</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../trade.html">AKShare 实盘交易</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../answer.html">AKShare 答疑专栏</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">AKShare 快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../articles.html">AKShare 相关文章</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../anaconda.html">AKShare 环境配置</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../platform.html">AKShare 量化专题</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demo.html">AKShare 策略示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">AKShare 版本更新</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">AKShare 贡献源码</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dependency.html">AKShare 依赖说明</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deploy_http.html">AKShare HTTP 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../akdocker/akdocker.html">AKShare Docker 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../special.html">AKShare 特别说明</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AKShare</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">AKShare 数据字典</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/data/index.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="akshare">
+<h1>AKShare 数据字典<a class="headerlink" href="#akshare" title="链接到此标题。"></a></h1>
+<p>数据字典主要介绍 AKShare 提供的数据接口的详细说明</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="stock/stock.html">AKShare 股票数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#a">A股</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id1">股票市场总貌</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id2">上海证券交易所</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id3">深圳证券交易所</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id4">证券类别统计</a></li>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id5">地区交易排序</a></li>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id6"></a></li>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id7">股票行业成交</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id8">上海证券交易所-每日概况</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id9">个股信息查询-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id10">个股信息查询-雪球</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id11">行情报价</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id12">实时行情数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id13">实时行情数据-东财</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id14">沪深京 A 股</a></li>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id15">沪 A 股</a></li>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id16">深 A 股</a></li>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id17">京 A 股</a></li>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id18">新股</a></li>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id19">创业板</a></li>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id20">科创板</a></li>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#ab">AB 股比价</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id21">实时行情数据-新浪</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id22">实时行情数据-雪球</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id23">历史行情数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id24">历史行情数据-东财</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id25">历史行情数据-新浪</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id26">历史行情数据-腾讯</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id27">分时数据-新浪</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id28">分时数据-东财</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id29">日内分时数据-东财</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id30">日内分时数据-新浪</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id31">盘前数据</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id32">历史分笔数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id33">腾讯财经</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id34">同行比较</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id35">成长性比较</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id36">估值比较</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id37">杜邦分析比较</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id38">公司规模</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#a-cdr">A股-CDR</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id39">历史行情数据</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#b">B股</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id40">实时行情数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id41">实时行情数据-东财</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id42">实时行情数据-新浪</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id43">历史行情数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id44">历史行情数据</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id45">分时数据</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id46">次新股</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id47">股市日历</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id48">公司动态</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id49">风险警示板</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id50">新股</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id51">新股上市首日</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#ipo">IPO 受益股</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id52">两网及退市</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id53">科创板</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id54">实时行情数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id55">历史行情数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id56">科创板公告</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#a-h">A+H股</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id57">实时行情数据-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id58">实时行情数据-腾讯</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id59">历史行情数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id60">A+H股票字典</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id61">美股</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id62">实时行情数据-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id63">实时行情数据-新浪</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id64">历史行情数据-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id65">个股信息查询-雪球</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id66">分时数据-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id67">历史行情数据-新浪</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id68">粉单市场</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id69">知名美股</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id70">港股</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id71">实时行情数据-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id72">港股主板实时行情数据-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id73">实时行情数据-新浪</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id74">个股信息查询-雪球</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id75">分时数据-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id76">历史行情数据-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id77">历史行情数据-新浪</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id78">知名港股</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id79">证券资料</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id80">公司资料</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id81">财务指标</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id82">分红派息</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id83">行业对比</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id84">成长性对比</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id85">估值对比</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id86">规模对比</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id87">机构调研</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id88">机构调研-统计</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id89">机构调研-详细</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id90">主营介绍-同花顺</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id91">主营构成-东财</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id92">股票质押</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id93">股权质押市场概况</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id94">上市公司质押比例</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id95">重要股东股权质押明细</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id96">质押机构分布统计-证券公司</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id97">质押机构分布统计-银行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id98">上市公司质押比例</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id99">商誉专题</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id100">A股商誉市场概况</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id101">商誉减值预期明细</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id102">个股商誉减值明细</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id103">个股商誉明细</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id104">行业商誉</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id105">股票账户统计</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id106">股票账户统计月度</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id107">分析师指数</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id108">分析师指数排行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id109">分析师详情</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id110">千股千评</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id111">千股千评详情</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id112">主力控盘</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id113">机构参与度</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id114">综合评价</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id115">历史评分</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id116">市场热度</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id117">用户关注指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id118">市场参与意愿</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id119">沪深港通资金流向</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id120">沪深港通持股</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id121">结算汇率-深港通</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id122">结算汇率-沪港通</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id123">参考汇率-深港通</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id124">参考汇率-沪港通</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id125">港股通成份股</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id126">沪深港通分时数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id127">板块排行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id128">个股排行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id129">每日个股统计</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id130">机构排行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id131">沪深港通-港股通(沪&gt;港)实时行情</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id132">沪深港通历史数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id133">沪深港通持股-个股</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id134">沪深港通持股-个股详情</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id135">停复牌信息</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id136">停复牌</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id137">分红派息</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id138">个股新闻</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id139">财经内容精选</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id140">财报发行</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id141">新股数据</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id142">打新收益率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id143">新股申购与中签</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id144">新股申购与中签-同花顺</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id145">新股申购与中签-港股-同花顺</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id146">年报季报</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id147">业绩报表</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id148">业绩快报</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id149">业绩预告</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id150">预约披露时间-东方财富</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id151">预约披露时间-巨潮资讯</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id152">信息披露公告-巨潮资讯</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id153">信息披露调研-巨潮资讯</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id154">行业分类数据-巨潮资讯</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id155">上市公司行业归属的变动情况-巨潮资讯</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id156">公司股本变动-巨潮资讯</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id157">配股实施方案-巨潮资讯</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id158">公司概况-巨潮资讯</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id159">上市相关-巨潮资讯</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id160">资产负债表-沪深</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id161">资产负债表-北交所</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id162">利润表</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id163">现金流量表</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id164">高管持股</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id165">股东增减持</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id166">分红配送</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id167">分红配送-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id168">分红配送详情-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id169">分红情况-同花顺</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id170">分红配送详情-港股-同花顺</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id171">资金流向</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id172">同花顺</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id173">个股资金流</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id174">概念资金流</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id175">行业资金流</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id176">大单追踪</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id177">东方财富</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id178">个股资金流</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id179">个股资金流排名</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id180">大盘资金流</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id181">板块资金流排名</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id182">主力净流入排名</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id183">行业个股资金流</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id184">行业历史资金流</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id185">概念历史资金流</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id186">筹码分布</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id187">基本面数据</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id188">股东大会</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id189">重大合同</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id190">个股研报</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id191">沪深京 A 股公告</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id192">财务报表-新浪</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id193">财务报表-东财</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id194">资产负债表-按报告期</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id195">资产负债表-按年度</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id196">利润表-按报告期</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id197">利润表-按年度</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id198">利润表-按单季度</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id199">现金流量表-按报告期</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id200">现金流量表-按年度</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id201">现金流量表-按单季度</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id202">财务报表-同花顺</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id203">资产负债表</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id204">利润表</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id205">现金流量表</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id206">财务报表-东财-已退市股票</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id207">资产负债表-按报告期</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id208">利润表-按报告期</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id209">现金流量表-按报告期</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id210">港股财务报表</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id211">美股财务报表</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id212">关键指标-新浪</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id213">关键指标-同花顺</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id214">主要指标-东方财富</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id215">财务指标</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id216">港股财务指标</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id217">美股财务指标</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id218">历史分红</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id219">十大流通股东(个股)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id220">十大股东(个股)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id221">股东持股变动统计-十大流通股东</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id222">股东持股变动统计-十大股东</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id223">高管持股变动统计</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id224">股东持股变动统计</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id225">股东持股分析-十大流通股东</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id226">股东持股分析-十大股东</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id227">股东持股明细-十大流通股东</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id228">股东持股明细-十大股东</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id229">股东持股统计-十大流通股东</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id230">股东持股统计-十大股东</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id231">股东协同-十大流通股东</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id232">股东协同-十大股东</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id233">股东户数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id234">股东户数详情</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id235">分红配股</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id236">历史分红</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id237">新股发行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id238">新股上会信息</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id239">IPO辅导信息</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id240">股票增发</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id241">限售解禁</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id242">个股限售解禁-新浪</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id243">限售股解禁</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id244">限售股解禁详情</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id245">解禁批次</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id246">解禁股东</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id247">流通股东</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id248">板块行情</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id249">板块详情</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id250">股票列表-A股</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id251">股票列表-上证</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id252">股票列表-深证</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id253">股票列表-北证</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id254">终止/暂停上市-深证</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id255">两网及退市</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id256">暂停/终止上市-上证</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id257">股票更名</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id258">名称变更-深证</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id259">基金持股</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id260">主要股东</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id261">机构持股</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id262">机构持股一览表</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id263">机构持股详情</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id264">机构推荐</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id265">机构推荐池</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id266">股票评级记录</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id267">投资评级</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id268">申万个股行业分类变动历史</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id269">行业市盈率</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id270">新股过会</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id271">新股发行</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id272">董监高及相关人员持股变动-上证</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id273">董监高及相关人员持股变动-深证</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id274">董监高及相关人员持股变动-北证</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id275">股东人数及持股集中度</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id276">股本变动</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id277">实际控制人持股变动</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id278">高管持股变动明细</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id279">董监高及相关人员持股变动明细</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id280">人员增减持股变动明细</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id281">对外担保</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id282">公司诉讼</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id283">股权质押</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id284">美港目标价</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id285">券商业绩月报</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id286">A 股股息率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id287">恒生指数股息率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id288">大盘拥挤度</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id289">股债利差</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id290">巴菲特指标</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id291">A 股等权重与中位数市盈率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id292">A 股等权重与中位数市净率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id293">主板市盈率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id294">指数市盈率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id295">主板市净率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id296">指数市净率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id297">A 股估值指标</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id298">个股估值</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id299">涨跌投票</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id300">港股个股指标</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id301">港股估值指标</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id302">美股估值指标</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id303">创新高和新低的股票数量</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id304">破净股统计</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id305">基金持股</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id306">基金持股明细</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id307">龙虎榜</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id308">龙虎榜-东财</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id309">龙虎榜详情</a></li>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id310">个股上榜统计</a></li>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id311">机构买卖每日统计</a></li>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id312">机构席位追踪</a></li>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id313">每日活跃营业部</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id314">营业部详情数据-东财</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id315">营业部排行</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id316">营业部统计</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id317">个股龙虎榜详情</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id318">龙虎榜-营业部排行</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id319">龙虎榜-营业部排行-上榜次数最多</a></li>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id320">龙虎榜-营业部排行-资金实力最强</a></li>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id321">龙虎榜-营业部排行-抱团操作实力</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id322">龙虎榜-每日详情</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id323">龙虎榜-个股上榜统计</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id324">龙虎榜-营业上榜统计</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id325">龙虎榜-机构席位追踪</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id326">龙虎榜-机构席位成交明细</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id327">首发申报信息</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id328">IPO审核信息</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id329">全部</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id330">科创板</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id331">创业板</a></li>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id332">上海主板</a></li>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id333">深圳主板</a></li>
+<li class="toctree-l5"><a class="reference internal" href="stock/stock.html#id334">北交所</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id335">达标企业</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id336">增发</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id337">配股</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id338">股票回购数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id339">股本结构</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id340">大宗交易</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id341">市场统计</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id342">每日明细</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id343">每日统计</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id344">活跃 A 股统计</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id345">活跃营业部统计</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id346">营业部排行</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id347">一致行动人</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id348">融资融券</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id349">标的证券名单及保证金比例查询</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id350">两融账户信息</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id351">上海证券交易所</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id352">融资融券汇总</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id353">融资融券明细</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id354">深圳证券交易所</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id355">融资融券汇总</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id356">融资融券明细</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id357">标的证券信息</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id358">盈利预测-东方财富</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id359">港股盈利预测-经济通</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id360">盈利预测-同花顺</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id361">概念板块</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id362">同花顺-概念板块指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id363">同花顺-概念板块简介</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id364">东方财富-概念板块</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id365">东方财富-概念板块-实时行情</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id366">东方财富-成份股</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id367">东方财富-指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id368">东方财富-指数-分时</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id369">富途牛牛-美股概念-成分股</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id370">行业板块</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id371">同花顺-同花顺行业一览表</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id372">同花顺-指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id373">东方财富-行业板块</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id374">东方财富-行业板块-实时行情</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id375">东方财富-成份股</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id376">东方财富-指数-日频</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id377">东方财富-指数-分时</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id378">股票热度</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id379">股票热度-雪球</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id380">关注排行榜</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id381">讨论排行榜</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id382">交易排行榜</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id383">股票热度-东财</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id384">人气榜-A股</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id385">飙升榜-A股</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id386">人气榜-港股</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id387">历史趋势及粉丝特征</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id388">A股</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id389">港股</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id390">互动平台</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id391">互动易-提问</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id392">互动易-回答</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#e">上证e互动</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id393">个股人气榜-实时变动</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id394">A股</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id395">港股</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id396">热门关键词</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id397">内部交易</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id398">个股人气榜-最新排名</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id399">A股</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id400">港股</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id401">热搜股票</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id402">相关股票</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id403">盘口异动</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id404">板块异动详情</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id405">涨停板行情</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id406">涨停股池</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id407">昨日涨停股池</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id408">强势股池</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id409">次新股池</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id410">炸板股池</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id411">跌停股池</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id412">赚钱效应分析</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id413">资讯数据</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id414">财经早餐-东财财富</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id415">全球财经快讯-东财财富</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id416">全球财经快讯-新浪财经</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id417">快讯-富途牛牛</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id418">全球财经直播-同花顺财经</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id419">电报-财联社</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id420">手续费</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id421">国内券商佣金</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id422">以万 2.5 佣金结构为例</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id423">以万 1.2 佣金结构为例</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stock/stock.html#id424">结构图</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#id425">技术指标</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id426">创新高</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id427">创新低</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id428">连续上涨</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id429">连续下跌</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id430">持续放量</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id431">持续缩量</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id432">向上突破</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id433">向下突破</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id434">量价齐升</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id435">量价齐跌</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id436">险资举牌</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stock/stock.html#esg">ESG 评级</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id437">ESG 评级数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#msci">MSCI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id438">路孚特</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id439">秩鼎</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stock/stock.html#id440">华证指数</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="futures/futures.html">AKShare 期货数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="futures/futures.html#id1">期货基础信息</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id2">期货交易所</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id3">期货交易时间</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id4">金融期货</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="futures/futures.html#id5">中国金融期货交易所</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id6">商品期货</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="futures/futures.html#id7">上海国际能源交易中心</a></li>
+<li class="toctree-l4"><a class="reference internal" href="futures/futures.html#id8">上海期货交易所</a></li>
+<li class="toctree-l4"><a class="reference internal" href="futures/futures.html#id9">郑州商品交易所</a></li>
+<li class="toctree-l4"><a class="reference internal" href="futures/futures.html#id10">大连商品交易所</a></li>
+<li class="toctree-l4"><a class="reference internal" href="futures/futures.html#id11">广州期货交易所</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="futures/futures.html#id12">期货基础名词</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id13">连续合约</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id14">主力连续合约</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id15">指数连续合约</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id16">展期收益率</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="futures/futures.html#id17">期货基础数据</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id18">期货交易费用参照表</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id19">期货手续费与保证金</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="futures/futures.html#id20">金十数据</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id21">期货规则-交易日历表</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id22">库存数据-99期货网</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id23">库存数据-东方财富</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id24">展期收益率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id25">注册仓单</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id26">现货价格和基差</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id27">会员持仓排名</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="futures/futures.html#id28">大连商品交易所</a></li>
+<li class="toctree-l4"><a class="reference internal" href="futures/futures.html#id29">广州期货交易所</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id30">仓单日报</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="futures/futures.html#id31">仓单日报-郑州商品交易所</a></li>
+<li class="toctree-l4"><a class="reference internal" href="futures/futures.html#id32">仓单日报-大连商品交易所</a></li>
+<li class="toctree-l4"><a class="reference internal" href="futures/futures.html#id33">仓单日报-上海期货交易所</a></li>
+<li class="toctree-l4"><a class="reference internal" href="futures/futures.html#id34">仓单日报-广州期货交易所</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id35">期转现-大商所</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id36">期转现-郑商所</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id37">期转现-上期所</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id38">交割统计-大商所</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id39">交割统计-郑商所</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id40">交割统计-上期所</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id41">交割配对-大商所</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id42">交割配对-郑商所</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id43">库存周报</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="futures/futures.html#id44">上海期货交易所</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id45">成交持仓</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id46">现期图</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id47">合约信息</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="futures/futures.html#id48">上海期货交易所</a></li>
+<li class="toctree-l4"><a class="reference internal" href="futures/futures.html#id49">上海国际能源交易中心</a></li>
+<li class="toctree-l4"><a class="reference internal" href="futures/futures.html#id50">大连商品交易所</a></li>
+<li class="toctree-l4"><a class="reference internal" href="futures/futures.html#id51">郑州商品交易所</a></li>
+<li class="toctree-l4"><a class="reference internal" href="futures/futures.html#id52">广州期货交易所</a></li>
+<li class="toctree-l4"><a class="reference internal" href="futures/futures.html#id53">中国金融期货交易所</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="futures/futures.html#id54">期货行情数据</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id55">内盘-实时行情数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id56">内盘-实时行情数据(品种)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id57">内盘-分时行情数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id58">内盘-历史行情数据-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id59">内盘-历史行情数据-新浪</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id60">内盘-历史行情数据-交易所</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id61">内盘-结算参数数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id62">外盘-品种代码表</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id63">外盘-实时行情数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id64">外盘-实时行情数据-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id65">外盘-历史行情数据-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id66">外盘-历史行情数据-新浪</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id67">外盘-合约详情</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id68">新加坡交易所期货</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="futures/futures.html#id69">期货连续合约</a></li>
+<li class="toctree-l2"><a class="reference internal" href="futures/futures.html#id70">期货合约详情-新浪</a></li>
+<li class="toctree-l2"><a class="reference internal" href="futures/futures.html#id71">期货合约详情-东财</a></li>
+<li class="toctree-l2"><a class="reference internal" href="futures/futures.html#id72">中证商品指数</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id73">中证商品指数</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="futures/futures.html#id74">现货与股票</a></li>
+<li class="toctree-l2"><a class="reference internal" href="futures/futures.html#comex">COMEX 库存数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="futures/futures.html#id75">生猪信息</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id76">核心数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id77">成本维度</a></li>
+<li class="toctree-l3"><a class="reference internal" href="futures/futures.html#id78">供应维度</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="futures/futures.html#id79">生猪市场价格指数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="futures/futures.html#id80">期货资讯</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bond/bond.html">AKShare 债券数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bond/bond.html#id1">债券查询</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bond/bond.html#id2">债券基础信息</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bond/bond.html#id3">债券基础名词</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id4">固定收益证券</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id5">国债</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bond/bond.html#id6">上交所债券</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id7">债券现券市场概览</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id8">债券成交概览</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bond/bond.html#id9">债券基础数据</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id10">银行间市场债券发行基础数据</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bond/bond.html#id11">中国债券市场行情数据</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id12">现券市场做市报价</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id13">现券市场成交行情</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id14">国债及其他债券收益率曲线</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bond/bond.html#id15">沪深债券</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id16">实时行情数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id17">历史行情数据</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bond/bond.html#id18">沪深可转债</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id19">可转债-详情资料</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id20">可转债-债券概况</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id21">实时行情数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id22">历史行情数据-日频</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id23">历史行情数据-分时</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id24">历史行情数据-盘前分时</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id25">可转债数据一览表</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id26">可转债详情</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id27">可转债详情-同花顺</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id28">可转债比价表</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id29">可转债价值分析</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id30">可转债溢价率分析</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bond/bond.html#id31">质押式回购</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id32">上证质押式回购</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id33">深证质押式回购</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id34">质押式回购历史数据</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bond/bond.html#id35">可转债实时数据-集思录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bond/bond.html#id36">可转债强赎</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bond/bond.html#id37">集思录可转债等权指数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bond/bond.html#id38">可转债转股价格调整记录-集思录</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bond/bond.html#id39">收盘收益率曲线历史数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bond/bond.html#id40">中美国债收益率</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bond/bond.html#id41">中国国债收益率行情</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bond/bond.html#id42">美国国债收益率行情</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bond/bond.html#id43">债券发行</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id44">国债发行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id45">地方债发行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id46">企业债发行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id47">可转债发行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id48">可转债转股</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bond/bond.html#id49">中债指数</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bond/bond.html#id50">总指数</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bond/bond.html#id51">综合类指数</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="bond/bond.html#id52">新综合指数</a></li>
+<li class="toctree-l5"><a class="reference internal" href="bond/bond.html#id53">综合指数</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="option/option.html">AKShare 期权数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="option/option.html#id1">期权基础信息</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="option/option.html#id2">期权交易所</a></li>
+<li class="toctree-l3"><a class="reference internal" href="option/option.html#id3">期权交易时间</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id4">商品期权</a></li>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id5">股指期权</a></li>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#etf">ETF期权</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="option/option.html#id6">期权上市时间</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id7">金融期权</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="option/option.html#id8">中国金融期货交易所</a></li>
+<li class="toctree-l5"><a class="reference internal" href="option/option.html#id9">上海证券交易所</a></li>
+<li class="toctree-l5"><a class="reference internal" href="option/option.html#id10">深圳证券交易所</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id11">商品期权</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="option/option.html#id12">上海期货交易所</a></li>
+<li class="toctree-l5"><a class="reference internal" href="option/option.html#id13">大连商品交易所</a></li>
+<li class="toctree-l5"><a class="reference internal" href="option/option.html#id14">郑州商品交易所</a></li>
+<li class="toctree-l5"><a class="reference internal" href="option/option.html#id15">广州期货交易所</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="option/option.html#id16">期权合约信息</a></li>
+<li class="toctree-l2"><a class="reference internal" href="option/option.html#id17">金融期权-三大交易所</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="option/option.html#id18">行情数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="option/option.html#id19">风险指标-上海证券交易所</a></li>
+<li class="toctree-l3"><a class="reference internal" href="option/option.html#id20">当日合约-上海证券交易所</a></li>
+<li class="toctree-l3"><a class="reference internal" href="option/option.html#id21">当日合约-深圳证券交易所</a></li>
+<li class="toctree-l3"><a class="reference internal" href="option/option.html#id22">每日统计-上海证券交易所</a></li>
+<li class="toctree-l3"><a class="reference internal" href="option/option.html#id23">每日统计-深圳证券交易所</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="option/option.html#id24">金融期权-新浪</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="option/option.html#id25">中金所</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id26">上证50指数列表</a></li>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id27">沪深300指数列表</a></li>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id28">中证1000指数列表</a></li>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id29">实时行情-上证50指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id30">实时行情-沪深300指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id31">实时行情-中证1000指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id32">日频行情-上证50指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id33">日频行情-沪深300指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id34">日频行情-中证1000指数</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="option/option.html#id35">上交所</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id36">合约到期月份列表</a></li>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id37">合约到期月份列表</a></li>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id38">所有合约的代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id39">实时数据</a></li>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id40">期权标的物的实时数据</a></li>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id41">期权希腊字母信息表</a></li>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id42">期权行情分钟数据</a></li>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id43">期权行情日数据</a></li>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id44">期权行情分时数据-新浪</a></li>
+<li class="toctree-l4"><a class="reference internal" href="option/option.html#id45">期权行情分时数据-东财</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="option/option.html#id46">期权实时行情-东方财富</a></li>
+<li class="toctree-l2"><a class="reference internal" href="option/option.html#id47">期权龙虎榜-金融期权</a></li>
+<li class="toctree-l2"><a class="reference internal" href="option/option.html#id48">期权价值分析-金融期权</a></li>
+<li class="toctree-l2"><a class="reference internal" href="option/option.html#id49">期权风险分析-金融期权</a></li>
+<li class="toctree-l2"><a class="reference internal" href="option/option.html#id50">期权折溢价-金融期权</a></li>
+<li class="toctree-l2"><a class="reference internal" href="option/option.html#id51">商品期权-新浪</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="option/option.html#id52">当前合约</a></li>
+<li class="toctree-l3"><a class="reference internal" href="option/option.html#id53">当前合约</a></li>
+<li class="toctree-l3"><a class="reference internal" href="option/option.html#id54">历史行情</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="option/option.html#id55">商品期权</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="option/option.html#id56">商品期权手续费</a></li>
+<li class="toctree-l3"><a class="reference internal" href="option/option.html#id57">商品期权保证金</a></li>
+<li class="toctree-l3"><a class="reference internal" href="option/option.html#id58">上海期货交易所</a></li>
+<li class="toctree-l3"><a class="reference internal" href="option/option.html#id59">大连商品交易所</a></li>
+<li class="toctree-l3"><a class="reference internal" href="option/option.html#id60">郑州商品交易所</a></li>
+<li class="toctree-l3"><a class="reference internal" href="option/option.html#id61">广州期货交易所</a></li>
+<li class="toctree-l3"><a class="reference internal" href="option/option.html#id62">广州期货交易所-隐含波动参考值</a></li>
+<li class="toctree-l3"><a class="reference internal" href="option/option.html#id63">历史数据</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fx/fx.html">AKShare 外汇数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fx/fx.html#id1">实时行情数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fx/fx.html#id2">历史行情数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fx/fx.html#id3">人民币牌价数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fx/fx.html#id4">人民币汇率中间价</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fx/fx.html#id5">人民币外汇即期报价</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fx/fx.html#id6">人民币外汇远掉报价</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fx/fx.html#c-swap">外汇掉期 C-Swap 定盘曲线</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fx/fx.html#id7">外币对即期报价</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fx/fx.html#id8">指定币种的所有货币对</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fx/fx.html#id9">货币对-投机情绪报告</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fx/fx.html#id10">外汇行情报价</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="currency/currency.html">AKShare 货币数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="currency/currency.html#id1">货币报价最新数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="currency/currency.html#id2">货币报价历史数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="currency/currency.html#id3">货币报价时间序列数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="currency/currency.html#id4">货币基础信息查询</a></li>
+<li class="toctree-l2"><a class="reference internal" href="currency/currency.html#id5">货币对价格转换</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="spot/spot.html">AKShare 现货数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="spot/spot.html#id1">99 现货走势</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spot/spot.html#id2">上海黄金交易所</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="spot/spot.html#id3">历史行情数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spot/spot.html#id4">实时行情数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spot/spot.html#id5">上海金基准价</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spot/spot.html#id6">上海银基准价</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="spot/spot.html#id7">生猪大数据</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="spot/spot.html#id8">各省均价实时排行榜</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spot/spot.html#id9">今年以来全国出栏均价走势</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spot/spot.html#id10">全国瘦肉型肉猪</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spot/spot.html#id11">全国三元仔猪</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spot/spot.html#id12">全国后备二元母猪</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spot/spot.html#id13">全国玉米价格走势</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spot/spot.html#id14">全国豆粕价格走势</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spot/spot.html#id15">全国育肥猪合料（含自配料）半月走势</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="interest_rate/interest_rate.html">AKShare 利率数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="interest_rate/interest_rate.html#id1">主要央行利率</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="interest_rate/interest_rate.html#id2">美联储利率决议报告</a></li>
+<li class="toctree-l3"><a class="reference internal" href="interest_rate/interest_rate.html#id3">欧洲央行决议报告</a></li>
+<li class="toctree-l3"><a class="reference internal" href="interest_rate/interest_rate.html#id4">新西兰联储决议报告</a></li>
+<li class="toctree-l3"><a class="reference internal" href="interest_rate/interest_rate.html#id5">中国央行决议报告</a></li>
+<li class="toctree-l3"><a class="reference internal" href="interest_rate/interest_rate.html#id6">瑞士央行利率决议报告</a></li>
+<li class="toctree-l3"><a class="reference internal" href="interest_rate/interest_rate.html#id7">英国央行决议报告</a></li>
+<li class="toctree-l3"><a class="reference internal" href="interest_rate/interest_rate.html#id8">澳洲联储决议报告</a></li>
+<li class="toctree-l3"><a class="reference internal" href="interest_rate/interest_rate.html#id9">日本利率决议报告</a></li>
+<li class="toctree-l3"><a class="reference internal" href="interest_rate/interest_rate.html#id10">俄罗斯利率决议报告</a></li>
+<li class="toctree-l3"><a class="reference internal" href="interest_rate/interest_rate.html#id11">印度利率决议报告</a></li>
+<li class="toctree-l3"><a class="reference internal" href="interest_rate/interest_rate.html#id12">巴西利率决议报告</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="interest_rate/interest_rate.html#id13">银行间拆借利率</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interest_rate/interest_rate.html#id14">回购定盘利率-历史</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interest_rate/interest_rate.html#id15">回购定盘利率-近期</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fund/fund_private.html">AKShare 私募基金数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_private.html#id1">中国证券投资基金业协会</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_private.html#id2">会员信息</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="fund/fund_private.html#id3">会员机构综合查询</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_private.html#id4">从业人员信息</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="fund/fund_private.html#id5">基金从业人员资格注册信息</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fund/fund_private.html#id6">债券投资交易相关人员公示</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_private.html#id7">私募基金管理人公示</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="fund/fund_private.html#id8">私募基金管理人综合查询</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fund/fund_private.html#id9">私募基金管理人分类公示</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fund/fund_private.html#id10">证券公司私募基金子公司管理人信息公示</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_private.html#id11">基金产品</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="fund/fund_private.html#id12">私募基金管理人基金产品</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fund/fund_private.html#id13">证券公司集合资管产品公示</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fund/fund_private.html#id14">证券公司直投基金</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fund/fund_private.html#id15">证券公司私募投资基金</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fund/fund_private.html#id16">基金公司及子公司集合资管产品公示</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fund/fund_private.html#id17">资产支持专项计划</a></li>
+<li class="toctree-l4"><a class="reference internal" href="fund/fund_private.html#id18">期货公司集合资管产品公示</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_private.html#id19">诚信信息</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="fund/fund_private.html#id20">已注销私募基金管理人名单</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fund/fund_public.html">AKShare 公募基金数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id1">基金基本信息</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id2">基金基本信息-雪球</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id3">基金基本信息-指数型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id4">基金申购状态</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id5">基金行情</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#etf">ETF基金实时行情-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id6">基金实时行情-同花顺</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id7">ETF基金实时行情-同花顺</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#lof">LOF基金实时行情-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id8">基金实时行情-新浪</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id9">ETF基金分时行情-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id10">LOF基金分时行情-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id11">ETF基金历史行情-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id12">LOF基金历史行情-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id13">基金历史行情-新浪</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id14">基金净值</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id15">开放式基金-实时数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id16">开放式基金-历史数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id17">货币型基金-实时数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id18">货币型基金-历史数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id19">理财型基金-实时数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id20">理财型基金-历史数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id21">分级基金-实时数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id22">分级基金-历史数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id23">场内交易基金-实时数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id24">场内交易基金-历史数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id25">香港基金-历史数据</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id26">分红送配</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id27">基金累计分红</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id28">基金分红</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id29">基金拆分</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id30">基金分红排行</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id31">基金排行</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id32">开放式基金排行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id33">场内交易基金排行榜</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id34">货币型基金排行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id35">理财基金排行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id36">香港基金排行</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id37">基金业绩-雪球</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id38">净值估算</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id39">基金数据分析</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id40">基金盈利概率</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id41">基金持仓资产比例</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id42">基金基本概况</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id43">基金交易费率</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id44">基金交易规则</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id45">基金持仓</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id46">债券持仓</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id47">行业配置</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id48">重大变动</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id49">基金评级</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id50">基金评级总汇</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id51">上海证券评级</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id52">招商证券评级</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id53">济安金信评级</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id54">基金经理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id55">新发基金</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id56">基金规模</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id57">开放式基金</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id58">封闭式基金</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id59">分级子基金</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id60">ETF 基金份额-上交所</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id61">ETF 基金份额-深交所</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id62">基金公司规模</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id63">基金规模详情</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id64">基金规模走势</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id65">基金公司历年管理规模</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#reits">REITs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id66">REITs-实时行情</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id67">REITs-历史行情</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id68">基金报告</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id69">基金重仓股</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id70">基金行业配置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id71">基金资产配置</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id72">规模份额</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id73">规模变动</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id74">持有人结构</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id75">基金仓位</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id76">股票型基金仓位</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id77">平衡混合型基金仓位</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id78">灵活配置型基金仓位</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="fund/fund_public.html#id79">基金公告</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id80">分红配送</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id81">定期报告</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fund/fund_public.html#id82">人事公告</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="index/index.html">AKShare 指数数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#a">A股股票指数</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id1">实时行情数据-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id2">实时行情数据-新浪</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id3">历史行情数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="index/index.html#id4">历史行情数据-新浪</a></li>
+<li class="toctree-l4"><a class="reference internal" href="index/index.html#id5">历史行情数据-腾讯</a></li>
+<li class="toctree-l4"><a class="reference internal" href="index/index.html#id6">历史行情数据-东方财富</a></li>
+<li class="toctree-l4"><a class="reference internal" href="index/index.html#id7">历史行情数据-通用</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id8">分时行情数据</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id9">港股股票指数</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id10">实时行情数据-新浪</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id11">历史行情数据-新浪</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id12">实时行情数据-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id13">历史行情数据-东财</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id14">美股股票指数</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id15">指数行情</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id16">全球指数</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id17">全球指数-实时行情数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id18">全球指数-历史行情数据-东财</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id19">全球指数-历史行情数据-新浪</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id20">中国股票指数成份</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id21">最新成份</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id22">中证指数成份股</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id23">中证指数成份股权重</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id24">国证指数</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id25">全部指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id26">指数行情</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id27">指数样本详情</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id28">历史样本</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id29">历史调样</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id30">期权波动率指数</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#etf">50ETF 期权波动率指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id31">50ETF 期权波动率指数-分时</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id32">300ETF 期权波动率指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id33">300ETF 期权波动率指数-分时</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id34">500ETF 期权波动率指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id35">500ETF 期权波动率指数-分时</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id36">创业板 期权波动率指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id37">创业板 期权波动率指数-分时</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id38">科创板 期权波动率指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id39">科创板 期权波动率指数-分时</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id40">深证100ETF 期权波动率指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id41">深证100ETF 期权波动率指数-分时</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id42">中证300股指 期权波动率指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id43">中证300股指 期权波动率指数-分时</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id44">中证1000股指 期权波动率指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id45">中证1000股指 期权波动率指数-分时</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id46">上证50股指 期权波动率指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id47">上证50股指 期权波动率指数-分时</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id48">申万一级行业信息</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id49">申万二级行业信息</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id50">申万三级行业信息</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id51">申万三级行业成份</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id52">商品现货价格指数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id53">义乌小商品指数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id54">柯桥纺织品指数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id55">柯桥时尚指数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id56">中国食糖指数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id57">配额内进口糖估算指数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id58">配额外进口糖估算指数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id59">排污权指数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id60">集装箱指数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id61">公路物流指数</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id62">中国公路物流运价指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id63">中国公路物流运量指数</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id64">中证指数</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id65">财新指数</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#pmi">综合 PMI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id66">制造业 PMI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id67">服务业 PMI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id68">数字经济指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id69">产业指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id70">溢出指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id71">融合指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id72">基础指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id73">中国新经济指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id74">劳动力投入指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id75">资本投入指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id76">科技投入指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id77">新经济行业入职平均工资水平</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id78">新经济入职工资溢价水平</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id79">大宗商品指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id80">高质量因子</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#ai">AI策略指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id81">基石经济指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id82">新动能指数</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id83">指数估值</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id84">指数估值-中证</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id85">申万宏源研究</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id86">基金指数实时行情</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id87">基金指数历史行情</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id88">申万指数实时行情</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id89">申万指数历史行情</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id90">申万指数分时行情</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id91">申万指数成分股</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id92">申万指数分析-日报表</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id93">申万指数分析-周报表</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id94">申万指数分析-月报表</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index/index.html#id95">市场情绪指数</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="index/index.html#id96">A 股新闻情绪指数</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="macro/macro.html">AKShare 宏观数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="macro/macro.html#id1">中国宏观</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id2">中国宏观杠杆率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id3">国民经济运行状况</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id4">经济状况</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id5">企业商品价格指数</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id6">外商直接投资数据</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#lpr">LPR品种数据</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id7">城镇调查失业率</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id8">社会融资规模增量统计</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#gdp">中国 GDP 年率</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id9">物价水平</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#cpi">中国 CPI 年率报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id10">中国 CPI 月率报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#ppi">中国 PPI 年率报告</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id11">贸易状况</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id12">以美元计算出口年率</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id13">以美元计算进口年率</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id14">以美元计算贸易帐(亿美元)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id15">产业指标</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id16">工业增加值增长</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id17">规模以上工业增加值年率</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#pmi">官方制造业 PMI</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id18">财新制造业PMI终值</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id19">财新服务业PMI</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id20">中国官方非制造业PMI</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id21">金融指标</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id22">外汇储备(亿美元)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#m2">M2货币供应年率</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id23">新房价指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id24">企业景气及企业家信心指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id25">全国税收收入</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id26">银行理财产品发行数量</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id27">原保险保费收入</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id28">手机出货量</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id29">菜篮子产品批发价格指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id30">农产品批发价格总指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id31">农副指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id32">能源指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id33">大宗商品价格</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id34">费城半导体指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id35">义乌小商品指数-电子元器件</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id36">建材指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id37">建材价格指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id38">物流景气指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id39">原油运输指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id40">超灵便型船运价指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id41">海岬型运费指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id42">波罗的海干散货指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id43">巴拿马型运费指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id44">成品油运输指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id45">新增信贷数据</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id46">居民消费价格指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id47">国内生产总值</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id48">工业品出厂价格指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id49">采购经理人指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id50">中国城镇固定资产投资</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id51">海关进出口增减情况</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id52">财政收入</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id53">外汇贷款数据</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id54">本外币存款</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id55">新债发行</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id56">消费者信心指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id57">存款准备金率</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id58">社会消费品零售总额</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id59">全社会用电分类情况表</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id60">全社会客货运输量</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id61">邮电业务基本情况</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id62">国际旅游外汇收入构成</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id63">民航客座率及载运率</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id64">航贸运价指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id65">央行货币当局资产负债</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id66">保险业经营情况</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id67">货币供应量</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#fr007">FR007利率互换曲线历史数据</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id68">央行黄金和外汇储备</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id69">商品零售价格指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id70">国房景气指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id71">外汇和黄金储备</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id72">中国货币供应量</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id73">全国股票交易统计表</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id74">上海银行业同业拆借报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id75">人民币香港银行同业拆息</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id76">其他指标</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id77">中国日度沿海六大电库存</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id78">人民币汇率中间价报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id79">深圳融资融券报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id80">上海融资融券报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id81">上海黄金交易所报告</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id82">国家统计局通用接口</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id83">国家统计局全国数据</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id84">国家统计局地区数据</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id85">金融市场</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id86">股票筹资</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id87">新增人民币贷款</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id88">人民币存款余额</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="macro/macro.html#id89">中国香港宏观</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id90">消费者物价指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id91">消费者物价指数年率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id92">失业率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id93">GDP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id94">GDP 同比</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id95">香港楼宇买卖合约数量</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id96">香港楼宇买卖合约成交金额</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id97">香港商品贸易差额年率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id98">香港制造业 PPI 年率</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="macro/macro.html#id99">美国宏观</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id100">经济状况</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id101">美国GDP</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id102">物价水平</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id103">美国CPI月率报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id104">美国CPI年率报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id105">美国核心CPI月率报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id106">美国个人支出月率报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id107">美国零售销售月率报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id108">美国进口物价指数报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id109">美国出口价格指数报告</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id110">劳动力市场</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#lmci">LMCI</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id111">失业率</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id112">美国失业率报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id113">美国挑战者企业裁员人数报告</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id114">就业人口</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id115">美国非农就业人数报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#adp">美国ADP就业人数报告</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id116">消费者收入与支出</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#pce">美国核心PCE物价指数年率报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id117">美国实际个人消费支出季率初值报告</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id118">贸易状况</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id119">美国贸易帐报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id120">美国经常帐报告</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id121">产业指标</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id122">制造业</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id123">贝克休斯钻井报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id124">美国生产者物价指数(PPI)报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id125">美国核心生产者物价指数(PPI)报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#api">美国 API 原油库存报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#markitpmi">美国Markit制造业PMI初值报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#ismpmi">美国ISM制造业PMI报告</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id126">工业</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id127">美国工业产出月率报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id128">美国耐用品订单月率报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id129">美国工厂订单月率报告</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id130">服务业</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id131">美国Markit服务业PMI初值报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id132">美国商业库存月率报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id133">美国ISM非制造业PMI报告</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id134">房地产</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#nahb">美国NAHB房产市场指数报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id135">美国新屋开工总数年化报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id136">美国新屋销售总数年化报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id137">美国营建许可总数报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id138">美国成屋销售总数年化报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#fhfa">美国FHFA房价指数月率报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#s-p-cs20">美国S&amp;P/CS20座大城市房价指数年率报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id139">美国成屋签约销售指数月率报告</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id140">领先指标</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id141">未决房屋销售月率</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id142">美国谘商会消费者信心指数报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#nfib">美国NFIB小型企业信心指数报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id143">美国密歇根大学消费者信心指数初值报告</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id144">其他</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#eia">美国EIA原油库存报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id145">美国初请失业金人数报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id146">美国原油产量报告</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="macro/macro.html#id147">欧元区宏观</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id148">国民经济运行状况</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id149">经济状况</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id150">欧元区季度GDP年率报告</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id151">物价水平</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id152">欧元区CPI月率报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id153">欧元区CPI年率报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id154">欧元区PPI月率报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id155">欧元区零售销售月率报告</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id156">劳动力市场</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id157">欧元区季调后就业人数季率报告</a></li>
+<li class="toctree-l5"><a class="reference internal" href="macro/macro.html#id158">欧元区失业率报告</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id159">贸易状况</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id160">欧元区未季调贸易帐报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id161">欧元区经常帐报告</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id162">产业指标</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id163">欧元区工业产出月率报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id164">欧元区制造业PMI初值报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id165">欧元区服务业PMI终值报告</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id166">领先指标</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#zew">欧元区ZEW经济景气指数报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#sentix">欧元区Sentix投资者信心指数报告</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="macro/macro.html#id167">德国宏观</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#ifo">IFO商业景气指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id168">消费者物价指数月率终值</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id169">消费者物价指数年率终值</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id170">贸易帐-季调后</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id171">GDP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id172">实际零售销售月率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id173">实际零售销售年率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id174">ZEW 经济景气指数</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="macro/macro.html#id175">瑞士宏观</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#svme">SVME 采购经理人指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id176">贸易帐</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id177">消费者物价指数年率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id178">GDP 季率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id179">GDP 年率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id180">央行公布利率决议</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="macro/macro.html#id181">日本宏观</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id182">央行公布利率决议</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id183">全国消费者物价指数年率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id184">全国核心消费者物价指数年率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id185">失业率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id186">领先指标终值</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="macro/macro.html#id187">英国宏观</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#halifax">Halifax 房价指数月率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id188">Halifax 房价指数年率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id189">贸易帐</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id190">央行公布利率决议</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id191">核心消费者物价指数年率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id192">核心消费者物价指数月率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id193">消费者物价指数年率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id194">消费者物价指数月率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id195">零售销售月率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id196">零售销售年率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#rightmove">Rightmove 房价指数年率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id197">Rightmove 房价指数月率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id198">GDP 季率初值</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id199">GDP 年率初值</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id200">失业率</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="macro/macro.html#id201">澳大利亚宏观</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id202">零售销售月率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id203">贸易帐</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id204">失业率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id205">生产者物价指数季率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id206">消费者物价指数季率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id207">消费者物价指数年率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id208">央行公布利率决议</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="macro/macro.html#id209">加拿大宏观</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id210">新屋开工</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id211">失业率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id212">贸易帐</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id213">零售销售月率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id214">央行公布利率决议</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id215">核心消费者物价指数年率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id216">核心消费者物价指数月率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id217">消费者物价指数年率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id218">消费者物价指数月率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id219">GDP 月率</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="macro/macro.html#id220">重要机构</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#etfspdr-gold-trust">全球最大黄金 ETF—SPDR Gold Trust 持仓报告</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#etf-ishares-silver-trust">全球最大白银ETF--iShares Silver Trust持仓报告</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id221">欧佩克报告</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id222">伦敦金属交易所</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id223">持仓报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id224">库存报告</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id225">美国商品期货交易委员会</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id226">外汇类非商业持仓报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id227">商品类非商业持仓报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id228">外汇类商业持仓报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id229">商品类商业持仓报告</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id230">芝加哥交易所</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="macro/macro.html#id231">贵金属</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="macro/macro.html#id232">全球宏观</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id233">宏观日历</a></li>
+<li class="toctree-l3"><a class="reference internal" href="macro/macro.html#id234">全球宏观事件</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dc/dc.html">AKShare 加密货币数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dc/dc.html#id1">实时数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dc/dc.html#id2">持仓报告</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dc/dc.html#id3">比特币持仓报告</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dc/dc.html#cme">CME-成交量报告</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bank/bank.html">AKShare 银行数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bank/bank.html#id1">银保监分局本级行政处罚</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="article/article.html">AKShare 波动率数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="article/article.html#id1">已实现波动率数据</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="article/article.html#oxford-man">Oxford-Man</a></li>
+<li class="toctree-l3"><a class="reference internal" href="article/article.html#risk-lab">Risk-Lab</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="article/article.html#id2">AKShare 多因子数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="article/article.html#current-research-returns">Current Research Returns</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="article/article.html#id3">AKShare 政策不确定性数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="article/article.html#id4">国家和地区指数</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="energy/energy.html">AKShare 能源数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="energy/energy.html#id1">碳排放</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="energy/energy.html#id2">碳排放权-国内</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy/energy.html#id3">碳排放权-北京</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy/energy.html#id4">碳排放权-深圳</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy/energy.html#id5">碳排放权-国际</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy/energy.html#id6">碳排放权-湖北</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy/energy.html#id7">碳排放权-广州</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="energy/energy.html#id8">中国油价</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="energy/energy.html#id9">汽柴油历史调价信息</a></li>
+<li class="toctree-l3"><a class="reference internal" href="energy/energy.html#id10">地区油价</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="event/event.html">AKShare 迁徙数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="event/event.html#id1">迁徙数据-百度</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="event/event.html#id2">迁入与迁出地详情</a></li>
+<li class="toctree-l3"><a class="reference internal" href="event/event.html#id3">迁徙规模</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="hf/hf.html">AKShare 高频数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hf/hf.html#id1">标普 500 指数</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nlp/nlp.html">AKShare 自然语言处理</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="nlp/nlp.html#id1">知识图谱</a></li>
+<li class="toctree-l2"><a class="reference internal" href="nlp/nlp.html#id2">智能问答</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="qdii/qdii.html">AKShare QDII 数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qdii/qdii.html#t-0-qdii">T+0 QDII 欧美市场</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="qdii/qdii.html#id1">欧美指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="qdii/qdii.html#id2">欧美商品</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="qdii/qdii.html#id3">T+0 QDII 亚洲市场</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="qdii/qdii.html#id4">亚洲指数</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="others/others.html">AKShare 另类数据</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="others/others.html#id1">汽车销量排行</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id2">乘联会-统计数据-总体市场</a></li>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id3">乘联会-统计数据-厂商排名</a></li>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id4">乘联会-统计数据-车型大类</a></li>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id5">乘联会-统计数据-国别细分市场</a></li>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id6">乘联会-统计数据-级别细分市场</a></li>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id7">乘联会-统计数据-新能源细分市场</a></li>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id8">盖世研究院</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="others/others.html#id9">新闻联播文字稿</a></li>
+<li class="toctree-l2"><a class="reference internal" href="others/others.html#id10">日出和日落</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id11">日出和日落-天</a></li>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id12">日出和日落-月</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="others/others.html#id13">空气质量-河北</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id14">近期空气质量</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="others/others.html#id15">空气质量-全国</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id16">城市列表</a></li>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id17">空气质量历史数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id18">空气质量排名</a></li>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id19">监测点空气质量</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="others/others.html#id20">财富排行榜-中文</a></li>
+<li class="toctree-l2"><a class="reference internal" href="others/others.html#id21">福布斯中国榜单</a></li>
+<li class="toctree-l2"><a class="reference internal" href="others/others.html#id22">新财富富豪榜</a></li>
+<li class="toctree-l2"><a class="reference internal" href="others/others.html#id23">胡润排行榜</a></li>
+<li class="toctree-l2"><a class="reference internal" href="others/others.html#id24">电影票房</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id25">实时票房</a></li>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id26">单日票房</a></li>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id27">单周票房</a></li>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id28">单月票房</a></li>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id29">年度票房</a></li>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id30">年度首周票房</a></li>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id31">影院票房-日票房排行</a></li>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id32">影院票房-周票房排行</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="others/others.html#id33">视频播映</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id34">电视剧集</a></li>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id35">综艺节目</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="others/others.html#id36">艺人</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id37">艺人商业价值</a></li>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id38">艺人流量价值</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="others/others.html#id39">微博舆情报告</a></li>
+<li class="toctree-l2"><a class="reference internal" href="others/others.html#id40">彭博亿万富豪指数</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id41">彭博实时亿万富豪指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="others/others.html#id42">历史彭博亿万富豪指数</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="qhkc/index.html">AKShare 奇货可查</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qhkc/commodity.html">商品</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/commodity.html#id2">合约持仓数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id3">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id4">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id5">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id6">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id7">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id8">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/commodity.html#id9">商品持仓数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id10">接口名称</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id11">接口描述</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id12">请求参数</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id13">返回参数</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id14">示例代码</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id15">返回示例</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/commodity.html#id16">商品净持仓数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id17">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id18">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id19">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id20">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id21">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id22">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/commodity.html#id23">合约行情数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id24">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id25">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id26">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id27">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id28">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id29">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/commodity.html#id30">商品沉淀资金数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id31">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id32">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id33">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id34">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id35">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id36">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/commodity.html#id37">合约多空比数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id38">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id39">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id40">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id41">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id42">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id43">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/commodity.html#id44">合约净持仓保证金变化数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id45">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id46">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id47">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id48">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id49">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id50">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/commodity.html#id51">合约净持仓保证金数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id52">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id53">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id54">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id55">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id56">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id57">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/commodity.html#id58">合约总持仓保证金数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id59">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id60">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id61">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id62">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id63">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id64">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/commodity.html#id65">商品的席位盈亏数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id66">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id67">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id68">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id69">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id70">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id71">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/commodity.html#id72">自研指标数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id73">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id74">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id75">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id76">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id77">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id78">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/commodity.html#id79">龙虎比排行数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id80">多头排行</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id81">接口名称</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id82">接口描述</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id83">请求参数</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id84">返回参数</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id85">示例代码</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id86">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id87">空头排行</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id88">接口名称</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id89">接口描述</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id90">请求参数</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id91">返回参数</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id92">示例代码</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id93">返回示例</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/commodity.html#id94">牛熊线排行数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id95">多头排行</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id96">接口名称</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id97">接口描述</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id98">请求参数</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id99">返回参数</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id100">示例代码</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id101">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id102">空头排行</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id103">接口名称</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id104">接口描述</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id105">请求参数</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id106">返回参数</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id107">示例代码</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/commodity.html#id108">返回示例</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/commodity.html#id109">商品相关研报数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id110">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id111">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id112">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id113">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id114">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id115">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/commodity.html#id116">商品列表数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id117">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id118">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id119">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id120">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id121">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id122">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/commodity.html#id123">合约索引</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id124">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id125">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id126">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id127">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id128">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id129">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/commodity.html#id130">非期货公司净持仓</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id131">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id132">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id133">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id134">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id135">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/commodity.html#id136">返回示例</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="qhkc/broker.html">席位</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/broker.html#id2">席位持仓数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id3">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id4">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id5">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id6">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id7">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id8">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/broker.html#id9">席位盈亏数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id10">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id11">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id12">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id13">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id14">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id15">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/broker.html#id16">席位每日大资金流动数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id17">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id18">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id19">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id20">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id21">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id22">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/broker.html#id23">席位多空比数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id24">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id25">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id26">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id27">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id28">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id29">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/broker.html#id30">席位净持仓保证金变化数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id31">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id32">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id33">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id34">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id35">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id36">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/broker.html#id37">席位净持仓保证金数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id38">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id39">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id40">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id41">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id42">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id43">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/broker.html#id44">席位总持仓保证金数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id45">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id46">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id47">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id48">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id49">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id50">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/broker.html#id51">席位的商品盈亏数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id52">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id53">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id54">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id55">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id56">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id57">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/broker.html#id58">席位盈利排行</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id59">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id60">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id61">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id62">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id63">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id64">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/broker.html#id65">席位亏损排行</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id66">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id67">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id68">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id69">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id70">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id71">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/broker.html#id72">所有席位数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id73">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id74">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id75">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id76">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id77">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id78">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/broker.html#id79">建仓过程</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id80">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id81">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id82">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id83">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id84">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id85">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/broker.html#id86">席位对对碰</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id87">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id88">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id89">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id90">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id91">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/broker.html#id92">返回示例</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="qhkc/index_data.html">指数</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/index_data.html#id2">指数信息</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id3">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id4">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id5">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id6">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id7">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id8">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/index_data.html#id9">指数权重数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id10">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id11">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id12">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id13">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id14">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id15">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/index_data.html#id16">指数行情数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id17">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id18">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id19">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id20">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id21">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id22">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/index_data.html#id23">指数沉淀资金数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id24">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id25">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id26">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id27">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id28">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id29">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/index_data.html#id30">公共指数列表</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id31">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id32">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id33">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id34">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id35">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id36">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/index_data.html#id37">个人指数列表</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id38">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id39">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id40">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id41">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id42">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id43">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/index_data.html#id44">指数资金动向</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id45">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id46">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id47">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id48">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id49">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id50">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/index_data.html#id51">指数的席位盈亏数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id52">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id53">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id54">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id55">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id56">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/index_data.html#id57">返回示例</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="qhkc/fundamental.html">基本面</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/fundamental.html#id2">基差数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id3">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id4">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id5">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id6">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id7">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id8">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/fundamental.html#id9">期限结构</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id10">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id11">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id12">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id13">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id14">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id15">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/fundamental.html#id16">库存数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id17">参数类型一</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/fundamental.html#id18">接口名称</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/fundamental.html#id19">接口描述</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/fundamental.html#id20">请求参数</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/fundamental.html#id21">返回参数</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/fundamental.html#id22">示例代码</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/fundamental.html#id23">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id24">参数类型二</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/fundamental.html#id25">接口名称</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/fundamental.html#id26">接口描述</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/fundamental.html#id27">请求参数</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/fundamental.html#id28">返回参数</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/fundamental.html#id29">示例代码</a></li>
+<li class="toctree-l5"><a class="reference internal" href="qhkc/fundamental.html#id30">返回示例</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/fundamental.html#id31">利润数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id32">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id33">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id34">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id35">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id36">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id37">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/fundamental.html#id38">现货贸易商报价</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id39">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id40">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id41">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id42">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id43">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id44">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/fundamental.html#id45">跨期套利数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id46">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id47">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id48">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id49">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id50">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id51">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/fundamental.html#id52">自由价差数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id53">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id54">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id55">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id56">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id57">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id58">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/fundamental.html#id59">自由价比数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id60">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id61">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id62">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id63">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id64">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id65">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/fundamental.html#id66">仓单数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id67">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id68">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id69">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id70">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id71">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id72">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/fundamental.html#id73">仓单汇总数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id74">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id75">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id76">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id77">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id78">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id79">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/fundamental.html#id80">虚实盘比数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id81">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id82">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id83">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id84">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id85">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fundamental.html#id86">返回示例</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="qhkc/tools.html">工具</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/tools.html#id2">龙虎牛熊多头合约池</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/tools.html#id3">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/tools.html#id4">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/tools.html#id5">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/tools.html#id6">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/tools.html#id7">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/tools.html#id8">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/tools.html#id9">龙虎牛熊空头合约池</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/tools.html#id10">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/tools.html#id11">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/tools.html#id12">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/tools.html#id13">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/tools.html#id14">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/tools.html#id15">返回示例</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="qhkc/fund.html">资金</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/fund.html#id2">每日净流多列表(商品)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id3">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id4">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id5">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id6">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id7">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id8">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/fund.html#id9">每日净流空列表(商品)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id10">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id11">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id12">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id13">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id14">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id15">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/fund.html#id16">每日净流多列表(指数)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id17">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id18">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id19">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id20">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id21">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id22">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/fund.html#id23">每日净流空列表(指数)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id24">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id25">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id26">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id27">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id28">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id29">返回示例</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="qhkc/fund.html#id30">每日商品保证金沉淀变化</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id31">接口名称</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id32">接口描述</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id33">请求参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id34">返回参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id35">示例代码</a></li>
+<li class="toctree-l4"><a class="reference internal" href="qhkc/fund.html#id36">返回示例</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tool/tool.html">AKShare 工具箱</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="tool/tool.html#id1">交易日历</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../installation.html" class="btn btn-neutral float-left" title="AKShare 安装指导" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="stock/stock.html" class="btn btn-neutral float-right" title="AKShare 股票数据" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2019–2026, AKShare Developers。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

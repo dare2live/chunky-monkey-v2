@@ -1,0 +1,656 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="readthedocs-addons-api-version" content="1"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AKShare QDII 数据 &mdash; AKShare 1.18.40 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments%EF%B9%96v=b86133f3.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme%EF%B9%96v=9edc463e.css" />
+
+  
+      <script src="https://akshare.akfamily.xyz/_static/jquery.js?v=5d32c60e"></script>
+      <script src="https://akshare.akfamily.xyz/_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="https://akshare.akfamily.xyz/_static/documentation_options.js?v=5dffd886"></script>
+      <script src="https://akshare.akfamily.xyz/_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="https://akshare.akfamily.xyz/_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="https://akshare.akfamily.xyz/_static/translations.js?v=540d3cec"></script>
+    <script src="https://akshare.akfamily.xyz/_static/js/theme.js"></script>
+    <script src="https://akshare.akfamily.xyz/_static/js/versions.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="AKShare 另类数据" href="../others/others.html" />
+    <link rel="prev" title="AKShare 自然语言处理" href="../nlp/nlp.html" /> 
+<script async type="text/javascript" src="https://akshare.akfamily.xyz/_/static/javascript/readthedocs-addons.js"></script><meta name="readthedocs-project-slug" content="akshare" /><meta name="readthedocs-version-slug" content="latest" /><meta name="readthedocs-resolver-filename" content="/data/qdii/qdii.html" /><meta name="readthedocs-http-status" content="200" /></head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            AKShare
+          </a>
+              <div class="switch-menus">
+                <div class="version-switch"></div>
+                <div class="language-switch"></div>
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Table of contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">AKShare 项目概览</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">AKShare 安装指导</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">AKShare 数据字典</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../stock/stock.html">AKShare 股票数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../futures/futures.html">AKShare 期货数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bond/bond.html">AKShare 债券数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../option/option.html">AKShare 期权数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fx/fx.html">AKShare 外汇数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../currency/currency.html">AKShare 货币数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../spot/spot.html">AKShare 现货数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../interest_rate/interest_rate.html">AKShare 利率数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fund/fund_private.html">AKShare 私募基金数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fund/fund_public.html">AKShare 公募基金数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index/index.html">AKShare 指数数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../macro/macro.html">AKShare 宏观数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dc/dc.html">AKShare 加密货币数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bank/bank.html">AKShare 银行数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../article/article.html">AKShare 波动率数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../article/article.html#id2">AKShare 多因子数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../article/article.html#id3">AKShare 政策不确定性数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../energy/energy.html">AKShare 能源数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../event/event.html">AKShare 迁徙数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hf/hf.html">AKShare 高频数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../nlp/nlp.html">AKShare 自然语言处理</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">AKShare QDII 数据</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#t-0-qdii">T+0 QDII 欧美市场</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">欧美指数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">欧美商品</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">T+0 QDII 亚洲市场</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id4">亚洲指数</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../others/others.html">AKShare 另类数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qhkc/index.html">AKShare 奇货可查</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tool/tool.html">AKShare 工具箱</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../indicator.html">AKShare 指标计算</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data_tips.html">AKShare 数据说明</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../trade.html">AKShare 实盘交易</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../answer.html">AKShare 答疑专栏</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">AKShare 快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../articles.html">AKShare 相关文章</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anaconda.html">AKShare 环境配置</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../platform.html">AKShare 量化专题</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../demo.html">AKShare 策略示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">AKShare 版本更新</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">AKShare 贡献源码</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dependency.html">AKShare 依赖说明</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deploy_http.html">AKShare HTTP 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../akdocker/akdocker.html">AKShare Docker 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../special.html">AKShare 特别说明</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">AKShare</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">AKShare 数据字典</a></li>
+      <li class="breadcrumb-item active">AKShare QDII 数据</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/data/qdii/qdii.md" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="akshare-qdii">
+<h1><a class="reference external" href="https://github.com/akfamily/akshare">AKShare</a> QDII 数据<a class="headerlink" href="#akshare-qdii" title="链接到此标题。"></a></h1>
+<section id="t-0-qdii">
+<h2>T+0 QDII 欧美市场<a class="headerlink" href="#t-0-qdii" title="链接到此标题。"></a></h2>
+<section id="id1">
+<h3>欧美指数<a class="headerlink" href="#id1" title="链接到此标题。"></a></h3>
+<p>接口: qdii_e_index_jsl</p>
+<p>目标地址: https://www.jisilu.cn/data/qdii/#qdiia</p>
+<p>描述: 集思录-T+0 QDII-欧美市场-欧美指数</p>
+<p>限量: 单次返回所有数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cookie</td>
+<td>str</td>
+<td>需要传入用户登录后的 cookie</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>代码</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>名称</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>现价</td>
+<td>float64</td>
+<td></td>
+</tr>
+<tr>
+<td>涨幅</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>成交</td>
+<td>float64</td>
+<td>注意单位: 万元</td>
+</tr>
+<tr>
+<td>场内份额</td>
+<td>int64</td>
+<td>注意单位: 万份</td>
+</tr>
+<tr>
+<td>场内新增</td>
+<td>int64</td>
+<td>注意单位: 万份</td>
+</tr>
+<tr>
+<td>T-2净值</td>
+<td>float64</td>
+<td></td>
+</tr>
+<tr>
+<td>净值日期</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>T-1估值</td>
+<td>float64</td>
+<td></td>
+</tr>
+<tr>
+<td>估值日期</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>T-1溢价率</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>相关标的</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>T-1指数涨幅</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>申购费</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>赎回费</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>托管费</td>
+<td>float64</td>
+<td></td>
+</tr>
+<tr>
+<td>基金公司</td>
+<td>object</td>
+<td></td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">qdii_e_index_jsl_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">qdii_e_index_jsl</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">qdii_e_index_jsl_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>     <span class="n">代码</span>            <span class="n">名称</span>     <span class="n">现价</span>      <span class="n">涨幅</span>  <span class="o">...</span>   <span class="n">申购费</span>   <span class="n">赎回费</span> <span class="n">托管费</span> <span class="n">基金公司</span>
+<span class="mi">0</span>   <span class="mi">513220</span>       <span class="n">中概互联ETF</span>  <span class="mf">1.235</span>   <span class="mf">9.97</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.65</span>   <span class="n">招商基金</span>
+<span class="mi">1</span>   <span class="mi">513360</span>         <span class="n">教育ETF</span>  <span class="mf">0.537</span>  <span class="mf">10.04</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">0.50</span><span class="o">%</span>  <span class="mf">0.50</span><span class="o">%</span>  <span class="mf">0.65</span>   <span class="n">博时基金</span>
+<span class="mi">2</span>   <span class="mi">159605</span>       <span class="n">中概互联ETF</span>  <span class="mf">1.020</span>   <span class="mf">7.94</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.60</span>   <span class="n">广发基金</span>
+<span class="mi">3</span>   <span class="mi">159607</span>      <span class="n">中概互联网ETF</span>  <span class="mf">1.009</span>   <span class="mf">7.80</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">0.00</span><span class="o">%</span>  <span class="mf">0.00</span><span class="o">%</span>  <span class="mf">0.60</span>   <span class="n">嘉实基金</span>
+<span class="mi">4</span>   <span class="mi">513050</span>      <span class="n">中概互联网ETF</span>  <span class="mf">1.306</span>   <span class="mf">7.22</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">0.50</span><span class="o">%</span>  <span class="mf">0.50</span><span class="o">%</span>  <span class="mf">0.85</span>    <span class="n">易方达</span>
+<span class="mi">5</span>   <span class="mi">164906</span>      <span class="n">中概互联网LOF</span>  <span class="mf">1.180</span>   <span class="mf">8.76</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.20</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.45</span>  <span class="n">交银施罗德</span>
+<span class="mi">6</span>   <span class="mi">159822</span>        <span class="n">新经济ETF</span>  <span class="mf">0.682</span>   <span class="mf">7.06</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.35</span>   <span class="n">银华基金</span>
+<span class="mi">7</span>   <span class="mi">159509</span>       <span class="n">纳指科技ETF</span>  <span class="mf">1.454</span>  <span class="o">-</span><span class="mf">1.69</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">1.05</span>   <span class="n">景顺长城</span>
+<span class="mi">8</span>   <span class="mi">161128</span>     <span class="n">标普信息科技LOF</span>  <span class="mf">4.609</span>  <span class="o">-</span><span class="mf">1.77</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.20</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.05</span>    <span class="n">易方达</span>
+<span class="mi">9</span>   <span class="mi">159518</span>       <span class="n">标普油气ETF</span>  <span class="mf">0.910</span>   <span class="mf">2.59</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">0.50</span><span class="o">%</span>   <span class="mf">0.5</span><span class="o">%</span>  <span class="mf">0.60</span>   <span class="n">嘉实基金</span>
+<span class="mi">10</span>  <span class="mi">513300</span>       <span class="n">纳斯达克ETF</span>  <span class="mf">1.770</span>  <span class="o">-</span><span class="mf">1.17</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">0.50</span><span class="o">%</span>  <span class="mf">0.50</span><span class="o">%</span>  <span class="mf">0.80</span>   <span class="n">华夏基金</span>
+<span class="mi">11</span>  <span class="mi">513350</span>       <span class="n">标普油气ETF</span>  <span class="mf">0.947</span>   <span class="mf">2.71</span><span class="o">%</span>  <span class="o">...</span>   <span class="mf">0.5</span><span class="o">%</span>   <span class="mf">0.5</span><span class="o">%</span>  <span class="mf">0.60</span>   <span class="n">富国基金</span>
+<span class="mi">12</span>  <span class="mi">513500</span>      <span class="n">标普500ETF</span>  <span class="mf">1.908</span>  <span class="o">-</span><span class="mf">0.57</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">0.50</span><span class="o">%</span>  <span class="mf">0.50</span><span class="o">%</span>  <span class="mf">0.85</span>   <span class="n">博时基金</span>
+<span class="mi">13</span>  <span class="mi">159502</span>     <span class="n">标普生物科技ETF</span>  <span class="mf">1.036</span>   <span class="mf">0.88</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">0.50</span><span class="o">%</span>   <span class="mf">0.5</span><span class="o">%</span>  <span class="mf">0.60</span>   <span class="n">嘉实基金</span>
+<span class="mi">14</span>  <span class="mi">513290</span>     <span class="n">纳指生物科技ETF</span>  <span class="mf">1.217</span>   <span class="mf">1.25</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.65</span>    <span class="n">汇添富</span>
+<span class="mi">15</span>  <span class="mi">159655</span>         <span class="n">标普ETF</span>  <span class="mf">1.461</span>  <span class="o">-</span><span class="mf">0.14</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">0.50</span><span class="o">%</span>  <span class="mf">0.50</span><span class="o">%</span>  <span class="mf">0.75</span>   <span class="n">华夏基金</span>
+<span class="mi">16</span>  <span class="mi">159612</span>      <span class="n">标普500ETF</span>  <span class="mf">1.497</span>  <span class="o">-</span><span class="mf">0.86</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">0.50</span><span class="o">%</span>   <span class="mf">0.5</span><span class="o">%</span>  <span class="mf">0.75</span>   <span class="n">国泰基金</span>
+<span class="mi">17</span>  <span class="mi">513730</span>      <span class="n">东南亚科技ETF</span>  <span class="mf">1.238</span>   <span class="mf">0.65</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.50</span>   <span class="n">华泰柏瑞</span>
+<span class="mi">18</span>  <span class="mi">159529</span>       <span class="n">标普消费ETF</span>  <span class="mf">1.151</span>   <span class="mf">1.41</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.70</span>   <span class="n">景顺长城</span>
+<span class="mi">19</span>  <span class="mi">161126</span>     <span class="n">标普医疗保健LOF</span>  <span class="mf">1.955</span>   <span class="mf">0.26</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.20</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.05</span>    <span class="n">易方达</span>
+<span class="mi">20</span>  <span class="mi">513850</span>       <span class="n">美国50ETF</span>  <span class="mf">1.266</span>   <span class="mf">0.00</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.60</span>    <span class="n">易方达</span>
+<span class="mi">21</span>  <span class="mi">513650</span>    <span class="n">标普500ETF基金</span>  <span class="mf">1.447</span>   <span class="mf">0.35</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.75</span>   <span class="n">南方基金</span>
+<span class="mi">22</span>  <span class="mi">159632</span>       <span class="n">纳斯达克ETF</span>  <span class="mf">1.607</span>   <span class="mf">0.25</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.80</span>   <span class="n">华安基金</span>
+<span class="mi">23</span>  <span class="mi">159941</span>         <span class="n">纳指ETF</span>  <span class="mf">1.064</span>  <span class="o">-</span><span class="mf">0.47</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">1.05</span>   <span class="n">广发基金</span>
+<span class="mi">24</span>  <span class="mi">159659</span>    <span class="n">纳斯达克100ETF</span>  <span class="mf">1.505</span>  <span class="o">-</span><span class="mf">0.13</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.65</span>   <span class="n">招商基金</span>
+<span class="mi">25</span>  <span class="mi">159696</span>      <span class="n">纳指ETF易方达</span>  <span class="mf">1.300</span>  <span class="o">-</span><span class="mf">0.38</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.60</span>    <span class="n">易方达</span>
+<span class="mi">26</span>  <span class="mi">513030</span>         <span class="n">德国ETF</span>  <span class="mf">1.449</span>   <span class="mf">1.54</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">1.00</span>   <span class="n">华安基金</span>
+<span class="mi">27</span>  <span class="mi">513100</span>         <span class="n">纳指ETF</span>  <span class="mf">1.409</span>  <span class="o">-</span><span class="mf">0.35</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">0.50</span><span class="o">%</span>  <span class="mf">0.50</span><span class="o">%</span>  <span class="mf">0.80</span>   <span class="n">国泰基金</span>
+<span class="mi">28</span>  <span class="mi">513400</span>        <span class="n">道琼斯ETF</span>  <span class="mf">1.060</span>   <span class="mf">1.05</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.65</span>   <span class="n">鹏华基金</span>
+<span class="mi">29</span>  <span class="mi">159561</span>         <span class="n">德国ETF</span>  <span class="mf">1.059</span>   <span class="mf">1.05</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.60</span>   <span class="n">嘉实基金</span>
+<span class="mi">30</span>  <span class="mi">513080</span>    <span class="n">法国CAC40ETF</span>  <span class="mf">1.594</span>   <span class="mf">1.40</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.65</span>   <span class="n">华安基金</span>
+<span class="mi">31</span>  <span class="mi">513390</span>      <span class="n">纳指100ETF</span>  <span class="mf">1.568</span>  <span class="o">-</span><span class="mf">0.32</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.65</span>   <span class="n">博时基金</span>
+<span class="mi">32</span>  <span class="mi">159501</span>     <span class="n">纳斯达克指数ETF</span>  <span class="mf">1.315</span>  <span class="o">-</span><span class="mf">0.38</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">0.50</span><span class="o">%</span>   <span class="mf">0.5</span><span class="o">%</span>  <span class="mf">0.60</span>   <span class="n">嘉实基金</span>
+<span class="mi">33</span>  <span class="mi">159577</span>       <span class="n">美国50ETF</span>  <span class="mf">1.135</span>  <span class="o">-</span><span class="mf">0.26</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.65</span>    <span class="n">汇添富</span>
+<span class="mi">34</span>  <span class="mi">513110</span>    <span class="n">纳斯达克100ETF</span>  <span class="mf">1.615</span>  <span class="o">-</span><span class="mf">0.19</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">0.50</span><span class="o">%</span>  <span class="mf">0.50</span><span class="o">%</span>  <span class="mf">1.00</span>   <span class="n">华泰柏瑞</span>
+<span class="mi">35</span>  <span class="mi">159660</span>      <span class="n">纳指100ETF</span>  <span class="mf">1.529</span>  <span class="o">-</span><span class="mf">0.39</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.65</span>    <span class="n">汇添富</span>
+<span class="mi">36</span>  <span class="mi">513870</span>       <span class="n">纳指ETF富国</span>  <span class="mf">1.329</span>   <span class="mf">0.00</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.60</span>   <span class="n">富国基金</span>
+<span class="mi">37</span>  <span class="mi">159513</span>  <span class="n">纳斯达克100指数ETF</span>  <span class="mf">1.182</span>  <span class="o">-</span><span class="mf">0.08</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">1.05</span>   <span class="n">大成基金</span>
+<span class="mi">38</span>  <span class="mi">161127</span>     <span class="n">标普生物科技LOF</span>  <span class="mf">1.399</span>   <span class="mf">0.21</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.20</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.05</span>    <span class="n">易方达</span>
+<span class="mi">39</span>  <span class="mi">501300</span>        <span class="n">美元债LOF</span>  <span class="mf">0.936</span>  <span class="o">-</span><span class="mf">0.32</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">0.80</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">0.80</span>    <span class="n">海富通</span>
+<span class="mi">40</span>  <span class="mi">161125</span>      <span class="n">标普500LOF</span>  <span class="mf">2.449</span>   <span class="mf">0.00</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.20</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.05</span>    <span class="n">易方达</span>
+<span class="mi">41</span>  <span class="mi">162415</span>       <span class="n">美国消费LOF</span>  <span class="mf">2.553</span>   <span class="mf">0.20</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.20</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.25</span>   <span class="n">华宝基金</span>
+<span class="mi">42</span>  <span class="mi">161130</span>    <span class="n">纳斯达克100LOF</span>  <span class="mf">3.159</span>  <span class="o">-</span><span class="mf">0.63</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.20</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">0.60</span>    <span class="n">易方达</span>
+<span class="mi">43</span>  <span class="mi">160140</span>   <span class="n">美国REIT精选LOF</span>  <span class="mf">1.307</span>   <span class="mf">0.08</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.20</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.05</span>   <span class="n">南方基金</span>
+<span class="mi">44</span>  <span class="mi">501312</span>       <span class="n">海外科技LOF</span>  <span class="mf">1.368</span>   <span class="mf">0.74</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.20</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.20</span>   <span class="n">华宝基金</span>
+<span class="mi">45</span>  <span class="mi">164824</span>       <span class="n">印度基金LOF</span>  <span class="mf">1.596</span>  <span class="o">-</span><span class="mf">1.54</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.20</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.80</span>   <span class="n">工银瑞信</span>
+<span class="mi">46</span>  <span class="mi">501225</span>       <span class="n">全球芯片LOF</span>  <span class="mf">1.353</span>   <span class="mf">3.28</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.45</span>   <span class="n">景顺长城</span>
+<span class="mi">47</span>  <span class="mi">160644</span>      <span class="n">港美互联网LOF</span>  <span class="mf">1.265</span>   <span class="mf">1.04</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.80</span>   <span class="n">鹏华基金</span>
+<span class="mi">48</span>  <span class="mi">159329</span>         <span class="n">沙特ETF</span>  <span class="mf">1.008</span>  <span class="o">-</span><span class="mf">0.88</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.60</span>   <span class="n">南方基金</span>
+<span class="mi">49</span>  <span class="mi">159687</span>       <span class="n">亚太精选ETF</span>  <span class="mf">1.285</span>  <span class="o">-</span><span class="mf">0.16</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.25</span>   <span class="n">南方基金</span>
+<span class="mi">50</span>  <span class="mi">520830</span>         <span class="n">沙特ETF</span>  <span class="mf">1.002</span>  <span class="o">-</span><span class="mf">0.40</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.60</span>   <span class="n">华泰柏瑞</span>
+<span class="p">[</span><span class="mi">51</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">18</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h3>欧美商品<a class="headerlink" href="#id2" title="链接到此标题。"></a></h3>
+<p>接口: qdii_e_comm_jsl</p>
+<p>目标地址: https://www.jisilu.cn/data/qdii/#qdiia</p>
+<p>描述: 集思录-T+0 QDII-欧美市场-欧美商品</p>
+<p>限量: 单次返回所有数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cookie</td>
+<td>str</td>
+<td>需要传入用户登录后的 cookie</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>代码</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>名称</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>现价</td>
+<td>float64</td>
+<td></td>
+</tr>
+<tr>
+<td>涨幅</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>成交</td>
+<td>float64</td>
+<td>注意单位: 万元</td>
+</tr>
+<tr>
+<td>场内份额</td>
+<td>int64</td>
+<td>注意单位: 万份</td>
+</tr>
+<tr>
+<td>场内新增</td>
+<td>int64</td>
+<td>注意单位: 万份</td>
+</tr>
+<tr>
+<td>T-2净值</td>
+<td>float64</td>
+<td></td>
+</tr>
+<tr>
+<td>净值日期</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>T-1估值</td>
+<td>float64</td>
+<td></td>
+</tr>
+<tr>
+<td>估值日期</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>T-1溢价率</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>相关标的</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>T-1指数涨幅</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>申购费</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>赎回费</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>托管费</td>
+<td>float64</td>
+<td></td>
+</tr>
+<tr>
+<td>基金公司</td>
+<td>object</td>
+<td></td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">qdii_e_comm_jsl_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">qdii_e_comm_jsl</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">qdii_e_comm_jsl_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">代码</span>         <span class="n">名称</span>     <span class="n">现价</span>      <span class="n">涨幅</span>  <span class="o">...</span>    <span class="n">申购费</span>  <span class="n">赎回费</span>  <span class="n">托管费</span> <span class="n">基金公司</span>
+<span class="mi">0</span>   <span class="mi">161129</span>   <span class="n">原油LOF易方达</span>  <span class="mf">1.341</span>   <span class="mf">2.60</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.20</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.25</span>   <span class="n">易方达</span>
+<span class="mi">1</span>   <span class="mi">161116</span>    <span class="n">黄金主题LOF</span>  <span class="mf">1.082</span>  <span class="o">-</span><span class="mf">0.46</span><span class="o">%</span>  <span class="o">...</span>      <span class="mi">0</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.40</span>   <span class="n">易方达</span>
+<span class="mi">2</span>   <span class="mi">501018</span>    <span class="n">南方原油LOF</span>  <span class="mf">1.194</span>   <span class="mf">2.58</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.20</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.28</span>  <span class="n">南方基金</span>
+<span class="mi">3</span>   <span class="mi">160723</span>    <span class="n">嘉实原油LOF</span>  <span class="mf">1.387</span>   <span class="mf">2.06</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.20</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.28</span>  <span class="n">嘉实基金</span>
+<span class="mi">4</span>   <span class="mi">161815</span>     <span class="n">抗通胀LOF</span>  <span class="mf">0.753</span>   <span class="mf">0.40</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.60</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">2.15</span>  <span class="n">银华基金</span>
+<span class="mi">5</span>   <span class="mi">164701</span>      <span class="n">黄金LOF</span>  <span class="mf">1.111</span>  <span class="o">-</span><span class="mf">0.45</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">0.80</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.26</span>   <span class="n">汇添富</span>
+<span class="mi">6</span>   <span class="mi">160216</span>    <span class="n">国泰商品LOF</span>  <span class="mf">0.513</span>   <span class="mf">0.20</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.85</span>  <span class="n">国泰基金</span>
+<span class="mi">7</span>   <span class="mi">160416</span>    <span class="n">石油基金LOF</span>  <span class="mf">1.615</span>   <span class="mf">0.56</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">0.00</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.28</span>  <span class="n">华安基金</span>
+<span class="mi">8</span>   <span class="mi">163208</span>  <span class="n">全球油气能源LOF</span>  <span class="mf">0.983</span>   <span class="mf">2.93</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.85</span>  <span class="n">诺安基金</span>
+<span class="mi">9</span>   <span class="mi">165513</span>  <span class="n">中信保诚商品LOF</span>  <span class="mf">0.704</span>  <span class="o">-</span><span class="mf">0.14</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.60</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">2.05</span>  <span class="n">信诚基金</span>
+<span class="mi">10</span>  <span class="mi">162719</span>      <span class="n">石油LOF</span>  <span class="mf">2.222</span>   <span class="mf">2.44</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.20</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.30</span>  <span class="n">广发基金</span>
+<span class="mi">11</span>  <span class="mi">160719</span>    <span class="n">嘉实黄金LOF</span>  <span class="mf">1.285</span>  <span class="o">-</span><span class="mf">0.16</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">0.80</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.26</span>  <span class="n">嘉实基金</span>
+<span class="mi">12</span>  <span class="mi">162411</span>    <span class="n">华宝油气LOF</span>  <span class="mf">0.719</span>   <span class="mf">3.01</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.28</span>  <span class="n">华宝基金</span>
+<span class="p">[</span><span class="mi">13</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">18</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id3">
+<h2>T+0 QDII 亚洲市场<a class="headerlink" href="#id3" title="链接到此标题。"></a></h2>
+<section id="id4">
+<h3>亚洲指数<a class="headerlink" href="#id4" title="链接到此标题。"></a></h3>
+<p>接口: qdii_a_index_jsl</p>
+<p>目标地址: https://www.jisilu.cn/data/qdii/#qdiia</p>
+<p>描述: 集思录-T+0 QDII-亚洲市场-亚洲指数</p>
+<p>限量: 单次返回所有数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cookie</td>
+<td>str</td>
+<td>需要传入用户登录后的 cookie</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>代码</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>名称</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>现价</td>
+<td>float64</td>
+<td></td>
+</tr>
+<tr>
+<td>涨幅</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>成交</td>
+<td>float64</td>
+<td>注意单位: 万元</td>
+</tr>
+<tr>
+<td>场内份额</td>
+<td>int64</td>
+<td>注意单位: 万份</td>
+</tr>
+<tr>
+<td>场内新增</td>
+<td>int64</td>
+<td>注意单位: 万份</td>
+</tr>
+<tr>
+<td>净值</td>
+<td>float64</td>
+<td></td>
+</tr>
+<tr>
+<td>净值日期</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>估值</td>
+<td>float64</td>
+<td></td>
+</tr>
+<tr>
+<td>溢价率</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>相关标的</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>指数涨幅</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>申购费</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>赎回费</td>
+<td>object</td>
+<td></td>
+</tr>
+<tr>
+<td>托管费</td>
+<td>float64</td>
+<td></td>
+</tr>
+<tr>
+<td>基金公司</td>
+<td>object</td>
+<td></td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">qdii_a_index_jsl_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">qdii_a_index_jsl</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">qdii_a_index_jsl_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>      <span class="n">代码</span>          <span class="n">名称</span>    <span class="n">现价</span>   <span class="n">涨幅</span>  <span class="o">...</span>    <span class="n">申购费</span>    <span class="n">赎回费</span>   <span class="n">托管费</span>  <span class="n">基金公司</span>
+<span class="mi">0</span>    <span class="mi">164705</span>       <span class="n">恒生LOF</span>  <span class="mf">1.089</span>  <span class="mf">10.00</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.20</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">1.05</span>   <span class="n">汇添富</span>
+<span class="mi">1</span>    <span class="mi">513230</span>     <span class="n">港股消费ETF</span>  <span class="mf">0.970</span>   <span class="mf">9.98</span><span class="o">%</span>  <span class="o">...</span>   <span class="mf">0.5</span><span class="o">%</span>   <span class="mf">0.5</span><span class="o">%</span>  <span class="mf">0.60</span>  <span class="n">华夏基金</span>
+<span class="mi">2</span>    <span class="mi">513990</span>      <span class="n">港股通ETF</span>  <span class="mf">1.001</span>  <span class="mf">10.00</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.25</span>  <span class="n">招商基金</span>
+<span class="mi">3</span>    <span class="mi">159850</span>     <span class="n">恒生国企ETF</span>  <span class="mf">0.791</span>  <span class="mf">10.01</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">0.50</span><span class="o">%</span>  <span class="mf">0.50</span><span class="o">%</span>  <span class="mf">0.65</span>  <span class="n">华夏基金</span>
+<span class="mi">4</span>    <span class="mi">159567</span>    <span class="n">港股创新药ETF</span>  <span class="mf">1.111</span>  <span class="mf">10.00</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.60</span>  <span class="n">银华基金</span>
+<span class="o">..</span>      <span class="o">...</span>         <span class="o">...</span>    <span class="o">...</span>     <span class="o">...</span>  <span class="o">...</span>    <span class="o">...</span>    <span class="o">...</span>   <span class="o">...</span>   <span class="o">...</span>
+<span class="mi">104</span>  <span class="mi">520890</span>  <span class="n">港股通红利低波ETF</span>  <span class="mf">1.128</span>   <span class="mf">5.32</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">0.50</span><span class="o">%</span>  <span class="mf">0.50</span><span class="o">%</span>  <span class="mf">0.60</span>  <span class="n">华泰柏瑞</span>
+<span class="mi">105</span>  <span class="mi">501307</span>    <span class="n">银河高股息LOF</span>  <span class="mf">1.059</span>   <span class="mf">5.37</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.00</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">0.68</span>  <span class="n">银河基金</span>
+<span class="mi">106</span>  <span class="mi">501310</span>     <span class="n">价值基金LOF</span>  <span class="mf">1.118</span>   <span class="mf">4.39</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">1.20</span><span class="o">%</span>  <span class="mf">1.50</span><span class="o">%</span>  <span class="mf">0.90</span>  <span class="n">华宝基金</span>
+<span class="mi">107</span>  <span class="mi">513090</span>     <span class="n">香港证券ETF</span>  <span class="mf">1.279</span>   <span class="mf">9.97</span><span class="o">%</span>  <span class="o">...</span>  <span class="mf">0.50</span><span class="o">%</span>  <span class="mf">0.50</span><span class="o">%</span>  <span class="mf">0.20</span>   <span class="n">易方达</span>
+<span class="mi">108</span>  <span class="mi">513800</span>   <span class="n">日本东证指数ETF</span>  <span class="mf">1.387</span>  <span class="o">-</span><span class="mf">0.07</span><span class="o">%</span>  <span class="o">...</span>      <span class="o">-</span>      <span class="o">-</span>  <span class="mf">0.25</span>  <span class="n">南方基金</span>
+<span class="p">[</span><span class="mi">109</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">17</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../nlp/nlp.html" class="btn btn-neutral float-left" title="AKShare 自然语言处理" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../others/others.html" class="btn btn-neutral float-right" title="AKShare 另类数据" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2019–2026, AKShare Developers。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

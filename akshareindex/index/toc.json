@@ -1,0 +1,460 @@
+{
+  "root": {
+    "page_id": "index",
+    "page_title": "欢迎访问 AKShare 在线文档！",
+    "page_title_exact": "欢迎访问 AKShare 在线文档！",
+    "html_relpath": "raw/site/index.html",
+    "source_relpath": "raw/site/_sources/index.rst.txt",
+    "url": "https://akshare.akfamily.xyz/index.html",
+    "children": [
+      {
+        "page_id": "introduction",
+        "page_title": "AKShare 项目概览",
+        "page_title_exact": "AKShare 项目概览",
+        "html_relpath": "raw/site/introduction.html",
+        "source_relpath": "raw/site/_sources/introduction.md",
+        "url": "https://akshare.akfamily.xyz/introduction.html",
+        "children": []
+      },
+      {
+        "page_id": "installation",
+        "page_title": "AKShare 安装指导",
+        "page_title_exact": "AKShare 安装指导",
+        "html_relpath": "raw/site/installation.html",
+        "source_relpath": "raw/site/_sources/installation.md",
+        "url": "https://akshare.akfamily.xyz/installation.html",
+        "children": []
+      },
+      {
+        "page_id": "data/index",
+        "page_title": "AKShare 数据字典",
+        "page_title_exact": "AKShare 数据字典",
+        "html_relpath": "raw/site/data/index.html",
+        "source_relpath": "raw/site/_sources/data/index.rst.txt",
+        "url": "https://akshare.akfamily.xyz/data/index.html",
+        "children": [
+          {
+            "page_id": "data/stock/stock",
+            "page_title": "AKShare 股票数据",
+            "page_title_exact": "AKShare 股票数据",
+            "html_relpath": "raw/site/data/stock/stock.html",
+            "source_relpath": "raw/site/_sources/data/stock/stock.md",
+            "url": "https://akshare.akfamily.xyz/data/stock/stock.html",
+            "children": []
+          },
+          {
+            "page_id": "data/futures/futures",
+            "page_title": "AKShare 期货数据",
+            "page_title_exact": "AKShare 期货数据",
+            "html_relpath": "raw/site/data/futures/futures.html",
+            "source_relpath": "raw/site/_sources/data/futures/futures.md",
+            "url": "https://akshare.akfamily.xyz/data/futures/futures.html",
+            "children": []
+          },
+          {
+            "page_id": "data/bond/bond",
+            "page_title": "AKShare 债券数据",
+            "page_title_exact": "AKShare 债券数据",
+            "html_relpath": "raw/site/data/bond/bond.html",
+            "source_relpath": "raw/site/_sources/data/bond/bond.md",
+            "url": "https://akshare.akfamily.xyz/data/bond/bond.html",
+            "children": []
+          },
+          {
+            "page_id": "data/option/option",
+            "page_title": "AKShare 期权数据",
+            "page_title_exact": "AKShare 期权数据",
+            "html_relpath": "raw/site/data/option/option.html",
+            "source_relpath": "raw/site/_sources/data/option/option.md",
+            "url": "https://akshare.akfamily.xyz/data/option/option.html",
+            "children": []
+          },
+          {
+            "page_id": "data/fx/fx",
+            "page_title": "AKShare 外汇数据",
+            "page_title_exact": "AKShare 外汇数据",
+            "html_relpath": "raw/site/data/fx/fx.html",
+            "source_relpath": "raw/site/_sources/data/fx/fx.md",
+            "url": "https://akshare.akfamily.xyz/data/fx/fx.html",
+            "children": []
+          },
+          {
+            "page_id": "data/currency/currency",
+            "page_title": "AKShare 货币数据",
+            "page_title_exact": "AKShare 货币数据",
+            "html_relpath": "raw/site/data/currency/currency.html",
+            "source_relpath": "raw/site/_sources/data/currency/currency.md",
+            "url": "https://akshare.akfamily.xyz/data/currency/currency.html",
+            "children": []
+          },
+          {
+            "page_id": "data/spot/spot",
+            "page_title": "AKShare 现货数据",
+            "page_title_exact": "AKShare 现货数据",
+            "html_relpath": "raw/site/data/spot/spot.html",
+            "source_relpath": "raw/site/_sources/data/spot/spot.md",
+            "url": "https://akshare.akfamily.xyz/data/spot/spot.html",
+            "children": []
+          },
+          {
+            "page_id": "data/interest_rate/interest_rate",
+            "page_title": "AKShare 利率数据",
+            "page_title_exact": "AKShare 利率数据",
+            "html_relpath": "raw/site/data/interest_rate/interest_rate.html",
+            "source_relpath": "raw/site/_sources/data/interest_rate/interest_rate.md",
+            "url": "https://akshare.akfamily.xyz/data/interest_rate/interest_rate.html",
+            "children": []
+          },
+          {
+            "page_id": "data/fund/fund_private",
+            "page_title": "AKShare 私募基金数据",
+            "page_title_exact": "AKShare 私募基金数据",
+            "html_relpath": "raw/site/data/fund/fund_private.html",
+            "source_relpath": "raw/site/_sources/data/fund/fund_private.md",
+            "url": "https://akshare.akfamily.xyz/data/fund/fund_private.html",
+            "children": []
+          },
+          {
+            "page_id": "data/fund/fund_public",
+            "page_title": "AKShare 公募基金数据",
+            "page_title_exact": "AKShare 公募基金数据",
+            "html_relpath": "raw/site/data/fund/fund_public.html",
+            "source_relpath": "raw/site/_sources/data/fund/fund_public.md",
+            "url": "https://akshare.akfamily.xyz/data/fund/fund_public.html",
+            "children": []
+          },
+          {
+            "page_id": "data/index/index",
+            "page_title": "AKShare 指数数据",
+            "page_title_exact": "AKShare 指数数据",
+            "html_relpath": "raw/site/data/index/index.html",
+            "source_relpath": "raw/site/_sources/data/index/index.md",
+            "url": "https://akshare.akfamily.xyz/data/index/index.html",
+            "children": []
+          },
+          {
+            "page_id": "data/macro/macro",
+            "page_title": "AKShare 宏观数据",
+            "page_title_exact": "AKShare 宏观数据",
+            "html_relpath": "raw/site/data/macro/macro.html",
+            "source_relpath": "raw/site/_sources/data/macro/macro.md",
+            "url": "https://akshare.akfamily.xyz/data/macro/macro.html",
+            "children": []
+          },
+          {
+            "page_id": "data/dc/dc",
+            "page_title": "AKShare 加密货币数据",
+            "page_title_exact": "AKShare 加密货币数据",
+            "html_relpath": "raw/site/data/dc/dc.html",
+            "source_relpath": "raw/site/_sources/data/dc/dc.md",
+            "url": "https://akshare.akfamily.xyz/data/dc/dc.html",
+            "children": []
+          },
+          {
+            "page_id": "data/bank/bank",
+            "page_title": "AKShare 银行数据",
+            "page_title_exact": "AKShare 银行数据",
+            "html_relpath": "raw/site/data/bank/bank.html",
+            "source_relpath": "raw/site/_sources/data/bank/bank.md",
+            "url": "https://akshare.akfamily.xyz/data/bank/bank.html",
+            "children": []
+          },
+          {
+            "page_id": "data/article/article",
+            "page_title": "AKShare 波动率数据",
+            "page_title_exact": "AKShare 波动率数据",
+            "html_relpath": "raw/site/data/article/article.html",
+            "source_relpath": "raw/site/_sources/data/article/article.md",
+            "url": "https://akshare.akfamily.xyz/data/article/article.html",
+            "children": []
+          },
+          {
+            "page_id": "data/energy/energy",
+            "page_title": "AKShare 能源数据",
+            "page_title_exact": "AKShare 能源数据",
+            "html_relpath": "raw/site/data/energy/energy.html",
+            "source_relpath": "raw/site/_sources/data/energy/energy.md",
+            "url": "https://akshare.akfamily.xyz/data/energy/energy.html",
+            "children": []
+          },
+          {
+            "page_id": "data/event/event",
+            "page_title": "AKShare 迁徙数据",
+            "page_title_exact": "AKShare 迁徙数据",
+            "html_relpath": "raw/site/data/event/event.html",
+            "source_relpath": "raw/site/_sources/data/event/event.md",
+            "url": "https://akshare.akfamily.xyz/data/event/event.html",
+            "children": []
+          },
+          {
+            "page_id": "data/hf/hf",
+            "page_title": "AKShare 高频数据",
+            "page_title_exact": "AKShare 高频数据",
+            "html_relpath": "raw/site/data/hf/hf.html",
+            "source_relpath": "raw/site/_sources/data/hf/hf.md",
+            "url": "https://akshare.akfamily.xyz/data/hf/hf.html",
+            "children": []
+          },
+          {
+            "page_id": "data/nlp/nlp",
+            "page_title": "AKShare 自然语言处理",
+            "page_title_exact": "AKShare 自然语言处理",
+            "html_relpath": "raw/site/data/nlp/nlp.html",
+            "source_relpath": "raw/site/_sources/data/nlp/nlp.md",
+            "url": "https://akshare.akfamily.xyz/data/nlp/nlp.html",
+            "children": []
+          },
+          {
+            "page_id": "data/qdii/qdii",
+            "page_title": "AKShare QDII 数据",
+            "page_title_exact": "AKShare QDII 数据",
+            "html_relpath": "raw/site/data/qdii/qdii.html",
+            "source_relpath": "raw/site/_sources/data/qdii/qdii.md",
+            "url": "https://akshare.akfamily.xyz/data/qdii/qdii.html",
+            "children": []
+          },
+          {
+            "page_id": "data/others/others",
+            "page_title": "AKShare 另类数据",
+            "page_title_exact": "AKShare 另类数据",
+            "html_relpath": "raw/site/data/others/others.html",
+            "source_relpath": "raw/site/_sources/data/others/others.md",
+            "url": "https://akshare.akfamily.xyz/data/others/others.html",
+            "children": []
+          },
+          {
+            "page_id": "data/qhkc/index",
+            "page_title": "AKShare 奇货可查",
+            "page_title_exact": "AKShare 奇货可查",
+            "html_relpath": "raw/site/data/qhkc/index.html",
+            "source_relpath": "raw/site/_sources/data/qhkc/index.rst.txt",
+            "url": "https://akshare.akfamily.xyz/data/qhkc/index.html",
+            "children": [
+              {
+                "page_id": "data/qhkc/commodity",
+                "page_title": "商品",
+                "page_title_exact": "商品",
+                "html_relpath": "raw/site/data/qhkc/commodity.html",
+                "source_relpath": "raw/site/_sources/data/qhkc/commodity.md",
+                "url": "https://akshare.akfamily.xyz/data/qhkc/commodity.html",
+                "children": []
+              },
+              {
+                "page_id": "data/qhkc/broker",
+                "page_title": "席位",
+                "page_title_exact": "席位",
+                "html_relpath": "raw/site/data/qhkc/broker.html",
+                "source_relpath": "raw/site/_sources/data/qhkc/broker.md",
+                "url": "https://akshare.akfamily.xyz/data/qhkc/broker.html",
+                "children": []
+              },
+              {
+                "page_id": "data/qhkc/index_data",
+                "page_title": "指数",
+                "page_title_exact": "指数",
+                "html_relpath": "raw/site/data/qhkc/index_data.html",
+                "source_relpath": "raw/site/_sources/data/qhkc/index_data.md",
+                "url": "https://akshare.akfamily.xyz/data/qhkc/index_data.html",
+                "children": []
+              },
+              {
+                "page_id": "data/qhkc/fundamental",
+                "page_title": "基本面",
+                "page_title_exact": "基本面",
+                "html_relpath": "raw/site/data/qhkc/fundamental.html",
+                "source_relpath": "raw/site/_sources/data/qhkc/fundamental.md",
+                "url": "https://akshare.akfamily.xyz/data/qhkc/fundamental.html",
+                "children": []
+              },
+              {
+                "page_id": "data/qhkc/tools",
+                "page_title": "工具",
+                "page_title_exact": "工具",
+                "html_relpath": "raw/site/data/qhkc/tools.html",
+                "source_relpath": "raw/site/_sources/data/qhkc/tools.md",
+                "url": "https://akshare.akfamily.xyz/data/qhkc/tools.html",
+                "children": []
+              },
+              {
+                "page_id": "data/qhkc/fund",
+                "page_title": "资金",
+                "page_title_exact": "资金",
+                "html_relpath": "raw/site/data/qhkc/fund.html",
+                "source_relpath": "raw/site/_sources/data/qhkc/fund.md",
+                "url": "https://akshare.akfamily.xyz/data/qhkc/fund.html",
+                "children": []
+              }
+            ]
+          },
+          {
+            "page_id": "data/tool/tool",
+            "page_title": "AKShare 工具箱",
+            "page_title_exact": "AKShare 工具箱",
+            "html_relpath": "raw/site/data/tool/tool.html",
+            "source_relpath": "raw/site/_sources/data/tool/tool.md",
+            "url": "https://akshare.akfamily.xyz/data/tool/tool.html",
+            "children": []
+          }
+        ]
+      },
+      {
+        "page_id": "indicator",
+        "page_title": "AKShare 指标计算",
+        "page_title_exact": "AKShare 指标计算",
+        "html_relpath": "raw/site/indicator.html",
+        "source_relpath": "raw/site/_sources/indicator.md",
+        "url": "https://akshare.akfamily.xyz/indicator.html",
+        "children": []
+      },
+      {
+        "page_id": "data_tips",
+        "page_title": "AKShare 数据说明",
+        "page_title_exact": "AKShare 数据说明",
+        "html_relpath": "raw/site/data_tips.html",
+        "source_relpath": "raw/site/_sources/data_tips.md",
+        "url": "https://akshare.akfamily.xyz/data_tips.html",
+        "children": []
+      },
+      {
+        "page_id": "trade",
+        "page_title": "AKShare 实盘交易",
+        "page_title_exact": "AKShare 实盘交易",
+        "html_relpath": "raw/site/trade.html",
+        "source_relpath": "raw/site/_sources/trade.md",
+        "url": "https://akshare.akfamily.xyz/trade.html",
+        "children": []
+      },
+      {
+        "page_id": "answer",
+        "page_title": "AKShare 答疑专栏",
+        "page_title_exact": "AKShare 答疑专栏",
+        "html_relpath": "raw/site/answer.html",
+        "source_relpath": "raw/site/_sources/answer.md",
+        "url": "https://akshare.akfamily.xyz/answer.html",
+        "children": []
+      },
+      {
+        "page_id": "tutorial",
+        "page_title": "AKShare 快速入门",
+        "page_title_exact": "AKShare 快速入门",
+        "html_relpath": "raw/site/tutorial.html",
+        "source_relpath": "raw/site/_sources/tutorial.md",
+        "url": "https://akshare.akfamily.xyz/tutorial.html",
+        "children": []
+      },
+      {
+        "page_id": "articles",
+        "page_title": "AKShare 相关文章",
+        "page_title_exact": "AKShare 相关文章",
+        "html_relpath": "raw/site/articles.html",
+        "source_relpath": "raw/site/_sources/articles.md",
+        "url": "https://akshare.akfamily.xyz/articles.html",
+        "children": []
+      },
+      {
+        "page_id": "anaconda",
+        "page_title": "AKShare 环境配置",
+        "page_title_exact": "AKShare 环境配置",
+        "html_relpath": "raw/site/anaconda.html",
+        "source_relpath": "raw/site/_sources/anaconda.md",
+        "url": "https://akshare.akfamily.xyz/anaconda.html",
+        "children": []
+      },
+      {
+        "page_id": "platform",
+        "page_title": "AKShare 量化专题",
+        "page_title_exact": "AKShare 量化专题",
+        "html_relpath": "raw/site/platform.html",
+        "source_relpath": "raw/site/_sources/platform.md",
+        "url": "https://akshare.akfamily.xyz/platform.html",
+        "children": []
+      },
+      {
+        "page_id": "demo",
+        "page_title": "AKShare 策略示例",
+        "page_title_exact": "AKShare 策略示例",
+        "html_relpath": "raw/site/demo.html",
+        "source_relpath": "raw/site/_sources/demo.md",
+        "url": "https://akshare.akfamily.xyz/demo.html",
+        "children": []
+      },
+      {
+        "page_id": "changelog",
+        "page_title": "AKShare 版本更新",
+        "page_title_exact": "AKShare 版本更新",
+        "html_relpath": "raw/site/changelog.html",
+        "source_relpath": "raw/site/_sources/changelog.md",
+        "url": "https://akshare.akfamily.xyz/changelog.html",
+        "children": []
+      },
+      {
+        "page_id": "contributing",
+        "page_title": "AKShare 贡献源码",
+        "page_title_exact": "AKShare 贡献源码",
+        "html_relpath": "raw/site/contributing.html",
+        "source_relpath": "raw/site/_sources/contributing.md",
+        "url": "https://akshare.akfamily.xyz/contributing.html",
+        "children": []
+      },
+      {
+        "page_id": "dependency",
+        "page_title": "AKShare 依赖说明",
+        "page_title_exact": "AKShare 依赖说明",
+        "html_relpath": "raw/site/dependency.html",
+        "source_relpath": "raw/site/_sources/dependency.md",
+        "url": "https://akshare.akfamily.xyz/dependency.html",
+        "children": []
+      },
+      {
+        "page_id": "deploy_http",
+        "page_title": "AKShare HTTP 部署",
+        "page_title_exact": "AKShare HTTP 部署",
+        "html_relpath": "raw/site/deploy_http.html",
+        "source_relpath": "raw/site/_sources/deploy_http.md",
+        "url": "https://akshare.akfamily.xyz/deploy_http.html",
+        "children": []
+      },
+      {
+        "page_id": "akdocker/akdocker",
+        "page_title": "AKShare Docker 部署",
+        "page_title_exact": "AKShare Docker 部署",
+        "html_relpath": "raw/site/akdocker/akdocker.html",
+        "source_relpath": "raw/site/_sources/akdocker/akdocker.md",
+        "url": "https://akshare.akfamily.xyz/akdocker/akdocker.html",
+        "children": []
+      },
+      {
+        "page_id": "special",
+        "page_title": "AKShare 特别说明",
+        "page_title_exact": "AKShare 特别说明",
+        "html_relpath": "raw/site/special.html",
+        "source_relpath": "raw/site/_sources/special.md",
+        "url": "https://akshare.akfamily.xyz/special.html",
+        "children": []
+      }
+    ]
+  },
+  "orphans": [
+    {
+      "page_id": "_downloads",
+      "page_title": "Downloads",
+      "html_relpath": "raw/site/_downloads.html",
+      "source_relpath": null,
+      "url": "https://akshare.akfamily.xyz/_downloads.html"
+    },
+    {
+      "page_id": "genindex",
+      "page_title": "索引",
+      "html_relpath": "raw/site/genindex.html",
+      "source_relpath": null,
+      "url": "https://akshare.akfamily.xyz/genindex.html"
+    },
+    {
+      "page_id": "search",
+      "page_title": "搜索 — AKShare 1.18.40 文档",
+      "html_relpath": "raw/site/search.html",
+      "source_relpath": null,
+      "url": "https://akshare.akfamily.xyz/search.html"
+    }
+  ]
+}

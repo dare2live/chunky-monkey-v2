@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chunky Monkey v2</title>
+  <link rel="stylesheet" href="assets/css/main.css?v=2.1.0">
+</head>
+
+<body>
+  <header class="top-bar">
+    <div class="logo">
+      <span class="logo-status" id="statusBadge">Offline</span>
+      <span class="logo-text">Chunky Monkey<small>机构事件研究系统</small></span>
+    </div>
+    <nav class="main-nav" id="mainNav">
+      <!-- 顶层板块选择 -->
+      <div class="nav-top-bar">
+        <button class="nav-group-btn active" data-group="holder">股东挖掘</button>
+        <button class="nav-group-btn" id="nav-group-etf" data-group="etf" style="display:none">ETF研究</button>
+      </div>
+      <!-- 股东挖掘二级导航 -->
+      <div class="nav-sub-bar" id="nav-sub-holder">
+        <button class="nav-btn active" data-view="dashboard">工作台</button>
+        <button class="nav-btn" data-view="research">机构研究</button>
+        <button class="nav-btn" data-view="stocks">股票研究</button>
+        <button class="nav-btn" id="nav-qlib" data-view="qlib" style="display:none">Qlib</button>
+      </div>
+      <!-- ETF研究二级导航 -->
+      <div class="nav-sub-bar" id="nav-sub-etf" style="display:none">
+        <button class="nav-btn" data-view="etf" data-etftab="overview">整体判断</button>
+        <button class="nav-btn" data-view="etf" data-etftab="list">ETF列表</button>
+        <button class="nav-btn" data-view="etf" data-etftab="mining">挖掘建议</button>
+        <button class="nav-btn" data-view="etf" data-etftab="rotation">轮动预测</button>
+      </div>
+    </nav>
+    <button class="btn-outline" id="btnLifeboat" style="font-size:12px;padding:5px 12px;white-space:nowrap"
+      title="独立查询：跟踪机构最新新进了哪些股票">救生艇</button>
+  </header>
+
+  <main class="content">
+    <!-- ==================== 工作台 ==================== -->
+    <section class="view active" id="view-dashboard">
+      <!-- 概览数字 -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-value stat-loading" id="statInst">&middot;&middot;&middot;</div>
+          <div class="stat-label">跟踪机构</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value stat-loading" id="statStocks">&middot;&middot;&middot;</div>
+          <div class="stat-label">匹配股票</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value stat-loading" id="statEvents">&middot;&middot;&middot;</div>
+          <div class="stat-label">总事件数</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value stat-loading" id="statLatest">&middot;&middot;&middot;</div>
+          <div class="stat-label">最新公告</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value stat-loading" id="statRaw">&middot;&middot;&middot;</div>
+          <div class="stat-label">全市场记录</div>
+        </div>
+      </div>
+
+      <!-- 数据更新 -->
+      <div class="panel" style="margin-top:14px">
+        <div class="panel-head">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <div id="networkStatus" class="network-status">
+              <span id="sourcePillHoldings" class="source-pill offline"><span class="source-pill-dot"></span><span
+                  class="source-pill-text">股东源 · 离线</span></span>
+              <span id="sourcePillKline" class="source-pill offline"><span class="source-pill-dot"></span><span
+                  class="source-pill-text">K线源 · 离线</span></span>
+              <span id="sourcePillIndustry" class="source-pill offline"><span class="source-pill-dot"></span><span
+                  class="source-pill-text">行业源 · 离线</span></span>
+            </div>
+          </div>
+          <div class="panel-actions" style="display:flex;align-items:center;gap:8px;">
+            <button class="btn-primary" id="btnUpdateAll" style="padding:6px 16px;font-size:13px">一键智能更新</button>
+            <button class="btn-danger" id="btnStop" style="display:none;padding:6px 16px;font-size:13px">停止</button>
+            <button class="btn-outline" id="btnRefreshStatus" style="padding:6px 12px;font-size:12px">刷新</button>
+            <button class="btn-outline" id="btnToggleSystemOps" style="padding:6px 12px;font-size:12px">系统</button>
+          </div>
+        </div>
+        <div id="systemOpsPanel"
+          style="display:none;margin-bottom:14px;padding:12px 14px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:#0f172a;margin-bottom:4px">系统操作</div>
+              <div class="muted" style="font-size:11px;margin-bottom:12px;">清空事件、收益、画像和趋势派生层，从原始数据重新计算。</div>
+              <div class="module-toggles" style="display:flex;gap:12px;font-size:12px;">
+                <label><input type="checkbox" id="chkModuleQlib"> 启用 Qlib (需后端支持)</label>
+                <label><input type="checkbox" id="chkModuleEtf"> 启用 ETF量化</label>
+                <button class="btn-outline" onclick="App.saveModuleSettings()"
+                  style="padding:2px 8px;font-size:11px">保存配置并重启</button>
+              </div>
+            </div>
+            <button class="btn-danger" id="btnReset" style="white-space:nowrap">重算全部派生数据</button>
+          </div>
+        </div>
+        <div class="update-workbench">
+          <div class="update-main">
+            <div id="progressArea" style="display:none;margin-bottom:14px;">
+              <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+              </div>
+              <div class="progress-text" id="progressText">0/10 · 0%</div>
+            </div>
+            <div class="step-grid" id="stepGrid"></div>
+          </div>
+          <aside class="update-log-panel">
+            <div class="log-head">
+              <span>运行日志</span>
+              <div style="display:flex;gap:10px;align-items:center">
+                <button class="btn-text" id="btnCopyLog" style="font-size:11px">复制日志</button>
+                <button class="btn-text" id="btnClearLog" style="font-size:11px">清空日志</button>
+              </div>
+            </div>
+            <div id="updateLog" class="log-box update-log-box"></div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 机构研究 ==================== -->
+    <section class="view" id="view-research">
+      <div
+        style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+        <div class="view-tabs research-tabs" id="researchTabs" style="margin-bottom:0">
+          <button class="tab-btn active" data-rtab="list">机构明细</button>
+          <button class="tab-btn" data-rtab="mgmt">机构管理</button>
+          <button class="tab-btn" data-rtab="scorecard">评分卡</button>
+        </div>
+        <input type="text" class="search-input" id="instSearch" placeholder="查找已有机构" style="width:200px">
+      </div>
+
+      <!-- 机构明细 -->
+      <div class="rtab-content active" id="rtab-list">
+        <div class="type-filter" id="instTypeFilter" style="margin-bottom:12px"></div>
+        <div id="instListContainer">加载中...</div>
+      </div>
+
+      <!-- 机构管理 -->
+      <div class="rtab-content" id="rtab-mgmt">
+        <!-- 搜索添加区 -->
+        <div class="panel" style="margin-bottom:14px">
+          <h3 style="margin-bottom:8px">搜索并添加机构</h3>
+          <p class="muted" style="font-size:12px;margin-bottom:10px">逗号分隔 = 搜多个机构（OR），空格分隔 =
+            名称同时包含（AND）。例如：<b>国家集成电路,国家制造业</b> 搜两个机构；<b>自有资金 证券</b> 搜名称同时含这两个词的机构。</p>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+            <select id="searchHolderType"
+              style="padding:6px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px">
+              <option value="">全部分类</option>
+              <option value="QFII">QFII</option>
+              <option value="社保">社保</option>
+              <option value="保险">保险</option>
+              <option value="国家队">国家队</option>
+              <option value="基金">基金</option>
+              <option value="券商">券商</option>
+              <option value="信托">信托</option>
+              <option value="个人">个人</option>
+              <option value="其他">其他</option>
+            </select>
+            <input type="text" class="search-input" id="mgmtSearch" placeholder="搜索并添加机构（多词用逗号或空格分隔）"
+              style="flex:1;min-width:200px">
+            <button class="btn-primary" id="btnSearchInst">搜索</button>
+          </div>
+          <div id="searchResultArea" style="display:none">
+            <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+              <span style="font-size:13px;white-space:nowrap">本地标签：</span>
+              <select id="addInstType" style="padding:6px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px">
+                <option value="">-- 请选择标签（必填） --</option>
+                <option value="QFII">QFII</option>
+                <option value="社保">社保</option>
+                <option value="保险">保险</option>
+                <option value="国家队">国家队</option>
+                <option value="国家大基金">国家大基金</option>
+                <option value="北向">北向</option>
+                <option value="牛散">牛散</option>
+                <option value="基金">基金</option>
+                <option value="券商">券商</option>
+                <option value="信托">信托</option>
+                <option value="私募">私募</option>
+              </select>
+              <button class="btn-primary" id="btnImportChecked">导入选中</button>
+              <span id="searchResultCount" class="muted" style="font-size:12px;margin-left:4px"></span>
+            </div>
+            <div id="searchResults"></div>
+          </div>
+        </div>
+        <!-- 已跟踪机构列表 -->
+        <div
+          style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+          <div class="type-filter" id="mgmtTypeFilter" style="margin:0"></div>
+          <div class="mgmt-actions" style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="btn-outline" id="btnBatchAlias">批量设简称</button>
+            <button class="btn-outline" id="btnBatchType">批量设类型</button>
+            <button class="btn-outline" id="btnBatchMerge">批量合并</button>
+            <button class="btn-outline" id="btnBatchBlack">批量拉黑</button>
+            <button class="btn-sm danger" id="btnBatchDelete">批量删除</button>
+          </div>
+        </div>
+        <div id="instMgmtTable">加载中...</div>
+      </div>
+
+      <!-- 机构评分卡 -->
+      <div class="rtab-content" id="rtab-scorecard">
+        <h3>机构评分卡</h3>
+        <p class="muted" style="margin-bottom:12px">这里统一展示当前真实生效的机构实力评分和可跟性评分框架。调整权重后点击“计算”即可重算机构画像。</p>
+        <div id="instScorecardFramework"></div>
+        <div id="instScorecardStats" style="margin-top:14px"></div>
+        <div id="instScorecardParams" style="margin-top:14px"></div>
+        <div style="margin-top:12px">
+          <button class="btn primary" onclick="App.calcInstScore()">计算</button>
+          <button class="btn" onclick="App.resetInstScore()">恢复默认</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 股票列表 ==================== -->
+    <section class="view" id="view-stocks">
+      <div class="stock-banner">
+        <div class="stock-banner-nav">
+          <div class="view-tabs stock-tabs" id="stockTabs">
+            <button class="tab-btn active" data-stab="list">股票列表</button>
+            <button class="tab-btn" data-stab="industry">行业背景</button>
+            <button class="tab-btn" data-stab="watchlist">股票池</button>
+            <button class="tab-btn" data-stab="validation">验证</button>
+            <button class="tab-btn" data-stab="scorecard">评分卡</button>
+            <button class="tab-btn" data-stab="exclusions">排除规则</button>
+          </div>
+          <input type="text" class="search-input" id="stockSearch" placeholder="搜索股票代码/名称/行业" style="width:220px">
+        </div>
+        <div id="stockFilterArea"></div>
+      </div>
+      <div class="stab-content active" id="stab-list">
+        <div id="stockListContainer">加载中...</div>
+      </div>
+      <div class="stab-content" id="stab-industry">
+        <div id="industryViewContainer">加载中...</div>
+      </div>
+      <div class="stab-content" id="stab-scorecard">
+        <div class="panel" style="margin-bottom:14px">
+          <h3 style="margin-bottom:6px">股票评分框架</h3>
+          <p class="muted" style="font-size:12px;margin-bottom:14px">这里展示当前真实生效的四层评分字典、综合公式和池子门槛，不再暴露旧行动分调参入口。</p>
+          <div id="stockScoreFramework"></div>
+          <div id="stockScoreRules" style="margin-top:14px"></div>
+          <div id="stockScoreStats" style="margin-top:14px"></div>
+        </div>
+      </div>
+      <div class="stab-content" id="stab-watchlist">
+        <div id="watchlistContainer">加载中...</div>
+      </div>
+      <div class="stab-content" id="stab-validation">
+        <div id="stockValidationContainer">加载中...</div>
+      </div>
+      <div class="stab-content" id="stab-exclusions">
+        <div class="panel">
+          <h3 style="margin-bottom:6px">股票排除规则</h3>
+          <p class="muted" style="font-size:12px;margin-bottom:14px">被排除的股票不参与分析和展示。</p>
+          <div id="exclusionCategories">加载中...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== ETF研究 ==================== -->
+    <section class="view" id="view-etf">
+      <!-- ETF 同步控制 -->
+      <div class="panel" style="margin-bottom:14px" id="etf-sync-panel">
+        <div class="panel-head">
+          <span style="font-weight:600">ETF 数据同步</span>
+          <div class="panel-actions">
+            <button class="btn-outline" id="btnEtfSync">同步 ETF 数据</button>
+          </div>
+        </div>
+        <div id="etfMsg" class="muted" style="font-size:12px">数据可能非最新，请先点击同步。</div>
+        <div id="etfLogBox"
+          style="margin-top:8px;max-height:160px;overflow:auto;background:#0f172a08;border:1px solid #e2e8f0;border-radius:6px;padding:8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5">
+        </div>
+      </div>
+
+      <!-- 整体判断 -->
+      <div class="etf-tab-content active" id="etftab-overview">
+        <div id="etfOverviewContainer" style="margin-bottom:14px"></div>
+      </div>
+
+      <!-- ETF列表 -->
+      <div class="etf-tab-content" id="etftab-list">
+        <div class="panel">
+          <div class="panel-head">
+            <span style="font-weight:600">ETF 列表与动量</span>
+          </div>
+          <div id="etfCategoryFilter" style="margin-bottom:10px"></div>
+          <div id="etfTableContainer">加载中...</div>
+        </div>
+      </div>
+
+      <!-- 挖掘建议 -->
+      <div class="etf-tab-content" id="etftab-mining">
+        <div class="panel">
+          <div class="panel-head">
+            <span style="font-weight:600">ETF 挖掘建议</span>
+          </div>
+          <div id="etfMiningContainer" style="background:#f1f5f9;padding:12px;border-radius:6px">
+            正在加载...
+          </div>
+        </div>
+      </div>
+
+      <!-- 轮动预测 -->
+      <div class="etf-tab-content" id="etftab-rotation">
+        <div class="panel">
+          <div class="panel-head">
+            <span style="font-weight:600">行业预轮动 Top 5</span>
+          </div>
+          <div id="etfRotationContainer">
+            <div class="muted" style="padding:20px;text-align:center">加载中...</div>
+          </div>
+          <div class="muted" style="font-size:11px;margin-top:8px">
+            预轮动分数由 Qlib 均分位、20日/60日预测得分、高置信股票密度加权合成。每日盘后自动更新。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== Qlib AI ==================== -->
+    <section class="view" id="view-qlib">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-value" id="qlibStatStatus">-</div>
+          <div class="stat-label">模型状态</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="qlibStatFinished">-</div>
+          <div class="stat-label">最后训练</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="qlibStatStocks">-</div>
+          <div class="stat-label">覆盖股票数</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="qlibStatFactors">-</div>
+          <div class="stat-label">总因子数</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="qlibStatWindow">-</div>
+          <div class="stat-label">样本窗口</div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:14px">
+        <div class="panel-head">
+          <span style="font-weight:600">Qlib 训练控制台</span>
+          <div class="panel-actions">
+            <button class="btn-outline" id="btnQlibResetParams">恢复默认</button>
+            <button class="btn-primary" id="btnQlibTrain">重新计算评分</button>
+          </div>
+        </div>
+        <div class="qlib-params-grid">
+          <section class="qlib-param-card">
+            <div class="qlib-param-title">样本区间</div>
+            <div class="qlib-param-fields">
+              <label class="qlib-param-field">
+                <span>训练起点</span>
+                <input type="date" id="qlibTrainStart">
+              </label>
+              <label class="qlib-param-field">
+                <span>训练终点</span>
+                <input type="date" id="qlibTrainEnd">
+              </label>
+              <label class="qlib-param-field">
+                <span>验证终点</span>
+                <input type="date" id="qlibValidEnd">
+              </label>
+              <label class="qlib-param-field">
+                <span>测试终点</span>
+                <input type="date" id="qlibTestEnd">
+              </label>
+            </div>
+          </section>
+          <section class="qlib-param-card">
+            <div class="qlib-param-title">LightGBM 超参</div>
+            <div class="qlib-param-fields">
+              <label class="qlib-param-field">
+                <span>迭代轮数</span>
+                <input type="number" id="qlibBoostRounds" min="50" step="10">
+              </label>
+              <label class="qlib-param-field">
+                <span>提前停止</span>
+                <input type="number" id="qlibEarlyStop" min="10" step="5">
+              </label>
+              <label class="qlib-param-field">
+                <span>叶子数</span>
+                <input type="number" id="qlibLeaves" min="8" step="4">
+              </label>
+              <label class="qlib-param-field">
+                <span>学习率</span>
+                <input type="number" id="qlibLearningRate" min="0.001" max="1" step="0.01">
+              </label>
+              <label class="qlib-param-field">
+                <span>subsample</span>
+                <input type="number" id="qlibSubsample" min="0.1" max="1" step="0.05">
+              </label>
+              <label class="qlib-param-field">
+                <span>colsample</span>
+                <input type="number" id="qlibColsample" min="0.1" max="1" step="0.05">
+              </label>
+            </div>
+          </section>
+          <section class="qlib-param-card">
+            <div class="qlib-param-title">特征开关</div>
+            <div class="qlib-toggle-list">
+              <label><input type="checkbox" id="qlibUseAlpha158"> Alpha158 量价因子</label>
+              <label><input type="checkbox" id="qlibUseFinancial"> 财务因子</label>
+              <label><input type="checkbox" id="qlibUseInstitution"> 机构行为因子</label>
+            </div>
+            <div class="muted" style="font-size:11px;margin-top:10px">训练完成后，Qlib 排名会直接同步到股票研究列表。</div>
+          </section>
+        </div>
+        <div id="qlibTrainMsg" class="muted" style="font-size:12px"></div>
+        <div id="qlibParamSummary" class="muted" style="font-size:11px;margin-top:6px"></div>
+      </div>
+
+      <div class="panel" style="margin-top:14px">
+        <div class="panel-head"><span style="font-weight:600">因子重要性 Top 20</span></div>
+        <div id="qlibFactorChart" style="min-height:300px">未训练</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 自定义模态框 -->
+  <div id="modalOverlay"
+    style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:1000;align-items:center;justify-content:center">
+    <div
+      style="background:#fff;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;box-shadow:0 8px 30px rgba(0,0,0,0.15)">
+      <div id="modalBody" style="font-size:14px;line-height:1.6;margin-bottom:18px"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button id="modalCancel" class="btn-outline" style="display:none;padding:6px 16px;border-radius:6px">取消</button>
+        <button id="modalOk" class="btn-primary" style="padding:6px 16px;border-radius:6px">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/app.js?v=2.1.0"></script>
+</body>
+
+</html>

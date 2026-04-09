@@ -1,0 +1,388 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="readthedocs-addons-api-version" content="1"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AKShare 自然语言处理 &mdash; AKShare 1.18.40 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments%EF%B9%96v=b86133f3.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme%EF%B9%96v=9edc463e.css" />
+
+  
+      <script src="https://akshare.akfamily.xyz/_static/jquery.js?v=5d32c60e"></script>
+      <script src="https://akshare.akfamily.xyz/_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="https://akshare.akfamily.xyz/_static/documentation_options.js?v=5dffd886"></script>
+      <script src="https://akshare.akfamily.xyz/_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="https://akshare.akfamily.xyz/_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="https://akshare.akfamily.xyz/_static/translations.js?v=540d3cec"></script>
+    <script src="https://akshare.akfamily.xyz/_static/js/theme.js"></script>
+    <script src="https://akshare.akfamily.xyz/_static/js/versions.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="AKShare QDII 数据" href="../qdii/qdii.html" />
+    <link rel="prev" title="AKShare 高频数据" href="../hf/hf.html" /> 
+<script async type="text/javascript" src="https://akshare.akfamily.xyz/_/static/javascript/readthedocs-addons.js"></script><meta name="readthedocs-project-slug" content="akshare" /><meta name="readthedocs-version-slug" content="latest" /><meta name="readthedocs-resolver-filename" content="/data/nlp/nlp.html" /><meta name="readthedocs-http-status" content="200" /></head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            AKShare
+          </a>
+              <div class="switch-menus">
+                <div class="version-switch"></div>
+                <div class="language-switch"></div>
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Table of contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">AKShare 项目概览</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">AKShare 安装指导</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">AKShare 数据字典</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../stock/stock.html">AKShare 股票数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../futures/futures.html">AKShare 期货数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bond/bond.html">AKShare 债券数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../option/option.html">AKShare 期权数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fx/fx.html">AKShare 外汇数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../currency/currency.html">AKShare 货币数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../spot/spot.html">AKShare 现货数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../interest_rate/interest_rate.html">AKShare 利率数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fund/fund_private.html">AKShare 私募基金数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fund/fund_public.html">AKShare 公募基金数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index/index.html">AKShare 指数数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../macro/macro.html">AKShare 宏观数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dc/dc.html">AKShare 加密货币数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bank/bank.html">AKShare 银行数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../article/article.html">AKShare 波动率数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../article/article.html#id2">AKShare 多因子数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../article/article.html#id3">AKShare 政策不确定性数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../energy/energy.html">AKShare 能源数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../event/event.html">AKShare 迁徙数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hf/hf.html">AKShare 高频数据</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">AKShare 自然语言处理</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">知识图谱</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">智能问答</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../qdii/qdii.html">AKShare QDII 数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../others/others.html">AKShare 另类数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qhkc/index.html">AKShare 奇货可查</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tool/tool.html">AKShare 工具箱</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../indicator.html">AKShare 指标计算</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data_tips.html">AKShare 数据说明</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../trade.html">AKShare 实盘交易</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../answer.html">AKShare 答疑专栏</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">AKShare 快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../articles.html">AKShare 相关文章</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anaconda.html">AKShare 环境配置</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../platform.html">AKShare 量化专题</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../demo.html">AKShare 策略示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">AKShare 版本更新</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">AKShare 贡献源码</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dependency.html">AKShare 依赖说明</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deploy_http.html">AKShare HTTP 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../akdocker/akdocker.html">AKShare Docker 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../special.html">AKShare 特别说明</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">AKShare</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">AKShare 数据字典</a></li>
+      <li class="breadcrumb-item active">AKShare 自然语言处理</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/data/nlp/nlp.md" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="akshare">
+<h1><a class="reference external" href="https://github.com/akfamily/akshare">AKShare</a> 自然语言处理<a class="headerlink" href="#akshare" title="链接到此标题。"></a></h1>
+<section id="id1">
+<h2>知识图谱<a class="headerlink" href="#id1" title="链接到此标题。"></a></h2>
+<p>接口: nlp_ownthink</p>
+<p>目标地址: https://ownthink.com/</p>
+<p>描述: 思知-知识图谱的接口, 以此来查询知识图谱数据</p>
+<p>限量: 单次返回查询的数据结果</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>word</td>
+<td>str</td>
+<td>word="人工智能"</td>
+</tr>
+<tr>
+<td>indicator</td>
+<td>str</td>
+<td>indicator="entity"; Please refer <strong>Indicator Info</strong> table</td>
+</tr>
+</tbody>
+</table><p>Indicator Info</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>fields</th>
+<th>type</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>entity</td>
+<td>str</td>
+<td>实体名</td>
+</tr>
+<tr>
+<td>desc</td>
+<td>str</td>
+<td>实体简介</td>
+</tr>
+<tr>
+<td>tag</td>
+<td>list</td>
+<td>实体标签</td>
+</tr>
+<tr>
+<td>avg</td>
+<td>pandas.DataFrame</td>
+<td>实体属性值，第一列为实体的属性，第二列为实体属性所对应的值</td>
+</tr>
+</tbody>
+</table><p>输出参数-entity</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>str</td>
+<td>结果</td>
+</tr>
+</tbody>
+</table><p>接口示例-entity</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">nlp_ownthink_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">nlp_ownthink</span><span class="p">(</span><span class="n">word</span><span class="o">=</span><span class="s2">&quot;人工智能&quot;</span><span class="p">,</span> <span class="n">indicator</span><span class="o">=</span><span class="s2">&quot;entity&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">nlp_ownthink_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例-entity</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">人工智能</span><span class="p">[</span><span class="n">计算机科学的一个分支</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>输出参数-desc</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>str</td>
+<td>结果</td>
+</tr>
+</tbody>
+</table><p>接口示例-desc</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">nlp_ownthink_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">nlp_ownthink</span><span class="p">(</span><span class="n">word</span><span class="o">=</span><span class="s2">&quot;人工智能&quot;</span><span class="p">,</span> <span class="n">indicator</span><span class="o">=</span><span class="s2">&quot;desc&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">nlp_ownthink_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例-desc</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>人工智能（Artificial Intelligence），英文缩写为AI。
+</pre></div>
+</div>
+<p>输出参数-avg</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>str</td>
+<td>结果</td>
+</tr>
+</tbody>
+</table><p>接口示例-avg</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">nlp_ownthink_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">nlp_ownthink</span><span class="p">(</span><span class="n">word</span><span class="o">=</span><span class="s2">&quot;人工智能&quot;</span><span class="p">,</span> <span class="n">indicator</span><span class="o">=</span><span class="s2">&quot;avg&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">nlp_ownthink_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例-avg</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>     <span class="n">字段</span>                       <span class="n">值</span>
+<span class="mi">0</span>   <span class="n">中文名</span>                    <span class="n">人工智能</span>
+<span class="mi">1</span>   <span class="n">外文名</span>  <span class="n">ARTIFICIALINTELLIGENCE</span>
+<span class="mi">2</span>    <span class="n">简称</span>                      <span class="n">AI</span>
+<span class="mi">3</span>  <span class="n">提出时间</span>                   <span class="mi">1956</span><span class="n">年</span>
+<span class="mi">4</span>  <span class="n">提出地点</span>             <span class="n">DARTMOUTH学会</span>
+<span class="mi">5</span>  <span class="n">名称来源</span>             <span class="n">雨果·德·加里斯的著作</span>
+</pre></div>
+</div>
+<p>输出参数-tag</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>list</td>
+<td>结果</td>
+</tr>
+</tbody>
+</table><p>接口示例-tag</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">nlp_ownthink_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">nlp_ownthink</span><span class="p">(</span><span class="n">word</span><span class="o">=</span><span class="s2">&quot;人工智能&quot;</span><span class="p">,</span> <span class="n">indicator</span><span class="o">=</span><span class="s2">&quot;tag&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">nlp_ownthink_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例-tag</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;中国通信学会&#39;</span><span class="p">,</span> <span class="s1">&#39;学科&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h2>智能问答<a class="headerlink" href="#id2" title="链接到此标题。"></a></h2>
+<p>接口: nlp_answer</p>
+<p>目标地址: https://ownthink.com/robot.html</p>
+<p>描述: 思知-对话机器人的接口, 以此来进行智能问答</p>
+<p>限量: 单次返回查询的数据结果</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>question</td>
+<td>str</td>
+<td>question="姚明的身高"</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>str</td>
+<td>答案</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">nlp_answer_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">nlp_answer</span><span class="p">(</span><span class="n">question</span><span class="o">=</span><span class="s2">&quot;姚明的身高&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">nlp_answer_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">姚明的身高是226厘米</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../hf/hf.html" class="btn btn-neutral float-left" title="AKShare 高频数据" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../qdii/qdii.html" class="btn btn-neutral float-right" title="AKShare QDII 数据" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2019–2026, AKShare Developers。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

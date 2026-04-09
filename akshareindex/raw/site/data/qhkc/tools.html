@@ -1,0 +1,383 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="readthedocs-addons-api-version" content="1"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>工具 &mdash; AKShare 1.18.40 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments%EF%B9%96v=b86133f3.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme%EF%B9%96v=9edc463e.css" />
+
+  
+      <script src="https://akshare.akfamily.xyz/_static/jquery.js?v=5d32c60e"></script>
+      <script src="https://akshare.akfamily.xyz/_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="https://akshare.akfamily.xyz/_static/documentation_options.js?v=5dffd886"></script>
+      <script src="https://akshare.akfamily.xyz/_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="https://akshare.akfamily.xyz/_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="https://akshare.akfamily.xyz/_static/translations.js?v=540d3cec"></script>
+    <script src="https://akshare.akfamily.xyz/_static/js/theme.js"></script>
+    <script src="https://akshare.akfamily.xyz/_static/js/versions.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="资金" href="fund.html" />
+    <link rel="prev" title="基本面" href="fundamental.html" /> 
+<script async type="text/javascript" src="https://akshare.akfamily.xyz/_/static/javascript/readthedocs-addons.js"></script><meta name="readthedocs-project-slug" content="akshare" /><meta name="readthedocs-version-slug" content="latest" /><meta name="readthedocs-resolver-filename" content="/data/qhkc/tools.html" /><meta name="readthedocs-http-status" content="200" /></head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            AKShare
+          </a>
+              <div class="switch-menus">
+                <div class="version-switch"></div>
+                <div class="language-switch"></div>
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Table of contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">AKShare 项目概览</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">AKShare 安装指导</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">AKShare 数据字典</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../stock/stock.html">AKShare 股票数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../futures/futures.html">AKShare 期货数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bond/bond.html">AKShare 债券数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../option/option.html">AKShare 期权数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fx/fx.html">AKShare 外汇数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../currency/currency.html">AKShare 货币数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../spot/spot.html">AKShare 现货数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../interest_rate/interest_rate.html">AKShare 利率数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fund/fund_private.html">AKShare 私募基金数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fund/fund_public.html">AKShare 公募基金数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index/index.html">AKShare 指数数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../macro/macro.html">AKShare 宏观数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dc/dc.html">AKShare 加密货币数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bank/bank.html">AKShare 银行数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../article/article.html">AKShare 波动率数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../article/article.html#id2">AKShare 多因子数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../article/article.html#id3">AKShare 政策不确定性数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../energy/energy.html">AKShare 能源数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../event/event.html">AKShare 迁徙数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hf/hf.html">AKShare 高频数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../nlp/nlp.html">AKShare 自然语言处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qdii/qdii.html">AKShare QDII 数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../others/others.html">AKShare 另类数据</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">AKShare 奇货可查</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="commodity.html">商品</a></li>
+<li class="toctree-l3"><a class="reference internal" href="broker.html">席位</a></li>
+<li class="toctree-l3"><a class="reference internal" href="index_data.html">指数</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fundamental.html">基本面</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">工具</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id2">龙虎牛熊多头合约池</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id9">龙虎牛熊空头合约池</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="fund.html">资金</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../tool/tool.html">AKShare 工具箱</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../indicator.html">AKShare 指标计算</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data_tips.html">AKShare 数据说明</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../trade.html">AKShare 实盘交易</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../answer.html">AKShare 答疑专栏</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">AKShare 快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../articles.html">AKShare 相关文章</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anaconda.html">AKShare 环境配置</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../platform.html">AKShare 量化专题</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../demo.html">AKShare 策略示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">AKShare 版本更新</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">AKShare 贡献源码</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dependency.html">AKShare 依赖说明</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deploy_http.html">AKShare HTTP 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../akdocker/akdocker.html">AKShare Docker 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../special.html">AKShare 特别说明</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">AKShare</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">AKShare 数据字典</a></li>
+          <li class="breadcrumb-item"><a href="index.html">AKShare 奇货可查</a></li>
+      <li class="breadcrumb-item active">工具</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/data/qhkc/tools.md" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="id1">
+<h1>工具<a class="headerlink" href="#id1" title="链接到此标题。"></a></h1>
+<section id="id2">
+<h2>龙虎牛熊多头合约池<a class="headerlink" href="#id2" title="链接到此标题。"></a></h2>
+<section id="id3">
+<h3>接口名称<a class="headerlink" href="#id3" title="链接到此标题。"></a></h3>
+<p>long_pool</p>
+</section>
+<section id="id4">
+<h3>接口描述<a class="headerlink" href="#id4" title="链接到此标题。"></a></h3>
+<p>龙虎牛熊多头合约池接口</p>
+</section>
+<section id="id5">
+<h3>请求参数<a class="headerlink" href="#id5" title="链接到此标题。"></a></h3>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th style="text-align: left;">参数名</th>
+<th style="text-align: left;">说明</th>
+<th>举例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">date</td>
+<td style="text-align: left;">查询日期</td>
+<td>2018-08-08</td>
+</tr>
+</tbody>
+</table></section>
+<section id="id6">
+<h3>返回参数<a class="headerlink" href="#id6" title="链接到此标题。"></a></h3>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th style="text-align: left;">参数名</th>
+<th style="text-align: left;">类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">symbol</td>
+<td style="text-align: left;">string</td>
+<td>品种编码</td>
+</tr>
+<tr>
+<td style="text-align: left;">code</td>
+<td style="text-align: left;">string</td>
+<td>合约代号</td>
+</tr>
+</tbody>
+</table></section>
+<section id="id7">
+<h3>示例代码<a class="headerlink" href="#id7" title="链接到此标题。"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="kn">import</span> <span class="n">pro_api</span>
+<span class="n">pro</span> <span class="o">=</span> <span class="n">pro_api</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="s2">&quot;在此处输入您的 token, 可以联系奇货可查网站管理员获取&quot;</span><span class="p">)</span>
+<span class="n">long_pool_df</span> <span class="o">=</span> <span class="n">pro</span><span class="o">.</span><span class="n">long_pool</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="s2">&quot;2018-08-08&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">long_pool_df</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id8">
+<h3>返回示例<a class="headerlink" href="#id8" title="链接到此标题。"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>      <span class="n">code</span> <span class="n">symbol</span>
+<span class="mi">0</span>   <span class="n">rb1810</span>     <span class="n">RB</span>
+<span class="mi">1</span>   <span class="n">rb1901</span>     <span class="n">RB</span>
+<span class="mi">2</span>    <span class="n">j1809</span>      <span class="n">J</span>
+<span class="mi">3</span>    <span class="n">j1901</span>      <span class="n">J</span>
+<span class="mi">4</span>   <span class="n">ap1810</span>     <span class="n">AP</span>
+<span class="mi">5</span>   <span class="n">ap1901</span>     <span class="n">AP</span>
+<span class="mi">6</span>   <span class="n">ap1903</span>     <span class="n">AP</span>
+<span class="mi">7</span>   <span class="n">ap1905</span>     <span class="n">AP</span>
+<span class="mi">8</span>   <span class="n">cf1809</span>     <span class="n">CF</span>
+<span class="mi">9</span>   <span class="n">fg1809</span>     <span class="n">FG</span>
+<span class="mi">10</span>  <span class="n">ma1809</span>     <span class="n">MA</span>
+<span class="mi">11</span>  <span class="n">rm1901</span>     <span class="n">RM</span>
+<span class="mi">12</span>  <span class="n">sf1901</span>     <span class="n">SF</span>
+<span class="mi">13</span>  <span class="n">sm1901</span>     <span class="n">SM</span>
+<span class="mi">14</span>  <span class="n">sr1809</span>     <span class="n">SR</span>
+<span class="mi">15</span>  <span class="n">sr1905</span>     <span class="n">SR</span>
+<span class="mi">16</span>  <span class="n">ta1808</span>     <span class="n">TA</span>
+<span class="mi">17</span>  <span class="n">ta1903</span>     <span class="n">TA</span>
+<span class="mi">18</span>  <span class="n">cu1811</span>     <span class="n">CU</span>
+<span class="mi">19</span>  <span class="n">cu1905</span>     <span class="n">CU</span>
+<span class="mi">20</span>  <span class="n">al1808</span>     <span class="n">AL</span>
+<span class="mi">21</span>  <span class="n">zn1808</span>     <span class="n">ZN</span>
+<span class="mi">22</span>  <span class="n">ni1809</span>     <span class="n">NI</span>
+<span class="mi">23</span>  <span class="n">au1812</span>     <span class="n">AU</span>
+<span class="mi">24</span>   <span class="n">b1901</span>      <span class="n">B</span>
+<span class="mi">25</span>   <span class="n">c1905</span>      <span class="n">C</span>
+<span class="mi">26</span>  <span class="n">cs1901</span>     <span class="n">CS</span>
+<span class="mi">27</span>  <span class="n">jd1809</span>     <span class="n">JD</span>
+<span class="mi">28</span>  <span class="n">jd1901</span>     <span class="n">JD</span>
+<span class="mi">29</span>   <span class="n">m1809</span>      <span class="n">M</span>
+<span class="mi">30</span>  <span class="n">pp1809</span>     <span class="n">PP</span>
+<span class="mi">31</span>  <span class="n">pp1901</span>     <span class="n">PP</span>
+<span class="mi">32</span>   <span class="n">v1901</span>      <span class="n">V</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id9">
+<h2>龙虎牛熊空头合约池<a class="headerlink" href="#id9" title="链接到此标题。"></a></h2>
+<section id="id10">
+<h3>接口名称<a class="headerlink" href="#id10" title="链接到此标题。"></a></h3>
+<p>short_pool</p>
+</section>
+<section id="id11">
+<h3>接口描述<a class="headerlink" href="#id11" title="链接到此标题。"></a></h3>
+<p>龙虎牛熊空头合约池</p>
+</section>
+<section id="id12">
+<h3>请求参数<a class="headerlink" href="#id12" title="链接到此标题。"></a></h3>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th style="text-align: left;">参数名</th>
+<th style="text-align: left;">说明</th>
+<th>举例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">date</td>
+<td style="text-align: left;">查询日期</td>
+<td>2018-08-08</td>
+</tr>
+</tbody>
+</table></section>
+<section id="id13">
+<h3>返回参数<a class="headerlink" href="#id13" title="链接到此标题。"></a></h3>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th style="text-align: left;">参数名</th>
+<th style="text-align: left;">类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">symbol</td>
+<td style="text-align: left;">string</td>
+<td>品种编码</td>
+</tr>
+<tr>
+<td style="text-align: left;">code</td>
+<td style="text-align: left;">string</td>
+<td>合约代号</td>
+</tr>
+</tbody>
+</table></section>
+<section id="id14">
+<h3>示例代码<a class="headerlink" href="#id14" title="链接到此标题。"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="kn">import</span> <span class="n">pro_api</span>
+<span class="n">pro</span> <span class="o">=</span> <span class="n">pro_api</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="s2">&quot;在此处输入您的 token, 可以联系奇货可查网站管理员获取&quot;</span><span class="p">)</span>
+<span class="n">short_pool_df</span> <span class="o">=</span> <span class="n">pro</span><span class="o">.</span><span class="n">short_pool</span><span class="p">(</span><span class="n">date</span><span class="o">=</span><span class="s2">&quot;2018-08-08&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">short_pool_df</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id15">
+<h3>返回示例<a class="headerlink" href="#id15" title="链接到此标题。"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>      <span class="n">code</span> <span class="n">symbol</span>
+<span class="mi">0</span>    <span class="n">i1901</span>      <span class="n">I</span>
+<span class="mi">1</span>   <span class="n">hc1810</span>     <span class="n">HC</span>
+<span class="mi">2</span>   <span class="n">ap1811</span>     <span class="n">AP</span>
+<span class="mi">3</span>   <span class="n">cf1901</span>     <span class="n">CF</span>
+<span class="mi">4</span>   <span class="n">oi1809</span>     <span class="n">OI</span>
+<span class="mi">5</span>   <span class="n">oi1905</span>     <span class="n">OI</span>
+<span class="mi">6</span>   <span class="n">rm1905</span>     <span class="n">RM</span>
+<span class="mi">7</span>   <span class="n">sf1809</span>     <span class="n">SF</span>
+<span class="mi">8</span>   <span class="n">ta1811</span>     <span class="n">TA</span>
+<span class="mi">9</span>   <span class="n">zc1809</span>     <span class="n">ZC</span>
+<span class="mi">10</span>  <span class="n">zc1811</span>     <span class="n">ZC</span>
+<span class="mi">11</span>  <span class="n">zc1901</span>     <span class="n">ZC</span>
+<span class="mi">12</span>  <span class="n">cu1809</span>     <span class="n">CU</span>
+<span class="mi">13</span>  <span class="n">cu1810</span>     <span class="n">CU</span>
+<span class="mi">14</span>  <span class="n">cu1901</span>     <span class="n">CU</span>
+<span class="mi">15</span>  <span class="n">al1811</span>     <span class="n">AL</span>
+<span class="mi">16</span>  <span class="n">al1812</span>     <span class="n">AL</span>
+<span class="mi">17</span>  <span class="n">zn1810</span>     <span class="n">ZN</span>
+<span class="mi">18</span>  <span class="n">pb1810</span>     <span class="n">PB</span>
+<span class="mi">19</span>  <span class="n">sn1809</span>     <span class="n">SN</span>
+<span class="mi">20</span>  <span class="n">ag1812</span>     <span class="n">AG</span>
+<span class="mi">21</span>  <span class="n">fu1901</span>     <span class="n">FU</span>
+<span class="mi">22</span>  <span class="n">ru1809</span>     <span class="n">RU</span>
+<span class="mi">23</span>  <span class="n">ru1811</span>     <span class="n">RU</span>
+<span class="mi">24</span>  <span class="n">ru1901</span>     <span class="n">RU</span>
+<span class="mi">25</span>  <span class="n">ru1905</span>     <span class="n">RU</span>
+<span class="mi">26</span>   <span class="n">a1901</span>      <span class="n">A</span>
+<span class="mi">27</span>   <span class="n">c1811</span>      <span class="n">C</span>
+<span class="mi">28</span>  <span class="n">cs1809</span>     <span class="n">CS</span>
+<span class="mi">29</span>   <span class="n">l1809</span>      <span class="n">L</span>
+<span class="mi">30</span>   <span class="n">l1901</span>      <span class="n">L</span>
+<span class="mi">31</span>   <span class="n">m1811</span>      <span class="n">M</span>
+<span class="mi">32</span>   <span class="n">m1901</span>      <span class="n">M</span>
+<span class="mi">33</span>   <span class="n">p1809</span>      <span class="n">P</span>
+<span class="mi">34</span>   <span class="n">p1905</span>      <span class="n">P</span>
+<span class="mi">35</span>   <span class="n">v1809</span>      <span class="n">V</span>
+<span class="mi">36</span>   <span class="n">y1809</span>      <span class="n">Y</span>
+<span class="mi">37</span>   <span class="n">y1901</span>      <span class="n">Y</span>
+<span class="mi">38</span>   <span class="n">y1905</span>      <span class="n">Y</span>
+<span class="mi">39</span>  <span class="n">if1808</span>     <span class="n">IF</span>
+<span class="mi">40</span>  <span class="n">if1809</span>     <span class="n">IF</span>
+<span class="mi">41</span>  <span class="n">ih1808</span>     <span class="n">IH</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="fundamental.html" class="btn btn-neutral float-left" title="基本面" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="fund.html" class="btn btn-neutral float-right" title="资金" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2019–2026, AKShare Developers。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

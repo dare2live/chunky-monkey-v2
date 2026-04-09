@@ -1,0 +1,1138 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="readthedocs-addons-api-version" content="1"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AKShare 现货数据 &mdash; AKShare 1.18.40 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments%EF%B9%96v=b86133f3.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme%EF%B9%96v=9edc463e.css" />
+
+  
+      <script src="https://akshare.akfamily.xyz/_static/jquery.js?v=5d32c60e"></script>
+      <script src="https://akshare.akfamily.xyz/_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="https://akshare.akfamily.xyz/_static/documentation_options.js?v=5dffd886"></script>
+      <script src="https://akshare.akfamily.xyz/_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="https://akshare.akfamily.xyz/_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="https://akshare.akfamily.xyz/_static/translations.js?v=540d3cec"></script>
+    <script src="https://akshare.akfamily.xyz/_static/js/theme.js"></script>
+    <script src="https://akshare.akfamily.xyz/_static/js/versions.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="AKShare 利率数据" href="../interest_rate/interest_rate.html" />
+    <link rel="prev" title="AKShare 货币数据" href="../currency/currency.html" /> 
+<script async type="text/javascript" src="https://akshare.akfamily.xyz/_/static/javascript/readthedocs-addons.js"></script><meta name="readthedocs-project-slug" content="akshare" /><meta name="readthedocs-version-slug" content="latest" /><meta name="readthedocs-resolver-filename" content="/data/spot/spot.html" /><meta name="readthedocs-http-status" content="200" /></head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            AKShare
+          </a>
+              <div class="switch-menus">
+                <div class="version-switch"></div>
+                <div class="language-switch"></div>
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Table of contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">AKShare 项目概览</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">AKShare 安装指导</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">AKShare 数据字典</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../stock/stock.html">AKShare 股票数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../futures/futures.html">AKShare 期货数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bond/bond.html">AKShare 债券数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../option/option.html">AKShare 期权数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fx/fx.html">AKShare 外汇数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../currency/currency.html">AKShare 货币数据</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">AKShare 现货数据</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">99 现货走势</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">上海黄金交易所</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id3">历史行情数据</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">实时行情数据</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id5">上海金基准价</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">上海银基准价</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">生猪大数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id8">各省均价实时排行榜</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id9">今年以来全国出栏均价走势</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id10">全国瘦肉型肉猪</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id11">全国三元仔猪</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id12">全国后备二元母猪</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id13">全国玉米价格走势</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id14">全国豆粕价格走势</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id15">全国育肥猪合料（含自配料）半月走势</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../interest_rate/interest_rate.html">AKShare 利率数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fund/fund_private.html">AKShare 私募基金数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fund/fund_public.html">AKShare 公募基金数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index/index.html">AKShare 指数数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../macro/macro.html">AKShare 宏观数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dc/dc.html">AKShare 加密货币数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bank/bank.html">AKShare 银行数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../article/article.html">AKShare 波动率数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../article/article.html#id2">AKShare 多因子数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../article/article.html#id3">AKShare 政策不确定性数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../energy/energy.html">AKShare 能源数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../event/event.html">AKShare 迁徙数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hf/hf.html">AKShare 高频数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../nlp/nlp.html">AKShare 自然语言处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qdii/qdii.html">AKShare QDII 数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../others/others.html">AKShare 另类数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qhkc/index.html">AKShare 奇货可查</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tool/tool.html">AKShare 工具箱</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../indicator.html">AKShare 指标计算</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data_tips.html">AKShare 数据说明</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../trade.html">AKShare 实盘交易</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../answer.html">AKShare 答疑专栏</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">AKShare 快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../articles.html">AKShare 相关文章</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anaconda.html">AKShare 环境配置</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../platform.html">AKShare 量化专题</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../demo.html">AKShare 策略示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">AKShare 版本更新</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">AKShare 贡献源码</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dependency.html">AKShare 依赖说明</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deploy_http.html">AKShare HTTP 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../akdocker/akdocker.html">AKShare Docker 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../special.html">AKShare 特别说明</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">AKShare</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">AKShare 数据字典</a></li>
+      <li class="breadcrumb-item active">AKShare 现货数据</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/data/spot/spot.md" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="akshare">
+<h1><a class="reference external" href="https://github.com/akfamily/akshare">AKShare</a> 现货数据<a class="headerlink" href="#akshare" title="链接到此标题。"></a></h1>
+<section id="id1">
+<h2>99 现货走势<a class="headerlink" href="#id1" title="链接到此标题。"></a></h2>
+<p>接口: spot_price_qh</p>
+<p>目标地址: https://www.99qh.com/data/spotTrend</p>
+<p>描述: 99 期货-数据-期现-现货走势</p>
+<p>限量: 单次返回指定 symbol 的所有历史数据；由于数据源限制，只能获取个别品种</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>symbol</td>
+<td>str</td>
+<td>symbol="螺纹钢"; 可以通过 ak.spot_price_table_qh() 获取品种表</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>日期</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>期货收盘价</td>
+<td>float64</td>
+<td>-</td>
+</tr>
+<tr>
+<td>现货价格</td>
+<td>float64</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">spot_price_qh_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">spot_price_qh</span><span class="p">(</span><span class="n">symbol</span><span class="o">=</span><span class="s1">&#39;螺纹钢&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">spot_price_qh_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>         <span class="n">日期</span>  <span class="n">期货收盘价</span>  <span class="n">现货价格</span>
+<span class="mi">0</span>     <span class="mi">2012</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">31</span>   <span class="mi">3700</span>  <span class="mi">3811</span>
+<span class="mi">1</span>     <span class="mi">2012</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">01</span>   <span class="mi">3776</span>  <span class="mi">3811</span>
+<span class="mi">2</span>     <span class="mi">2012</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">08</span>   <span class="mi">3900</span>  <span class="mi">3811</span>
+<span class="mi">3</span>     <span class="mi">2012</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">09</span>   <span class="mi">3750</span>  <span class="mi">3806</span>
+<span class="mi">4</span>     <span class="mi">2012</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">14</span>   <span class="mi">3810</span>  <span class="mi">3761</span>
+<span class="o">...</span>          <span class="o">...</span>    <span class="o">...</span>   <span class="o">...</span>
+<span class="mi">2466</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">10</span>   <span class="mi">3662</span>  <span class="mi">3561</span>
+<span class="mi">2467</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">13</span>   <span class="mi">3686</span>  <span class="mi">3545</span>
+<span class="mi">2468</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">14</span>   <span class="mi">3630</span>  <span class="mi">3552</span>
+<span class="mi">2469</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">15</span>   <span class="mi">3621</span>  <span class="mi">3530</span>
+<span class="mi">2470</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">16</span>   <span class="mi">3703</span>  <span class="mi">3533</span>
+<span class="p">[</span><span class="mi">2471</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">3</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h2>上海黄金交易所<a class="headerlink" href="#id2" title="链接到此标题。"></a></h2>
+<section id="id3">
+<h3>历史行情数据<a class="headerlink" href="#id3" title="链接到此标题。"></a></h3>
+<p>接口: spot_hist_sge</p>
+<p>目标地址: https://www.sge.com.cn/sjzx/mrhq</p>
+<p>描述: 上海黄金交易所-数据资讯-行情走势-历史数据</p>
+<p>限量: 单次返回指定 symbol 的所有历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>symbol</td>
+<td>str</td>
+<td>symbol="Au99.99"; 可以通过 ak.spot_symbol_table_sge() 获取品种表</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>date</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>open</td>
+<td>float64</td>
+<td>-</td>
+</tr>
+<tr>
+<td>close</td>
+<td>float64</td>
+<td>-</td>
+</tr>
+<tr>
+<td>low</td>
+<td>float64</td>
+<td>-</td>
+</tr>
+<tr>
+<td>high</td>
+<td>float64</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">spot_hist_sge_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">spot_hist_sge</span><span class="p">(</span><span class="n">symbol</span><span class="o">=</span><span class="s1">&#39;Au99.99&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">spot_hist_sge_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>            <span class="n">date</span>    <span class="nb">open</span>   <span class="n">close</span>     <span class="n">low</span>    <span class="n">high</span>
+<span class="mi">0</span>     <span class="mi">2016</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">19</span>  <span class="mf">262.45</span>  <span class="mf">262.76</span>  <span class="mf">262.02</span>  <span class="mf">263.50</span>
+<span class="mi">1</span>     <span class="mi">2016</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">20</span>  <span class="mf">262.88</span>  <span class="mf">262.06</span>  <span class="mf">261.42</span>  <span class="mf">263.70</span>
+<span class="mi">2</span>     <span class="mi">2016</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">21</span>  <span class="mf">262.40</span>  <span class="mf">260.97</span>  <span class="mf">258.60</span>  <span class="mf">262.65</span>
+<span class="mi">3</span>     <span class="mi">2016</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">22</span>  <span class="mf">261.18</span>  <span class="mf">260.00</span>  <span class="mf">259.05</span>  <span class="mf">261.18</span>
+<span class="mi">4</span>     <span class="mi">2016</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">23</span>  <span class="mf">258.95</span>  <span class="mf">260.07</span>  <span class="mf">258.70</span>  <span class="mf">260.37</span>
+<span class="o">...</span>          <span class="o">...</span>     <span class="o">...</span>     <span class="o">...</span>     <span class="o">...</span>     <span class="o">...</span>
+<span class="mi">1775</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">15</span>  <span class="mf">567.01</span>  <span class="mf">558.68</span>  <span class="mf">556.00</span>  <span class="mf">576.99</span>
+<span class="mi">1776</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">16</span>  <span class="mf">559.00</span>  <span class="mf">562.50</span>  <span class="mf">552.66</span>  <span class="mf">569.00</span>
+<span class="mi">1777</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">17</span>  <span class="mf">562.61</span>  <span class="mf">564.46</span>  <span class="mf">562.02</span>  <span class="mf">569.00</span>
+<span class="mi">1778</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">18</span>  <span class="mf">566.30</span>  <span class="mf">563.37</span>  <span class="mf">558.80</span>  <span class="mf">568.00</span>
+<span class="mi">1779</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">19</span>  <span class="mf">562.80</span>  <span class="mf">565.55</span>  <span class="mf">561.00</span>  <span class="mf">573.96</span>
+<span class="p">[</span><span class="mi">1780</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">5</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h3>实时行情数据<a class="headerlink" href="#id4" title="链接到此标题。"></a></h3>
+<p>接口: spot_quotations_sge</p>
+<p>目标地址: https://www.sge.com.cn/</p>
+<p>描述: 上海黄金交易所-数据资讯-行情走势-实时数据</p>
+<p>限量: 单次返回指定 symbol 的所有行情数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>symbol</td>
+<td>str</td>
+<td>symbol="Au99.99"; 可以通过 ak.spot_symbol_table_sge() 获取品种表</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>品种</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>时间</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>现价</td>
+<td>float64</td>
+<td>-</td>
+</tr>
+<tr>
+<td>更新时间</td>
+<td>object</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">spot_quotations_sge_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">spot_quotations_sge</span><span class="p">(</span><span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;Au99.99&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">spot_quotations_sge_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>     <span class="n">品种</span>        <span class="n">时间</span>     <span class="n">现价</span>                  <span class="n">更新时间</span>
+<span class="mi">0</span>    <span class="n">Au99</span><span class="mf">.99</span>  <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">:</span><span class="mi">00</span>  <span class="mf">755.0</span>  <span class="mi">2025</span><span class="n">年04月14日</span> <span class="mi">22</span><span class="p">:</span><span class="mi">28</span><span class="p">:</span><span class="mi">55</span>
+<span class="mi">1</span>    <span class="n">Au99</span><span class="mf">.99</span>  <span class="mi">00</span><span class="p">:</span><span class="mi">01</span><span class="p">:</span><span class="mi">00</span>  <span class="mf">755.0</span>  <span class="mi">2025</span><span class="n">年04月14日</span> <span class="mi">22</span><span class="p">:</span><span class="mi">28</span><span class="p">:</span><span class="mi">55</span>
+<span class="mi">2</span>    <span class="n">Au99</span><span class="mf">.99</span>  <span class="mi">00</span><span class="p">:</span><span class="mi">02</span><span class="p">:</span><span class="mi">00</span>  <span class="mf">755.0</span>  <span class="mi">2025</span><span class="n">年04月14日</span> <span class="mi">22</span><span class="p">:</span><span class="mi">28</span><span class="p">:</span><span class="mi">55</span>
+<span class="mi">3</span>    <span class="n">Au99</span><span class="mf">.99</span>  <span class="mi">00</span><span class="p">:</span><span class="mi">03</span><span class="p">:</span><span class="mi">00</span>  <span class="mf">755.0</span>  <span class="mi">2025</span><span class="n">年04月14日</span> <span class="mi">22</span><span class="p">:</span><span class="mi">28</span><span class="p">:</span><span class="mi">55</span>
+<span class="mi">4</span>    <span class="n">Au99</span><span class="mf">.99</span>  <span class="mi">00</span><span class="p">:</span><span class="mi">04</span><span class="p">:</span><span class="mi">00</span>  <span class="mf">755.0</span>  <span class="mi">2025</span><span class="n">年04月14日</span> <span class="mi">22</span><span class="p">:</span><span class="mi">28</span><span class="p">:</span><span class="mi">55</span>
+<span class="o">..</span>       <span class="o">...</span>       <span class="o">...</span>    <span class="o">...</span>                   <span class="o">...</span>
+<span class="mi">686</span>  <span class="n">Au99</span><span class="mf">.99</span>  <span class="mi">22</span><span class="p">:</span><span class="mi">24</span><span class="p">:</span><span class="mi">00</span>  <span class="mf">760.0</span>  <span class="mi">2025</span><span class="n">年04月14日</span> <span class="mi">22</span><span class="p">:</span><span class="mi">28</span><span class="p">:</span><span class="mi">55</span>
+<span class="mi">687</span>  <span class="n">Au99</span><span class="mf">.99</span>  <span class="mi">22</span><span class="p">:</span><span class="mi">25</span><span class="p">:</span><span class="mi">00</span>  <span class="mf">760.0</span>  <span class="mi">2025</span><span class="n">年04月14日</span> <span class="mi">22</span><span class="p">:</span><span class="mi">28</span><span class="p">:</span><span class="mi">55</span>
+<span class="mi">688</span>  <span class="n">Au99</span><span class="mf">.99</span>  <span class="mi">22</span><span class="p">:</span><span class="mi">26</span><span class="p">:</span><span class="mi">00</span>  <span class="mf">760.0</span>  <span class="mi">2025</span><span class="n">年04月14日</span> <span class="mi">22</span><span class="p">:</span><span class="mi">28</span><span class="p">:</span><span class="mi">55</span>
+<span class="mi">689</span>  <span class="n">Au99</span><span class="mf">.99</span>  <span class="mi">22</span><span class="p">:</span><span class="mi">27</span><span class="p">:</span><span class="mi">00</span>  <span class="mf">760.0</span>  <span class="mi">2025</span><span class="n">年04月14日</span> <span class="mi">22</span><span class="p">:</span><span class="mi">28</span><span class="p">:</span><span class="mi">55</span>
+<span class="mi">690</span>  <span class="n">Au99</span><span class="mf">.99</span>  <span class="mi">22</span><span class="p">:</span><span class="mi">28</span><span class="p">:</span><span class="mi">00</span>  <span class="mf">760.0</span>  <span class="mi">2025</span><span class="n">年04月14日</span> <span class="mi">22</span><span class="p">:</span><span class="mi">28</span><span class="p">:</span><span class="mi">55</span>
+<span class="p">[</span><span class="mi">691</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">4</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h3>上海金基准价<a class="headerlink" href="#id5" title="链接到此标题。"></a></h3>
+<p>接口: spot_golden_benchmark_sge</p>
+<p>目标地址: https://www.sge.com.cn/sjzx/jzj</p>
+<p>描述: 上海黄金交易所-数据资讯-上海金基准价-历史数据</p>
+<p>限量: 单次返回所有历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>交易时间</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>晚盘价</td>
+<td>float64</td>
+<td>-</td>
+</tr>
+<tr>
+<td>早盘价</td>
+<td>float64</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">spot_golden_benchmark_sge_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">spot_golden_benchmark_sge</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">spot_golden_benchmark_sge_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>     <span class="n">交易时间</span>     <span class="n">晚盘价</span>     <span class="n">早盘价</span>
+<span class="mi">0</span>     <span class="mi">2016</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">18</span>  <span class="mf">257.29</span>  <span class="mf">256.92</span>
+<span class="mi">1</span>     <span class="mi">2016</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">19</span>  <span class="mf">259.97</span>  <span class="mf">261.15</span>
+<span class="mi">2</span>     <span class="mi">2016</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">20</span>  <span class="mf">261.82</span>  <span class="mf">260.39</span>
+<span class="mi">3</span>     <span class="mi">2016</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">21</span>  <span class="mf">260.41</span>  <span class="mf">261.32</span>
+<span class="mi">4</span>     <span class="mi">2016</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">24</span>  <span class="mf">258.80</span>  <span class="mf">258.42</span>
+          <span class="o">...</span>     <span class="o">...</span>     <span class="o">...</span>
+<span class="mi">1801</span>  <span class="mi">2023</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">10</span>  <span class="mf">467.92</span>  <span class="mf">468.49</span>
+<span class="mi">1802</span>  <span class="mi">2023</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">11</span>  <span class="mf">468.62</span>  <span class="mf">468.20</span>
+<span class="mi">1803</span>  <span class="mi">2023</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">12</span>  <span class="mf">470.00</span>  <span class="mf">469.14</span>
+<span class="mi">1804</span>  <span class="mi">2023</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">13</span>  <span class="mf">474.58</span>  <span class="mf">474.68</span>
+<span class="mi">1805</span>  <span class="mi">2023</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">14</span>  <span class="mf">470.43</span>  <span class="mf">479.08</span>
+<span class="p">[</span><span class="mi">1806</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">3</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id6">
+<h3>上海银基准价<a class="headerlink" href="#id6" title="链接到此标题。"></a></h3>
+<p>接口: spot_silver_benchmark_sge</p>
+<p>目标地址: https://www.sge.com.cn/sjzx/shyjzj</p>
+<p>描述: 上海黄金交易所-数据资讯-上海银基准价-历史数据</p>
+<p>限量: 单次返回所有历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>交易时间</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>晚盘价</td>
+<td>float64</td>
+<td>-</td>
+</tr>
+<tr>
+<td>早盘价</td>
+<td>float64</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">spot_silver_benchmark_sge_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">spot_silver_benchmark_sge</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">spot_silver_benchmark_sge_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>      <span class="n">交易时间</span>     <span class="n">晚盘价</span>     <span class="n">早盘价</span>
+<span class="mi">0</span>    <span class="mi">2019</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">13</span>  <span class="mf">4286.0</span>  <span class="mf">4284.0</span>
+<span class="mi">1</span>    <span class="mi">2019</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">14</span>  <span class="mf">4286.0</span>  <span class="mf">4301.0</span>
+<span class="mi">2</span>    <span class="mi">2019</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">15</span>  <span class="mf">4222.0</span>  <span class="mf">4270.0</span>
+<span class="mi">3</span>    <span class="mi">2019</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">16</span>  <span class="mf">4261.0</span>  <span class="mf">4244.0</span>
+<span class="mi">4</span>    <span class="mi">2019</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">17</span>  <span class="mf">4271.0</span>  <span class="mf">4271.0</span>
+<span class="o">..</span>          <span class="o">...</span>     <span class="o">...</span>     <span class="o">...</span>
+<span class="mi">953</span>  <span class="mi">2023</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">10</span>  <span class="mf">5776.0</span>  <span class="mf">5773.0</span>
+<span class="mi">954</span>  <span class="mi">2023</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">11</span>  <span class="mf">5773.0</span>  <span class="mf">5798.0</span>
+<span class="mi">955</span>  <span class="mi">2023</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">12</span>  <span class="mf">5783.0</span>  <span class="mf">5791.0</span>
+<span class="mi">956</span>  <span class="mi">2023</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">13</span>  <span class="mf">5890.0</span>  <span class="mf">5881.0</span>
+<span class="mi">957</span>  <span class="mi">2023</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">14</span>  <span class="mf">5870.0</span>  <span class="mf">5928.0</span>
+<span class="p">[</span><span class="mi">958</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">3</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id7">
+<h2>生猪大数据<a class="headerlink" href="#id7" title="链接到此标题。"></a></h2>
+<section id="id8">
+<h3>各省均价实时排行榜<a class="headerlink" href="#id8" title="链接到此标题。"></a></h3>
+<p>接口: spot_hog_soozhu</p>
+<p>目标地址: https://www.soozhu.com/price/data/center/</p>
+<p>描述: 搜猪-生猪大数据-各省均价实时排行榜</p>
+<p>限量: 单次返回所有实时数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>省份</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>价格</td>
+<td>float64</td>
+<td>-</td>
+</tr>
+<tr>
+<td>涨跌幅</td>
+<td>float64</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">spot_hog_soozhu_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">spot_hog_soozhu</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">spot_hog_soozhu_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>     <span class="n">省份</span>  <span class="n">价格</span>   <span class="n">涨跌幅</span>
+<span class="mi">0</span>    <span class="n">河北</span>  <span class="mf">19.49</span>  <span class="mf">0.12</span>
+<span class="mi">1</span>    <span class="n">辽宁</span>  <span class="mf">19.25</span>  <span class="mf">0.28</span>
+<span class="mi">2</span>    <span class="n">山东</span>  <span class="mf">19.68</span>  <span class="mf">0.21</span>
+<span class="mi">3</span>   <span class="n">黑龙江</span>  <span class="mf">18.79</span>  <span class="mf">0.04</span>
+<span class="mi">4</span>    <span class="n">河南</span>  <span class="mf">19.53</span>  <span class="mf">0.41</span>
+<span class="mi">5</span>    <span class="n">湖南</span>  <span class="mf">20.64</span>  <span class="mf">0.72</span>
+<span class="mi">6</span>    <span class="n">吉林</span>  <span class="mf">19.28</span>  <span class="mf">0.26</span>
+<span class="mi">7</span>    <span class="n">山西</span>  <span class="mf">19.43</span>  <span class="mf">0.43</span>
+<span class="mi">8</span>    <span class="n">安徽</span>  <span class="mf">20.00</span>  <span class="mf">0.39</span>
+<span class="mi">9</span>    <span class="n">四川</span>  <span class="mf">19.20</span>  <span class="mf">0.24</span>
+<span class="mi">10</span>   <span class="n">江西</span>  <span class="mf">21.10</span>  <span class="mf">0.65</span>
+<span class="mi">11</span>   <span class="n">甘肃</span>  <span class="mf">19.00</span> <span class="o">-</span><span class="mf">0.15</span>
+<span class="mi">12</span>   <span class="n">湖北</span>  <span class="mf">19.70</span>  <span class="mf">0.14</span>
+<span class="mi">13</span>   <span class="n">浙江</span>  <span class="mf">21.00</span>  <span class="mf">0.94</span>
+<span class="mi">14</span>   <span class="n">江苏</span>  <span class="mf">20.15</span>  <span class="mf">0.55</span>
+<span class="mi">15</span>   <span class="n">陕西</span>  <span class="mf">20.00</span>  <span class="mf">0.70</span>
+<span class="mi">16</span>   <span class="n">广东</span>  <span class="mf">20.80</span> <span class="o">-</span><span class="mf">0.36</span>
+<span class="mi">17</span>   <span class="n">新疆</span>  <span class="mf">17.80</span> <span class="o">-</span><span class="mf">0.28</span>
+<span class="mi">18</span>   <span class="n">北京</span>  <span class="mf">19.44</span>  <span class="mf">0.14</span>
+<span class="mi">19</span>   <span class="n">天津</span>  <span class="mf">19.34</span>  <span class="mf">0.14</span>
+<span class="mi">20</span>  <span class="n">内蒙古</span>  <span class="mf">18.86</span>  <span class="mf">0.04</span>
+<span class="mi">21</span>   <span class="n">福建</span>  <span class="mf">20.44</span>  <span class="mf">0.10</span>
+<span class="mi">22</span>   <span class="n">广西</span>  <span class="mf">20.33</span>  <span class="mf">0.14</span>
+<span class="mi">23</span>   <span class="n">海南</span>  <span class="mf">20.98</span>  <span class="mf">0.14</span>
+<span class="mi">24</span>   <span class="n">宁夏</span>  <span class="mf">19.20</span>  <span class="mf">0.00</span>
+<span class="mi">25</span>   <span class="n">重庆</span>  <span class="mf">18.76</span>  <span class="mf">0.14</span>
+<span class="mi">26</span>   <span class="n">云南</span>  <span class="mf">18.98</span>  <span class="mf">0.07</span>
+<span class="mi">27</span>   <span class="n">贵州</span>  <span class="mf">19.18</span> <span class="o">-</span><span class="mf">0.16</span>
+</pre></div>
+</div>
+</section>
+<section id="id9">
+<h3>今年以来全国出栏均价走势<a class="headerlink" href="#id9" title="链接到此标题。"></a></h3>
+<p>接口: spot_hog_year_trend_soozhu</p>
+<p>目标地址: https://www.soozhu.com/price/data/center/</p>
+<p>描述: 搜猪-生猪大数据-今年以来全国出栏均价走势</p>
+<p>限量: 单次返回近一年所有历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>日期</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>价格</td>
+<td>float64</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">spot_hog_year_trend_soozhu_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">spot_hog_year_trend_soozhu</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">spot_hog_year_trend_soozhu_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>         <span class="n">日期</span>     <span class="n">价格</span>
+<span class="mi">0</span>    <span class="mi">2024</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">16</span>  <span class="mf">13.81</span>
+<span class="mi">1</span>    <span class="mi">2024</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">17</span>  <span class="mf">14.10</span>
+<span class="mi">2</span>    <span class="mi">2024</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">18</span>  <span class="mf">14.04</span>
+<span class="mi">3</span>    <span class="mi">2024</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">19</span>  <span class="mf">13.79</span>
+<span class="mi">4</span>    <span class="mi">2024</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">20</span>  <span class="mf">13.67</span>
+<span class="o">..</span>          <span class="o">...</span>    <span class="o">...</span>
+<span class="mi">195</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">29</span>  <span class="mf">19.38</span>
+<span class="mi">196</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">30</span>  <span class="mf">19.48</span>
+<span class="mi">197</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">31</span>  <span class="mf">19.66</span>
+<span class="mi">198</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">19.78</span>
+<span class="mi">199</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">02</span>  <span class="mf">19.85</span>
+<span class="p">[</span><span class="mi">200</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">2</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id10">
+<h3>全国瘦肉型肉猪<a class="headerlink" href="#id10" title="链接到此标题。"></a></h3>
+<p>接口: spot_hog_lean_price_soozhu</p>
+<p>目标地址: https://www.soozhu.com/price/data/center/</p>
+<p>描述: 搜猪-生猪大数据-全国瘦肉型肉猪</p>
+<p>限量: 单次返回近半个月的历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>日期</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>价格</td>
+<td>float64</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">spot_hog_lean_price_soozhu_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">spot_hog_lean_price_soozhu</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">spot_hog_lean_price_soozhu_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>        <span class="n">日期</span>     <span class="n">价格</span>
+<span class="mi">0</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">21</span>  <span class="mf">19.15</span>
+<span class="mi">1</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">22</span>  <span class="mf">19.21</span>
+<span class="mi">2</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">23</span>  <span class="mf">19.38</span>
+<span class="mi">3</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">24</span>  <span class="mf">19.41</span>
+<span class="mi">4</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">25</span>  <span class="mf">19.38</span>
+<span class="mi">5</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">26</span>  <span class="mf">19.32</span>
+<span class="mi">6</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">27</span>  <span class="mf">19.27</span>
+<span class="mi">7</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">28</span>  <span class="mf">19.30</span>
+<span class="mi">8</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">29</span>  <span class="mf">19.38</span>
+<span class="mi">9</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">30</span>  <span class="mf">19.48</span>
+<span class="mi">10</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">31</span>  <span class="mf">19.66</span>
+<span class="mi">11</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">19.78</span>
+<span class="mi">12</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">02</span>  <span class="mf">19.85</span>
+<span class="mi">13</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">03</span>  <span class="mf">19.85</span>
+<span class="mi">14</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">04</span>  <span class="mf">19.80</span>
+</pre></div>
+</div>
+</section>
+<section id="id11">
+<h3>全国三元仔猪<a class="headerlink" href="#id11" title="链接到此标题。"></a></h3>
+<p>接口: spot_hog_three_way_soozhu</p>
+<p>目标地址: https://www.soozhu.com/price/data/center/</p>
+<p>描述: 搜猪-生猪大数据-全国三元仔猪</p>
+<p>限量: 单次返回近半个月的历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>日期</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>价格</td>
+<td>float64</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">spot_hog_three_way_soozhu_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">spot_hog_three_way_soozhu</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">spot_hog_three_way_soozhu_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>         <span class="n">日期</span>      <span class="n">价格</span>
+<span class="mi">0</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">23</span>  <span class="mf">707.29</span>
+<span class="mi">1</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">24</span>  <span class="mf">696.21</span>
+<span class="mi">2</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">25</span>  <span class="mf">674.69</span>
+<span class="mi">3</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">26</span>  <span class="mf">702.08</span>
+<span class="mi">4</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">27</span>  <span class="mf">715.67</span>
+<span class="mi">5</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">28</span>  <span class="mf">722.33</span>
+<span class="mi">6</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">29</span>  <span class="mf">692.26</span>
+<span class="mi">7</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">30</span>  <span class="mf">673.71</span>
+<span class="mi">8</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">31</span>  <span class="mf">684.41</span>
+<span class="mi">9</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">687.30</span>
+<span class="mi">10</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">02</span>  <span class="mf">709.69</span>
+<span class="mi">11</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">03</span>  <span class="mf">679.75</span>
+<span class="mi">12</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">04</span>  <span class="mf">694.00</span>
+<span class="mi">13</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">05</span>  <span class="mf">706.33</span>
+<span class="mi">14</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">06</span>  <span class="mf">718.02</span>
+</pre></div>
+</div>
+</section>
+<section id="id12">
+<h3>全国后备二元母猪<a class="headerlink" href="#id12" title="链接到此标题。"></a></h3>
+<p>接口: spot_hog_crossbred_soozhu</p>
+<p>目标地址: https://www.soozhu.com/price/data/center/</p>
+<p>描述: 搜猪-生猪大数据-全国后备二元母猪</p>
+<p>限量: 单次返回近半个月的历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>日期</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>价格</td>
+<td>float64</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">spot_hog_crossbred_soozhu_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">spot_hog_crossbred_soozhu</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">spot_hog_crossbred_soozhu_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>       <span class="n">日期</span>       <span class="n">价格</span>
+<span class="mi">0</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">26</span>  <span class="mf">1945.83</span>
+<span class="mi">1</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">27</span>  <span class="mf">2678.44</span>
+<span class="mi">2</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">28</span>  <span class="mf">2704.33</span>
+<span class="mi">3</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">29</span>  <span class="mf">1852.07</span>
+<span class="mi">4</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">30</span>  <span class="mf">1833.00</span>
+<span class="mi">5</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">31</span>  <span class="mf">1837.78</span>
+<span class="mi">6</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">1966.08</span>
+<span class="mi">7</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">02</span>  <span class="mf">1943.75</span>
+<span class="mi">8</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">03</span>  <span class="mf">2872.67</span>
+<span class="mi">9</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">04</span>  <span class="mf">2695.44</span>
+<span class="mi">10</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">05</span>  <span class="mf">1905.15</span>
+<span class="mi">11</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">06</span>  <span class="mf">1914.64</span>
+<span class="mi">12</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">07</span>  <span class="mf">1830.65</span>
+<span class="mi">13</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">08</span>  <span class="mf">1991.06</span>
+<span class="mi">14</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">09</span>  <span class="mf">1960.00</span>
+</pre></div>
+</div>
+</section>
+<section id="id13">
+<h3>全国玉米价格走势<a class="headerlink" href="#id13" title="链接到此标题。"></a></h3>
+<p>接口: spot_corn_price_soozhu</p>
+<p>目标地址: https://www.soozhu.com/price/data/center/</p>
+<p>描述: 搜猪-生猪大数据-全国玉米价格走势</p>
+<p>限量: 单次返回近半个月的历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>日期</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>价格</td>
+<td>float64</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">spot_corn_price_soozhu_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">spot_corn_price_soozhu</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">spot_corn_price_soozhu_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>         <span class="n">日期</span>    <span class="n">价格</span>
+<span class="mi">0</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">27</span>  <span class="mf">2.50</span>
+<span class="mi">1</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">28</span>  <span class="mf">2.47</span>
+<span class="mi">2</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">29</span>  <span class="mf">2.51</span>
+<span class="mi">3</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">30</span>  <span class="mf">2.45</span>
+<span class="mi">4</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">31</span>  <span class="mf">2.43</span>
+<span class="mi">5</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">2.41</span>
+<span class="mi">6</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">02</span>  <span class="mf">2.45</span>
+<span class="mi">7</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">03</span>  <span class="mf">2.52</span>
+<span class="mi">8</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">04</span>  <span class="mf">2.36</span>
+<span class="mi">9</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">05</span>  <span class="mf">2.45</span>
+<span class="mi">10</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">06</span>  <span class="mf">2.45</span>
+<span class="mi">11</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">07</span>  <span class="mf">2.46</span>
+<span class="mi">12</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">08</span>  <span class="mf">2.40</span>
+<span class="mi">13</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">09</span>  <span class="mf">2.45</span>
+<span class="mi">14</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">10</span>  <span class="mf">2.57</span>
+</pre></div>
+</div>
+</section>
+<section id="id14">
+<h3>全国豆粕价格走势<a class="headerlink" href="#id14" title="链接到此标题。"></a></h3>
+<p>接口: spot_soybean_price_soozhu</p>
+<p>目标地址: https://www.soozhu.com/price/data/center/</p>
+<p>描述: 搜猪-生猪大数据-全国豆粕价格走势</p>
+<p>限量: 单次返回近半个月的历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>日期</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>价格</td>
+<td>float64</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">spot_soybean_price_soozhu_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">spot_soybean_price_soozhu</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">spot_soybean_price_soozhu_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>         <span class="n">日期</span>    <span class="n">价格</span>
+<span class="mi">0</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">28</span>  <span class="mf">3.53</span>
+<span class="mi">1</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">29</span>  <span class="mf">3.32</span>
+<span class="mi">2</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">30</span>  <span class="mf">3.35</span>
+<span class="mi">3</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">31</span>  <span class="mf">3.36</span>
+<span class="mi">4</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">3.35</span>
+<span class="mi">5</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">02</span>  <span class="mf">3.38</span>
+<span class="mi">6</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">03</span>  <span class="mf">3.55</span>
+<span class="mi">7</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">04</span>  <span class="mf">3.52</span>
+<span class="mi">8</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">05</span>  <span class="mf">3.32</span>
+<span class="mi">9</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">06</span>  <span class="mf">3.40</span>
+<span class="mi">10</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">07</span>  <span class="mf">3.33</span>
+<span class="mi">11</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">08</span>  <span class="mf">3.22</span>
+<span class="mi">12</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">09</span>  <span class="mf">3.25</span>
+<span class="mi">13</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">10</span>  <span class="mf">3.41</span>
+<span class="mi">14</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">11</span>  <span class="mf">3.18</span>
+</pre></div>
+</div>
+</section>
+<section id="id15">
+<h3>全国育肥猪合料（含自配料）半月走势<a class="headerlink" href="#id15" title="链接到此标题。"></a></h3>
+<p>接口: spot_mixed_feed_soozhu</p>
+<p>目标地址: https://www.soozhu.com/price/data/center/</p>
+<p>描述: 搜猪-生猪大数据-全国育肥猪合料（含自配料）半月走势</p>
+<p>限量: 单次返回近半个月的历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>日期</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>价格</td>
+<td>float64</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">spot_mixed_feed_soozhu_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">spot_mixed_feed_soozhu</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">spot_mixed_feed_soozhu_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>         <span class="n">日期</span>    <span class="n">价格</span>
+<span class="mi">0</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">29</span>  <span class="mf">3.24</span>
+<span class="mi">1</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">30</span>  <span class="mf">3.11</span>
+<span class="mi">2</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">31</span>  <span class="mf">3.24</span>
+<span class="mi">3</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">3.18</span>
+<span class="mi">4</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">02</span>  <span class="mf">3.26</span>
+<span class="mi">5</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">03</span>  <span class="mf">3.35</span>
+<span class="mi">6</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">04</span>  <span class="mf">3.46</span>
+<span class="mi">7</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">05</span>  <span class="mf">3.27</span>
+<span class="mi">8</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">06</span>  <span class="mf">3.19</span>
+<span class="mi">9</span>   <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">07</span>  <span class="mf">3.25</span>
+<span class="mi">10</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">08</span>  <span class="mf">3.07</span>
+<span class="mi">11</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">09</span>  <span class="mf">3.30</span>
+<span class="mi">12</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">10</span>  <span class="mf">3.55</span>
+<span class="mi">13</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">11</span>  <span class="mf">3.42</span>
+<span class="mi">14</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">12</span>  <span class="mf">3.22</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../currency/currency.html" class="btn btn-neutral float-left" title="AKShare 货币数据" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../interest_rate/interest_rate.html" class="btn btn-neutral float-right" title="AKShare 利率数据" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2019–2026, AKShare Developers。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

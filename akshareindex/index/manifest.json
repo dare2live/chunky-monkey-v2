@@ -1,0 +1,26 @@
+{
+  "site_root": "raw/site",
+  "source_root": "raw/site/_sources",
+  "html_root": "raw/site",
+  "page_count": 51,
+  "function_record_count": 1010,
+  "source_page_count": 48,
+  "html_page_count": 51,
+  "utility_pages": [
+    "_downloads",
+    "genindex",
+    "search"
+  ],
+  "index_files": {
+    "pages_jsonl": "index/pages.jsonl",
+    "function_map_jsonl": "index/function_map.jsonl",
+    "toc_json": "index/toc.json",
+    "manifest_json": "index/manifest.json"
+  },
+  "notes": [
+    "原始文件名与相对路径均保持站点原文结构。",
+    "pages.jsonl 为按页面索引；function_map.jsonl 为按接口索引。",
+    "优先读取 raw/site/_sources 下的源码文件；缺少源码时回退到对应 HTML。",
+    "function_map.jsonl 中的 function_name、section_title、description 均保留原文写法。"
+  ]
+}

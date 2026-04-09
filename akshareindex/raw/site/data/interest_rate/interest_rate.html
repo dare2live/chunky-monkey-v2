@@ -1,0 +1,1892 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="readthedocs-addons-api-version" content="1"><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AKShare 利率数据 &mdash; AKShare 1.18.40 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments%EF%B9%96v=b86133f3.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme%EF%B9%96v=9edc463e.css" />
+
+  
+      <script src="https://akshare.akfamily.xyz/_static/jquery.js?v=5d32c60e"></script>
+      <script src="https://akshare.akfamily.xyz/_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="https://akshare.akfamily.xyz/_static/documentation_options.js?v=5dffd886"></script>
+      <script src="https://akshare.akfamily.xyz/_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="https://akshare.akfamily.xyz/_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="https://akshare.akfamily.xyz/_static/translations.js?v=540d3cec"></script>
+    <script src="https://akshare.akfamily.xyz/_static/js/theme.js"></script>
+    <script src="https://akshare.akfamily.xyz/_static/js/versions.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="AKShare 私募基金数据" href="../fund/fund_private.html" />
+    <link rel="prev" title="AKShare 现货数据" href="../spot/spot.html" /> 
+<script async type="text/javascript" src="https://akshare.akfamily.xyz/_/static/javascript/readthedocs-addons.js"></script><meta name="readthedocs-project-slug" content="akshare" /><meta name="readthedocs-version-slug" content="latest" /><meta name="readthedocs-resolver-filename" content="/data/interest_rate/interest_rate.html" /><meta name="readthedocs-http-status" content="200" /></head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            AKShare
+          </a>
+              <div class="switch-menus">
+                <div class="version-switch"></div>
+                <div class="language-switch"></div>
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">Table of contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">AKShare 项目概览</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">AKShare 安装指导</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">AKShare 数据字典</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../stock/stock.html">AKShare 股票数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../futures/futures.html">AKShare 期货数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bond/bond.html">AKShare 债券数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../option/option.html">AKShare 期权数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fx/fx.html">AKShare 外汇数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../currency/currency.html">AKShare 货币数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../spot/spot.html">AKShare 现货数据</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">AKShare 利率数据</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">主要央行利率</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id2">美联储利率决议报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id3">欧洲央行决议报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">新西兰联储决议报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id5">中国央行决议报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">瑞士央行利率决议报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id7">英国央行决议报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id8">澳洲联储决议报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id9">日本利率决议报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id10">俄罗斯利率决议报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id11">印度利率决议报告</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id12">巴西利率决议报告</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id13">银行间拆借利率</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id14">回购定盘利率-历史</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id15">回购定盘利率-近期</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../fund/fund_private.html">AKShare 私募基金数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../fund/fund_public.html">AKShare 公募基金数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../index/index.html">AKShare 指数数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../macro/macro.html">AKShare 宏观数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dc/dc.html">AKShare 加密货币数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../bank/bank.html">AKShare 银行数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../article/article.html">AKShare 波动率数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../article/article.html#id2">AKShare 多因子数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../article/article.html#id3">AKShare 政策不确定性数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../energy/energy.html">AKShare 能源数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../event/event.html">AKShare 迁徙数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../hf/hf.html">AKShare 高频数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../nlp/nlp.html">AKShare 自然语言处理</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qdii/qdii.html">AKShare QDII 数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../others/others.html">AKShare 另类数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../qhkc/index.html">AKShare 奇货可查</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tool/tool.html">AKShare 工具箱</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../indicator.html">AKShare 指标计算</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../data_tips.html">AKShare 数据说明</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../trade.html">AKShare 实盘交易</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../answer.html">AKShare 答疑专栏</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">AKShare 快速入门</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../articles.html">AKShare 相关文章</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anaconda.html">AKShare 环境配置</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../platform.html">AKShare 量化专题</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../demo.html">AKShare 策略示例</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">AKShare 版本更新</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">AKShare 贡献源码</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dependency.html">AKShare 依赖说明</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../deploy_http.html">AKShare HTTP 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../akdocker/akdocker.html">AKShare Docker 部署</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../special.html">AKShare 特别说明</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">AKShare</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">AKShare 数据字典</a></li>
+      <li class="breadcrumb-item active">AKShare 利率数据</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/data/interest_rate/interest_rate.md" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="akshare">
+<h1><a class="reference external" href="https://github.com/akfamily/akshare">AKShare</a> 利率数据<a class="headerlink" href="#akshare" title="链接到此标题。"></a></h1>
+<section id="id1">
+<h2>主要央行利率<a class="headerlink" href="#id1" title="链接到此标题。"></a></h2>
+<section id="id2">
+<h3>美联储利率决议报告<a class="headerlink" href="#id2" title="链接到此标题。"></a></h3>
+<p>接口: macro_bank_usa_interest_rate</p>
+<p>目标地址: https://datacenter.jin10.com/reportType/dc_usa_interest_rate_decision</p>
+<p>描述: 美联储利率决议报告, 数据区间从 19820927-至今</p>
+<p>限量: 单次返回所有历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>商品</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>日期</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>今值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>预测值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>前值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">macro_bank_usa_interest_rate_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">macro_bank_usa_interest_rate</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">macro_bank_usa_interest_rate_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>            <span class="n">商品</span>          <span class="n">日期</span>     <span class="n">今值</span>   <span class="n">预测值</span>     <span class="n">前值</span>
+<span class="mi">0</span>    <span class="n">美联储利率决议报告</span>  <span class="mi">1982</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">28</span>  <span class="mf">10.25</span>   <span class="n">NaN</span>    <span class="n">NaN</span>
+<span class="mi">1</span>    <span class="n">美联储利率决议报告</span>  <span class="mi">1982</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">02</span>  <span class="mf">10.00</span>   <span class="n">NaN</span>  <span class="mf">10.25</span>
+<span class="mi">2</span>    <span class="n">美联储利率决议报告</span>  <span class="mi">1982</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">08</span>   <span class="mf">9.50</span>   <span class="n">NaN</span>  <span class="mf">10.00</span>
+<span class="mi">3</span>    <span class="n">美联储利率决议报告</span>  <span class="mi">1982</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">20</span>   <span class="mf">9.00</span>   <span class="n">NaN</span>   <span class="mf">9.50</span>
+<span class="mi">4</span>    <span class="n">美联储利率决议报告</span>  <span class="mi">1982</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">15</span>   <span class="mf">8.50</span>   <span class="n">NaN</span>   <span class="mf">9.00</span>
+<span class="o">..</span>         <span class="o">...</span>         <span class="o">...</span>    <span class="o">...</span>   <span class="o">...</span>    <span class="o">...</span>
+<span class="mi">282</span>  <span class="n">美联储利率决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">13</span>   <span class="mf">5.50</span>  <span class="mf">5.50</span>   <span class="mf">5.50</span>
+<span class="mi">283</span>  <span class="n">美联储利率决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">01</span>   <span class="mf">5.50</span>  <span class="mf">5.50</span>   <span class="mf">5.50</span>
+<span class="mi">284</span>  <span class="n">美联储利率决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">19</span>   <span class="mf">5.00</span>  <span class="mf">5.25</span>   <span class="mf">5.50</span>
+<span class="mi">285</span>  <span class="n">美联储利率决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">08</span>    <span class="n">NaN</span>  <span class="mf">4.75</span>   <span class="mf">5.00</span>
+<span class="mi">286</span>  <span class="n">美联储利率决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">19</span>    <span class="n">NaN</span>   <span class="n">NaN</span>    <span class="n">NaN</span>
+<span class="p">[</span><span class="mi">287</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">5</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id3">
+<h3>欧洲央行决议报告<a class="headerlink" href="#id3" title="链接到此标题。"></a></h3>
+<p>接口: macro_bank_euro_interest_rate</p>
+<p>目标地址: https://datacenter.jin10.com/reportType/dc_interest_rate_decision</p>
+<p>描述: 欧洲央行决议报告, 数据区间从 19990101-至今</p>
+<p>限量: 单次返回所有历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>商品</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>日期</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>今值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>预测值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>前值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">macro_bank_euro_interest_rate_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">macro_bank_euro_interest_rate</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">macro_bank_euro_interest_rate_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>           <span class="n">商品</span>          <span class="n">日期</span>    <span class="n">今值</span>   <span class="n">预测值</span>    <span class="n">前值</span>
+<span class="mi">0</span>    <span class="n">欧洲央行决议报告</span>  <span class="mi">1999</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">3.00</span>   <span class="n">NaN</span>   <span class="n">NaN</span>
+<span class="mi">1</span>    <span class="n">欧洲央行决议报告</span>  <span class="mi">1999</span><span class="o">-</span><span class="mi">02</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">3.00</span>   <span class="n">NaN</span>  <span class="mf">3.00</span>
+<span class="mi">2</span>    <span class="n">欧洲央行决议报告</span>  <span class="mi">1999</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">3.00</span>   <span class="n">NaN</span>  <span class="mf">3.00</span>
+<span class="mi">3</span>    <span class="n">欧洲央行决议报告</span>  <span class="mi">1999</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">3.00</span>   <span class="n">NaN</span>  <span class="mf">3.00</span>
+<span class="mi">4</span>    <span class="n">欧洲央行决议报告</span>  <span class="mi">1999</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">2.50</span>   <span class="n">NaN</span>  <span class="mf">3.00</span>
+<span class="o">..</span>        <span class="o">...</span>         <span class="o">...</span>   <span class="o">...</span>   <span class="o">...</span>   <span class="o">...</span>
+<span class="mi">268</span>  <span class="n">欧洲央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">06</span>  <span class="mf">4.25</span>  <span class="mf">4.25</span>  <span class="mf">4.50</span>
+<span class="mi">269</span>  <span class="n">欧洲央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">18</span>  <span class="mf">4.25</span>  <span class="mf">4.25</span>  <span class="mf">4.25</span>
+<span class="mi">270</span>  <span class="n">欧洲央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">12</span>  <span class="mf">3.65</span>  <span class="mf">3.65</span>  <span class="mf">4.25</span>
+<span class="mi">271</span>  <span class="n">欧洲央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">17</span>  <span class="mf">3.40</span>  <span class="mf">3.40</span>  <span class="mf">3.65</span>
+<span class="mi">272</span>  <span class="n">欧洲央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">12</span>   <span class="n">NaN</span>   <span class="n">NaN</span>   <span class="n">NaN</span>
+<span class="p">[</span><span class="mi">273</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">5</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h3>新西兰联储决议报告<a class="headerlink" href="#id4" title="链接到此标题。"></a></h3>
+<p>接口: macro_bank_newzealand_interest_rate</p>
+<p>目标地址: https://datacenter.jin10.com/reportType/dc_newzealand_interest_rate_decision</p>
+<p>描述: 新西兰联储决议报告, 数据区间从 19990401-至今</p>
+<p>限量: 单次返回所有历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>商品</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>日期</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>今值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>预测值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>前值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">macro_bank_newzealand_interest_rate_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">macro_bank_newzealand_interest_rate</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">macro_bank_newzealand_interest_rate_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>            <span class="n">商品</span>          <span class="n">日期</span>    <span class="n">今值</span>   <span class="n">预测值</span>    <span class="n">前值</span>
+<span class="mi">0</span>    <span class="n">新西兰利率决议报告</span>  <span class="mi">1999</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">4.50</span>   <span class="n">NaN</span>   <span class="n">NaN</span>
+<span class="mi">1</span>    <span class="n">新西兰利率决议报告</span>  <span class="mi">1999</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">4.50</span>   <span class="n">NaN</span>  <span class="mf">4.50</span>
+<span class="mi">2</span>    <span class="n">新西兰利率决议报告</span>  <span class="mi">1999</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">4.50</span>   <span class="n">NaN</span>  <span class="mf">4.50</span>
+<span class="mi">3</span>    <span class="n">新西兰利率决议报告</span>  <span class="mi">1999</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">4.50</span>   <span class="n">NaN</span>  <span class="mf">4.50</span>
+<span class="mi">4</span>    <span class="n">新西兰利率决议报告</span>  <span class="mi">1999</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">4.50</span>   <span class="n">NaN</span>  <span class="mf">4.50</span>
+<span class="o">..</span>         <span class="o">...</span>         <span class="o">...</span>   <span class="o">...</span>   <span class="o">...</span>   <span class="o">...</span>
+<span class="mi">230</span>  <span class="n">新西兰利率决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">22</span>  <span class="mf">5.50</span>  <span class="mf">5.50</span>  <span class="mf">5.50</span>
+<span class="mi">231</span>  <span class="n">新西兰利率决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">10</span>  <span class="mf">5.50</span>  <span class="mf">5.50</span>  <span class="mf">5.50</span>
+<span class="mi">232</span>  <span class="n">新西兰利率决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">14</span>  <span class="mf">5.25</span>  <span class="mf">5.50</span>  <span class="mf">5.50</span>
+<span class="mi">233</span>  <span class="n">新西兰利率决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">09</span>  <span class="mf">4.75</span>  <span class="mf">4.75</span>  <span class="mf">5.25</span>
+<span class="mi">234</span>  <span class="n">新西兰利率决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">27</span>   <span class="n">NaN</span>   <span class="n">NaN</span>  <span class="mf">4.75</span>
+<span class="p">[</span><span class="mi">235</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">5</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h3>中国央行决议报告<a class="headerlink" href="#id5" title="链接到此标题。"></a></h3>
+<p>接口: macro_bank_china_interest_rate</p>
+<p>目标地址: https://datacenter.jin10.com/reportType/dc_china_interest_rate_decision</p>
+<p>描述: 中国央行决议报告, 数据区间从 19910105-至今</p>
+<p>限量: 单次返回所有历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>商品</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>日期</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>今值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>预测值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>前值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">macro_bank_china_interest_rate_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">macro_bank_china_interest_rate</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">macro_bank_china_interest_rate_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>           <span class="n">商品</span>          <span class="n">日期</span>    <span class="n">今值</span>  <span class="n">预测值</span>    <span class="n">前值</span>
+<span class="mi">0</span>    <span class="n">中国央行决议报告</span>  <span class="mi">1991</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">8.64</span>  <span class="n">NaN</span>   <span class="n">NaN</span>
+<span class="mi">1</span>    <span class="n">中国央行决议报告</span>  <span class="mi">1991</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">8.64</span>  <span class="n">NaN</span>  <span class="mf">8.64</span>
+<span class="mi">2</span>    <span class="n">中国央行决议报告</span>  <span class="mi">1991</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">8.64</span>  <span class="n">NaN</span>  <span class="mf">8.64</span>
+<span class="mi">3</span>    <span class="n">中国央行决议报告</span>  <span class="mi">1991</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">8.64</span>  <span class="n">NaN</span>  <span class="mf">8.64</span>
+<span class="mi">4</span>    <span class="n">中国央行决议报告</span>  <span class="mi">1991</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">8.64</span>  <span class="n">NaN</span>  <span class="mf">8.64</span>
+<span class="o">..</span>        <span class="o">...</span>         <span class="o">...</span>   <span class="o">...</span>  <span class="o">...</span>   <span class="o">...</span>
+<span class="mi">213</span>  <span class="n">中国央行决议报告</span>  <span class="mi">2015</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">25</span>  <span class="mf">4.60</span>  <span class="n">NaN</span>  <span class="mf">4.85</span>
+<span class="mi">214</span>  <span class="n">中国央行决议报告</span>  <span class="mi">2015</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">23</span>  <span class="mf">4.35</span>  <span class="n">NaN</span>  <span class="mf">4.60</span>
+<span class="mi">215</span>  <span class="n">中国央行决议报告</span>  <span class="mi">2019</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">20</span>  <span class="mf">4.20</span>  <span class="n">NaN</span>  <span class="mf">4.25</span>
+<span class="mi">216</span>  <span class="n">中国央行决议报告</span>  <span class="mi">2019</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">21</span>  <span class="mf">4.20</span>  <span class="n">NaN</span>  <span class="mf">4.20</span>
+<span class="mi">217</span>  <span class="n">中国央行决议报告</span>  <span class="mi">2019</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">20</span>  <span class="mf">4.15</span>  <span class="mf">4.2</span>  <span class="mf">4.20</span>
+<span class="p">[</span><span class="mi">218</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">5</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id6">
+<h3>瑞士央行利率决议报告<a class="headerlink" href="#id6" title="链接到此标题。"></a></h3>
+<p>接口: macro_bank_switzerland_interest_rate</p>
+<p>目标地址: https://datacenter.jin10.com/reportType/dc_switzerland_interest_rate_decision</p>
+<p>描述: 瑞士央行利率决议报告, 数据区间从 20080313-至今</p>
+<p>限量: 单次返回所有历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>商品</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>日期</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>今值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>预测值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>前值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">macro_bank_switzerland_interest_rate_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">macro_bank_switzerland_interest_rate</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">macro_bank_switzerland_interest_rate_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>          <span class="n">商品</span>          <span class="n">日期</span>    <span class="n">今值</span>   <span class="n">预测值</span>    <span class="n">前值</span>
+<span class="mi">0</span>   <span class="n">瑞士央行决议报告</span>  <span class="mi">2008</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">13</span>  <span class="mf">2.75</span>  <span class="mf">2.75</span>  <span class="mf">2.75</span>
+<span class="mi">1</span>   <span class="n">瑞士央行决议报告</span>  <span class="mi">2008</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">19</span>  <span class="mf">2.75</span>  <span class="mf">2.75</span>  <span class="mf">2.75</span>
+<span class="mi">2</span>   <span class="n">瑞士央行决议报告</span>  <span class="mi">2008</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">18</span>  <span class="mf">2.75</span>  <span class="mf">2.75</span>  <span class="mf">2.75</span>
+<span class="mi">3</span>   <span class="n">瑞士央行决议报告</span>  <span class="mi">2008</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">08</span>  <span class="mf">2.50</span>   <span class="n">NaN</span>  <span class="mf">2.75</span>
+<span class="mi">4</span>   <span class="n">瑞士央行决议报告</span>  <span class="mi">2008</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">11</span>  <span class="mf">0.50</span>  <span class="mf">0.50</span>  <span class="mf">1.00</span>
+<span class="o">..</span>       <span class="o">...</span>         <span class="o">...</span>   <span class="o">...</span>   <span class="o">...</span>   <span class="o">...</span>
+<span class="mi">67</span>  <span class="n">瑞士央行决议报告</span>  <span class="mi">2023</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">14</span>  <span class="mf">1.75</span>  <span class="mf">1.75</span>  <span class="mf">1.75</span>
+<span class="mi">68</span>  <span class="n">瑞士央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">21</span>  <span class="mf">1.50</span>  <span class="mf">1.75</span>  <span class="mf">1.75</span>
+<span class="mi">69</span>  <span class="n">瑞士央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">20</span>  <span class="mf">1.25</span>  <span class="mf">1.50</span>  <span class="mf">1.50</span>
+<span class="mi">70</span>  <span class="n">瑞士央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">26</span>  <span class="mf">1.00</span>  <span class="mf">1.00</span>  <span class="mf">1.25</span>
+<span class="mi">71</span>  <span class="n">瑞士央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">12</span>   <span class="n">NaN</span>   <span class="n">NaN</span>   <span class="n">NaN</span>
+<span class="p">[</span><span class="mi">72</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">5</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id7">
+<h3>英国央行决议报告<a class="headerlink" href="#id7" title="链接到此标题。"></a></h3>
+<p>接口: macro_bank_english_interest_rate</p>
+<p>目标地址: https://datacenter.jin10.com/reportType/dc_english_interest_rate_decision</p>
+<p>描述: 英国央行决议报告, 数据区间从 19700101-至今</p>
+<p>限量: 单次返回所有历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>商品</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>日期</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>今值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>预测值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>前值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">macro_bank_english_interest_rate_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">macro_bank_english_interest_rate</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">macro_bank_english_interest_rate_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>           <span class="n">商品</span>          <span class="n">日期</span>    <span class="n">今值</span>   <span class="n">预测值</span>    <span class="n">前值</span>
+<span class="mi">0</span>    <span class="n">英国央行决议报告</span>  <span class="mi">1970</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">8.00</span>   <span class="n">NaN</span>   <span class="n">NaN</span>
+<span class="mi">1</span>    <span class="n">英国央行决议报告</span>  <span class="mi">1970</span><span class="o">-</span><span class="mi">02</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">8.00</span>   <span class="n">NaN</span>  <span class="mf">8.00</span>
+<span class="mi">2</span>    <span class="n">英国央行决议报告</span>  <span class="mi">1970</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">8.00</span>   <span class="n">NaN</span>  <span class="mf">8.00</span>
+<span class="mi">3</span>    <span class="n">英国央行决议报告</span>  <span class="mi">1970</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">7.50</span>   <span class="n">NaN</span>  <span class="mf">8.00</span>
+<span class="mi">4</span>    <span class="n">英国央行决议报告</span>  <span class="mi">1970</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">7.00</span>   <span class="n">NaN</span>  <span class="mf">7.50</span>
+<span class="o">..</span>        <span class="o">...</span>         <span class="o">...</span>   <span class="o">...</span>   <span class="o">...</span>   <span class="o">...</span>
+<span class="mi">627</span>  <span class="n">英国央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">20</span>  <span class="mf">5.25</span>  <span class="mf">5.25</span>  <span class="mf">5.25</span>
+<span class="mi">628</span>  <span class="n">英国央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">5.00</span>  <span class="mf">5.00</span>  <span class="mf">5.25</span>
+<span class="mi">629</span>  <span class="n">英国央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">19</span>  <span class="mf">5.00</span>  <span class="mf">5.00</span>  <span class="mf">5.00</span>
+<span class="mi">630</span>  <span class="n">英国央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">07</span>   <span class="n">NaN</span>  <span class="mf">4.75</span>  <span class="mf">5.00</span>
+<span class="mi">631</span>  <span class="n">英国央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">19</span>   <span class="n">NaN</span>   <span class="n">NaN</span>   <span class="n">NaN</span>
+<span class="p">[</span><span class="mi">632</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">5</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id8">
+<h3>澳洲联储决议报告<a class="headerlink" href="#id8" title="链接到此标题。"></a></h3>
+<p>接口: macro_bank_australia_interest_rate</p>
+<p>目标地址: https://datacenter.jin10.com/reportType/dc_australia_interest_rate_decision</p>
+<p>描述: 澳洲联储决议报告, 数据区间从 19800201-至今</p>
+<p>限量: 单次返回所有历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>商品</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>日期</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>今值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>预测值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>前值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">macro_bank_australia_interest_rate_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">macro_bank_australia_interest_rate</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">macro_bank_australia_interest_rate_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>           <span class="n">商品</span>          <span class="n">日期</span>     <span class="n">今值</span>   <span class="n">预测值</span>    <span class="n">前值</span>
+<span class="mi">0</span>    <span class="n">澳洲联储决议报告</span>  <span class="mi">1980</span><span class="o">-</span><span class="mi">02</span><span class="o">-</span><span class="mi">01</span>   <span class="mf">7.92</span>   <span class="n">NaN</span>   <span class="n">NaN</span>
+<span class="mi">1</span>    <span class="n">澳洲联储决议报告</span>  <span class="mi">1980</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">01</span>   <span class="mf">8.20</span>   <span class="n">NaN</span>  <span class="mf">7.92</span>
+<span class="mi">2</span>    <span class="n">澳洲联储决议报告</span>  <span class="mi">1980</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">01</span>   <span class="mf">9.25</span>   <span class="n">NaN</span>  <span class="mf">8.20</span>
+<span class="mi">3</span>    <span class="n">澳洲联储决议报告</span>  <span class="mi">1980</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">01</span>   <span class="mf">8.98</span>   <span class="n">NaN</span>  <span class="mf">9.25</span>
+<span class="mi">4</span>    <span class="n">澳洲联储决议报告</span>  <span class="mi">1980</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">10.74</span>   <span class="n">NaN</span>  <span class="mf">8.98</span>
+<span class="o">..</span>        <span class="o">...</span>         <span class="o">...</span>    <span class="o">...</span>   <span class="o">...</span>   <span class="o">...</span>
+<span class="mi">517</span>  <span class="n">澳洲联储决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">18</span>   <span class="mf">4.35</span>  <span class="mf">4.35</span>  <span class="mf">4.35</span>
+<span class="mi">518</span>  <span class="n">澳洲联储决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">06</span>   <span class="mf">4.35</span>  <span class="mf">4.35</span>  <span class="mf">4.35</span>
+<span class="mi">519</span>  <span class="n">澳洲联储决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">24</span>   <span class="mf">4.35</span>  <span class="mf">4.35</span>  <span class="mf">4.35</span>
+<span class="mi">520</span>  <span class="n">澳洲联储决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">05</span>   <span class="mf">4.35</span>  <span class="mf">4.35</span>  <span class="mf">4.35</span>
+<span class="mi">521</span>  <span class="n">澳洲联储决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">10</span>    <span class="n">NaN</span>   <span class="n">NaN</span>   <span class="n">NaN</span>
+<span class="p">[</span><span class="mi">522</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">5</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id9">
+<h3>日本利率决议报告<a class="headerlink" href="#id9" title="链接到此标题。"></a></h3>
+<p>接口: macro_bank_japan_interest_rate</p>
+<p>目标地址: https://datacenter.jin10.com/reportType/dc_japan_interest_rate_decision</p>
+<p>描述: 日本利率决议报告, 数据区间从 20080214-至今</p>
+<p>限量: 单次返回所有历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>商品</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>日期</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>今值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>预测值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>前值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">macro_bank_japan_interest_rate_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">macro_bank_japan_interest_rate</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">macro_bank_japan_interest_rate_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>           <span class="n">商品</span>          <span class="n">日期</span>    <span class="n">今值</span>   <span class="n">预测值</span>    <span class="n">前值</span>
+<span class="mi">0</span>    <span class="n">日本央行决议报告</span>  <span class="mi">2008</span><span class="o">-</span><span class="mi">02</span><span class="o">-</span><span class="mi">14</span>  <span class="mf">0.50</span>  <span class="mf">0.50</span>  <span class="mf">0.50</span>
+<span class="mi">1</span>    <span class="n">日本央行决议报告</span>  <span class="mi">2008</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">07</span>  <span class="mf">0.50</span>  <span class="mf">0.50</span>  <span class="mf">0.50</span>
+<span class="mi">2</span>    <span class="n">日本央行决议报告</span>  <span class="mi">2008</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">09</span>  <span class="mf">0.50</span>  <span class="mf">0.50</span>  <span class="mf">0.50</span>
+<span class="mi">3</span>    <span class="n">日本央行决议报告</span>  <span class="mi">2008</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">30</span>  <span class="mf">0.50</span>  <span class="mf">0.50</span>  <span class="mf">0.50</span>
+<span class="mi">4</span>    <span class="n">日本央行决议报告</span>  <span class="mi">2008</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">13</span>  <span class="mf">0.50</span>  <span class="mf">0.50</span>  <span class="mf">0.50</span>
+<span class="o">..</span>        <span class="o">...</span>         <span class="o">...</span>   <span class="o">...</span>   <span class="o">...</span>   <span class="o">...</span>
+<span class="mi">190</span>  <span class="n">日本央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">14</span>  <span class="mf">0.10</span>  <span class="mf">0.10</span>  <span class="mf">0.10</span>
+<span class="mi">191</span>  <span class="n">日本央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">31</span>  <span class="mf">0.25</span>  <span class="mf">0.10</span>  <span class="mf">0.10</span>
+<span class="mi">192</span>  <span class="n">日本央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">20</span>  <span class="mf">0.25</span>  <span class="mf">0.25</span>  <span class="mf">0.25</span>
+<span class="mi">193</span>  <span class="n">日本央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">31</span>  <span class="mf">0.25</span>  <span class="mf">0.25</span>  <span class="mf">0.25</span>
+<span class="mi">194</span>  <span class="n">日本央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">19</span>   <span class="n">NaN</span>   <span class="n">NaN</span>  <span class="mf">0.25</span>
+<span class="p">[</span><span class="mi">195</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">5</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id10">
+<h3>俄罗斯利率决议报告<a class="headerlink" href="#id10" title="链接到此标题。"></a></h3>
+<p>接口: macro_bank_russia_interest_rate</p>
+<p>目标地址: https://datacenter.jin10.com/reportType/dc_russia_interest_rate_decision</p>
+<p>描述: 俄罗斯利率决议报告, 数据区间从 20030601-至今</p>
+<p>限量: 单次返回所有历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>商品</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>日期</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>今值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>预测值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>前值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">macro_bank_russia_interest_rate_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">macro_bank_russia_interest_rate</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">macro_bank_russia_interest_rate_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>            <span class="n">商品</span>          <span class="n">日期</span>    <span class="n">今值</span>   <span class="n">预测值</span>    <span class="n">前值</span>
+<span class="mi">0</span>    <span class="n">俄罗斯央行决议报告</span>  <span class="mi">2003</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">01</span>   <span class="mf">6.5</span>   <span class="n">NaN</span>   <span class="n">NaN</span>
+<span class="mi">1</span>    <span class="n">俄罗斯央行决议报告</span>  <span class="mi">2003</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">01</span>   <span class="mf">6.5</span>   <span class="n">NaN</span>   <span class="mf">6.5</span>
+<span class="mi">2</span>    <span class="n">俄罗斯央行决议报告</span>  <span class="mi">2003</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">01</span>   <span class="mf">6.5</span>   <span class="n">NaN</span>   <span class="mf">6.5</span>
+<span class="mi">3</span>    <span class="n">俄罗斯央行决议报告</span>  <span class="mi">2003</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">01</span>   <span class="mf">6.5</span>   <span class="n">NaN</span>   <span class="mf">6.5</span>
+<span class="mi">4</span>    <span class="n">俄罗斯央行决议报告</span>  <span class="mi">2003</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">01</span>   <span class="mf">6.5</span>   <span class="n">NaN</span>   <span class="mf">6.5</span>
+<span class="o">..</span>         <span class="o">...</span>         <span class="o">...</span>   <span class="o">...</span>   <span class="o">...</span>   <span class="o">...</span>
+<span class="mi">214</span>  <span class="n">俄罗斯央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">26</span>  <span class="mf">16.0</span>  <span class="mf">16.0</span>  <span class="mf">16.0</span>
+<span class="mi">215</span>  <span class="n">俄罗斯央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">07</span>  <span class="mf">16.0</span>  <span class="mf">16.0</span>  <span class="mf">16.0</span>
+<span class="mi">216</span>  <span class="n">俄罗斯央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">26</span>  <span class="mf">18.0</span>  <span class="mf">18.0</span>  <span class="mf">16.0</span>
+<span class="mi">217</span>  <span class="n">俄罗斯央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">13</span>  <span class="mf">19.0</span>  <span class="mf">18.0</span>  <span class="mf">18.0</span>
+<span class="mi">218</span>  <span class="n">俄罗斯央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">25</span>  <span class="mf">21.0</span>  <span class="mf">20.0</span>  <span class="mf">19.0</span>
+<span class="p">[</span><span class="mi">219</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">5</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id11">
+<h3>印度利率决议报告<a class="headerlink" href="#id11" title="链接到此标题。"></a></h3>
+<p>接口: macro_bank_india_interest_rate</p>
+<p>目标地址: https://datacenter.jin10.com/reportType/dc_india_interest_rate_decision</p>
+<p>描述: 印度利率决议报告, 数据区间从 20000801-至今</p>
+<p>限量: 单次返回所有历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>商品</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>日期</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>今值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>预测值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>前值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">macro_bank_india_interest_rate_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">macro_bank_india_interest_rate</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">macro_bank_india_interest_rate_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>           <span class="n">商品</span>          <span class="n">日期</span>     <span class="n">今值</span>  <span class="n">预测值</span>     <span class="n">前值</span>
+<span class="mi">0</span>    <span class="n">印度央行决议报告</span>  <span class="mi">2000</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">01</span>   <span class="mf">7.38</span>  <span class="n">NaN</span>    <span class="n">NaN</span>
+<span class="mi">1</span>    <span class="n">印度央行决议报告</span>  <span class="mi">2000</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">13.35</span>  <span class="n">NaN</span>   <span class="mf">7.38</span>
+<span class="mi">2</span>    <span class="n">印度央行决议报告</span>  <span class="mi">2000</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">10.52</span>  <span class="n">NaN</span>  <span class="mf">13.35</span>
+<span class="mi">3</span>    <span class="n">印度央行决议报告</span>  <span class="mi">2000</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">01</span>   <span class="mf">8.61</span>  <span class="n">NaN</span>  <span class="mf">10.52</span>
+<span class="mi">4</span>    <span class="n">印度央行决议报告</span>  <span class="mi">2000</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">01</span>   <span class="mf">8.00</span>  <span class="n">NaN</span>   <span class="mf">8.61</span>
+<span class="o">..</span>        <span class="o">...</span>         <span class="o">...</span>    <span class="o">...</span>  <span class="o">...</span>    <span class="o">...</span>
+<span class="mi">222</span>  <span class="n">印度央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">02</span><span class="o">-</span><span class="mi">08</span>   <span class="mf">6.50</span>  <span class="mf">6.5</span>   <span class="mf">6.50</span>
+<span class="mi">223</span>  <span class="n">印度央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">05</span>   <span class="mf">6.50</span>  <span class="mf">6.5</span>   <span class="mf">6.50</span>
+<span class="mi">224</span>  <span class="n">印度央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">07</span>   <span class="mf">6.50</span>  <span class="mf">6.5</span>   <span class="mf">6.50</span>
+<span class="mi">225</span>  <span class="n">印度央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">08</span>   <span class="mf">6.50</span>  <span class="mf">6.5</span>   <span class="mf">6.50</span>
+<span class="mi">226</span>  <span class="n">印度央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">09</span>   <span class="mf">6.50</span>  <span class="mf">6.5</span>   <span class="mf">6.50</span>
+<span class="p">[</span><span class="mi">227</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">5</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id12">
+<h3>巴西利率决议报告<a class="headerlink" href="#id12" title="链接到此标题。"></a></h3>
+<p>接口: macro_bank_brazil_interest_rate</p>
+<p>目标地址: https://datacenter.jin10.com/reportType/dc_brazil_interest_rate_decision</p>
+<p>描述: 巴西利率决议报告, 数据区间从20080201-至今</p>
+<p>限量: 单次返回所有历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>商品</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>日期</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>今值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>预测值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>前值</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">macro_bank_brazil_interest_rate_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">macro_bank_brazil_interest_rate</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">macro_bank_brazil_interest_rate_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>           <span class="n">商品</span>          <span class="n">日期</span>     <span class="n">今值</span>    <span class="n">预测值</span>     <span class="n">前值</span>
+<span class="mi">0</span>    <span class="n">巴西央行决议报告</span>  <span class="mi">2008</span><span class="o">-</span><span class="mi">02</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">11.25</span>    <span class="n">NaN</span>    <span class="n">NaN</span>
+<span class="mi">1</span>    <span class="n">巴西央行决议报告</span>  <span class="mi">2008</span><span class="o">-</span><span class="mi">04</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">11.25</span>    <span class="n">NaN</span>  <span class="mf">11.25</span>
+<span class="mi">2</span>    <span class="n">巴西央行决议报告</span>  <span class="mi">2008</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">11.75</span>    <span class="n">NaN</span>  <span class="mf">11.25</span>
+<span class="mi">3</span>    <span class="n">巴西央行决议报告</span>  <span class="mi">2008</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">12.25</span>    <span class="n">NaN</span>  <span class="mf">11.75</span>
+<span class="mi">4</span>    <span class="n">巴西央行决议报告</span>  <span class="mi">2008</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">13.00</span>    <span class="n">NaN</span>  <span class="mf">12.25</span>
+<span class="o">..</span>        <span class="o">...</span>         <span class="o">...</span>    <span class="o">...</span>    <span class="o">...</span>    <span class="o">...</span>
+<span class="mi">145</span>  <span class="n">巴西央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">20</span>  <span class="mf">10.50</span>  <span class="mf">10.50</span>  <span class="mf">10.50</span>
+<span class="mi">146</span>  <span class="n">巴西央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">01</span>  <span class="mf">10.50</span>  <span class="mf">10.50</span>  <span class="mf">10.50</span>
+<span class="mi">147</span>  <span class="n">巴西央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">09</span><span class="o">-</span><span class="mi">19</span>  <span class="mf">10.75</span>  <span class="mf">10.75</span>  <span class="mf">10.50</span>
+<span class="mi">148</span>  <span class="n">巴西央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">07</span>    <span class="n">NaN</span>  <span class="mf">11.25</span>  <span class="mf">10.75</span>
+<span class="mi">149</span>  <span class="n">巴西央行决议报告</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">12</span>    <span class="n">NaN</span>    <span class="n">NaN</span>    <span class="n">NaN</span>
+<span class="p">[</span><span class="mi">150</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">5</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id13">
+<h2>银行间拆借利率<a class="headerlink" href="#id13" title="链接到此标题。"></a></h2>
+<p>接口: rate_interbank</p>
+<p>目标地址: https://data.eastmoney.com/shibor/shibor.aspx?m=sg&amp;t=88&amp;d=99333&amp;cu=sgd&amp;type=009065&amp;p=79</p>
+<p>描述: 东方财富-拆借利率一览-具体市场的具体品种的具体指标的拆借利率数据</p>
+<p>限量: 返回所有历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>market</td>
+<td>str</td>
+<td>market="上海银行同业拆借市场"; 参见 <strong>市场-品种-指标一览表</strong></td>
+</tr>
+<tr>
+<td>symbol</td>
+<td>str</td>
+<td>symbol="Shibor人民币"; 参见 <strong>市场-品种-指标一览表</strong></td>
+</tr>
+<tr>
+<td>indicator</td>
+<td>str</td>
+<td>indicator="隔夜"; 参见 <strong>市场-品种-指标一览表</strong></td>
+</tr>
+</tbody>
+</table><p>市场-品种-指标一览表</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>market</th>
+<th>symbol</th>
+<th>indicator</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>上海银行同业拆借市场</td>
+<td>Shibor人民币</td>
+<td>隔夜</td>
+</tr>
+<tr>
+<td>上海银行同业拆借市场</td>
+<td>Shibor人民币</td>
+<td>1周</td>
+</tr>
+<tr>
+<td>上海银行同业拆借市场</td>
+<td>Shibor人民币</td>
+<td>2周</td>
+</tr>
+<tr>
+<td>上海银行同业拆借市场</td>
+<td>Shibor人民币</td>
+<td>1月</td>
+</tr>
+<tr>
+<td>上海银行同业拆借市场</td>
+<td>Shibor人民币</td>
+<td>3月</td>
+</tr>
+<tr>
+<td>上海银行同业拆借市场</td>
+<td>Shibor人民币</td>
+<td>6月</td>
+</tr>
+<tr>
+<td>上海银行同业拆借市场</td>
+<td>Shibor人民币</td>
+<td>9月</td>
+</tr>
+<tr>
+<td>上海银行同业拆借市场</td>
+<td>Shibor人民币</td>
+<td>1年</td>
+</tr>
+<tr>
+<td>中国银行同业拆借市场</td>
+<td>Chibor人民币</td>
+<td>隔夜</td>
+</tr>
+<tr>
+<td>中国银行同业拆借市场</td>
+<td>Chibor人民币</td>
+<td>1周</td>
+</tr>
+<tr>
+<td>中国银行同业拆借市场</td>
+<td>Chibor人民币</td>
+<td>2周</td>
+</tr>
+<tr>
+<td>中国银行同业拆借市场</td>
+<td>Chibor人民币</td>
+<td>3周</td>
+</tr>
+<tr>
+<td>中国银行同业拆借市场</td>
+<td>Chibor人民币</td>
+<td>1月</td>
+</tr>
+<tr>
+<td>中国银行同业拆借市场</td>
+<td>Chibor人民币</td>
+<td>2月</td>
+</tr>
+<tr>
+<td>中国银行同业拆借市场</td>
+<td>Chibor人民币</td>
+<td>3月</td>
+</tr>
+<tr>
+<td>中国银行同业拆借市场</td>
+<td>Chibor人民币</td>
+<td>4月</td>
+</tr>
+<tr>
+<td>中国银行同业拆借市场</td>
+<td>Chibor人民币</td>
+<td>6月</td>
+</tr>
+<tr>
+<td>中国银行同业拆借市场</td>
+<td>Chibor人民币</td>
+<td>9月</td>
+</tr>
+<tr>
+<td>中国银行同业拆借市场</td>
+<td>Chibor人民币</td>
+<td>1年</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor英镑</td>
+<td>隔夜</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor英镑</td>
+<td>1周</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor英镑</td>
+<td>1月</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor英镑</td>
+<td>2月</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor英镑</td>
+<td>3月</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor英镑</td>
+<td>8月</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor美元</td>
+<td>隔夜</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor美元</td>
+<td>1周</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor美元</td>
+<td>1月</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor美元</td>
+<td>2月</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor美元</td>
+<td>3月</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor美元</td>
+<td>8月</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor欧元</td>
+<td>隔夜</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor欧元</td>
+<td>1周</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor欧元</td>
+<td>1月</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor欧元</td>
+<td>2月</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor欧元</td>
+<td>3月</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor欧元</td>
+<td>8月</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor日元</td>
+<td>隔夜</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor日元</td>
+<td>1周</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor日元</td>
+<td>1月</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor日元</td>
+<td>2月</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor日元</td>
+<td>3月</td>
+</tr>
+<tr>
+<td>伦敦银行同业拆借市场</td>
+<td>Libor日元</td>
+<td>8月</td>
+</tr>
+<tr>
+<td>欧洲银行同业拆借市场</td>
+<td>Euribor欧元</td>
+<td>1周</td>
+</tr>
+<tr>
+<td>欧洲银行同业拆借市场</td>
+<td>Euribor欧元</td>
+<td>2周</td>
+</tr>
+<tr>
+<td>欧洲银行同业拆借市场</td>
+<td>Euribor欧元</td>
+<td>3周</td>
+</tr>
+<tr>
+<td>欧洲银行同业拆借市场</td>
+<td>Euribor欧元</td>
+<td>1月</td>
+</tr>
+<tr>
+<td>欧洲银行同业拆借市场</td>
+<td>Euribor欧元</td>
+<td>2月</td>
+</tr>
+<tr>
+<td>欧洲银行同业拆借市场</td>
+<td>Euribor欧元</td>
+<td>3月</td>
+</tr>
+<tr>
+<td>欧洲银行同业拆借市场</td>
+<td>Euribor欧元</td>
+<td>4月</td>
+</tr>
+<tr>
+<td>欧洲银行同业拆借市场</td>
+<td>Euribor欧元</td>
+<td>5月</td>
+</tr>
+<tr>
+<td>欧洲银行同业拆借市场</td>
+<td>Euribor欧元</td>
+<td>6月</td>
+</tr>
+<tr>
+<td>欧洲银行同业拆借市场</td>
+<td>Euribor欧元</td>
+<td>7月</td>
+</tr>
+<tr>
+<td>欧洲银行同业拆借市场</td>
+<td>Euribor欧元</td>
+<td>8月</td>
+</tr>
+<tr>
+<td>欧洲银行同业拆借市场</td>
+<td>Euribor欧元</td>
+<td>9月</td>
+</tr>
+<tr>
+<td>欧洲银行同业拆借市场</td>
+<td>Euribor欧元</td>
+<td>10月</td>
+</tr>
+<tr>
+<td>欧洲银行同业拆借市场</td>
+<td>Euribor欧元</td>
+<td>11月</td>
+</tr>
+<tr>
+<td>欧洲银行同业拆借市场</td>
+<td>Euribor欧元</td>
+<td>1年</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor港币</td>
+<td>隔夜</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor港币</td>
+<td>1周</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor港币</td>
+<td>2周</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor港币</td>
+<td>1月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor港币</td>
+<td>2月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor港币</td>
+<td>3月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor港币</td>
+<td>4月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor港币</td>
+<td>5月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor港币</td>
+<td>6月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor港币</td>
+<td>7月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor港币</td>
+<td>8月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor港币</td>
+<td>9月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor港币</td>
+<td>10月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor港币</td>
+<td>11月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor港币</td>
+<td>1年</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor美元</td>
+<td>隔夜</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor美元</td>
+<td>1周</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor美元</td>
+<td>2周</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor美元</td>
+<td>1月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor美元</td>
+<td>2月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor美元</td>
+<td>3月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor美元</td>
+<td>4月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor美元</td>
+<td>5月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor美元</td>
+<td>6月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor美元</td>
+<td>7月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor美元</td>
+<td>8月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor美元</td>
+<td>9月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor美元</td>
+<td>10月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor美元</td>
+<td>11月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor美元</td>
+<td>1年</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor人民币</td>
+<td>隔夜</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor人民币</td>
+<td>1周</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor人民币</td>
+<td>2周</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor人民币</td>
+<td>1月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor人民币</td>
+<td>2月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor人民币</td>
+<td>3月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor人民币</td>
+<td>6月</td>
+</tr>
+<tr>
+<td>香港银行同业拆借市场</td>
+<td>Hibor人民币</td>
+<td>1年</td>
+</tr>
+<tr>
+<td>新加坡银行同业拆借市场</td>
+<td>Sibor星元</td>
+<td>1月</td>
+</tr>
+<tr>
+<td>新加坡银行同业拆借市场</td>
+<td>Sibor星元</td>
+<td>2月</td>
+</tr>
+<tr>
+<td>新加坡银行同业拆借市场</td>
+<td>Sibor星元</td>
+<td>3月</td>
+</tr>
+<tr>
+<td>新加坡银行同业拆借市场</td>
+<td>Sibor星元</td>
+<td>6月</td>
+</tr>
+<tr>
+<td>新加坡银行同业拆借市场</td>
+<td>Sibor星元</td>
+<td>9月</td>
+</tr>
+<tr>
+<td>新加坡银行同业拆借市场</td>
+<td>Sibor星元</td>
+<td>1年</td>
+</tr>
+<tr>
+<td>新加坡银行同业拆借市场</td>
+<td>Sibor美元</td>
+<td>1月</td>
+</tr>
+<tr>
+<td>新加坡银行同业拆借市场</td>
+<td>Sibor美元</td>
+<td>2月</td>
+</tr>
+<tr>
+<td>新加坡银行同业拆借市场</td>
+<td>Sibor美元</td>
+<td>3月</td>
+</tr>
+<tr>
+<td>新加坡银行同业拆借市场</td>
+<td>Sibor美元</td>
+<td>6月</td>
+</tr>
+<tr>
+<td>新加坡银行同业拆借市场</td>
+<td>Sibor美元</td>
+<td>9月</td>
+</tr>
+<tr>
+<td>新加坡银行同业拆借市场</td>
+<td>Sibor美元</td>
+<td>1年</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>日期</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>利率</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>涨跌</td>
+<td>float64</td>
+<td>注意单位: BP</td>
+</tr>
+</tbody>
+</table><p>示例代码</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">rate_interbank_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">rate_interbank</span><span class="p">(</span><span class="n">market</span><span class="o">=</span><span class="s2">&quot;上海银行同业拆借市场&quot;</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;Shibor人民币&quot;</span><span class="p">,</span> <span class="n">indicator</span><span class="o">=</span><span class="s2">&quot;3月&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">rate_interbank_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>      <span class="n">报告日</span>      <span class="n">利率</span>    <span class="n">涨跌</span>
+<span class="mi">0</span>     <span class="mi">2006</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">08</span>  <span class="mf">2.6110</span>  <span class="mf">0.00</span>
+<span class="mi">1</span>     <span class="mi">2006</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">09</span>  <span class="mf">2.6248</span>  <span class="mf">1.38</span>
+<span class="mi">2</span>     <span class="mi">2006</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">10</span>  <span class="mf">2.6325</span>  <span class="mf">0.77</span>
+<span class="mi">3</span>     <span class="mi">2006</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">11</span>  <span class="mf">2.6338</span>  <span class="mf">0.13</span>
+<span class="mi">4</span>     <span class="mi">2006</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">12</span>  <span class="mf">2.6380</span>  <span class="mf">0.42</span>
+<span class="o">...</span>          <span class="o">...</span>     <span class="o">...</span>   <span class="o">...</span>
+<span class="mi">4391</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">07</span>  <span class="mf">1.9960</span> <span class="o">-</span><span class="mf">0.50</span>
+<span class="mi">4392</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">08</span>  <span class="mf">1.9900</span> <span class="o">-</span><span class="mf">0.60</span>
+<span class="mi">4393</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">09</span>  <span class="mf">1.9910</span>  <span class="mf">0.10</span>
+<span class="mi">4394</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">10</span>  <span class="mf">1.9890</span> <span class="o">-</span><span class="mf">0.20</span>
+<span class="mi">4395</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">11</span>  <span class="mf">1.9880</span> <span class="o">-</span><span class="mf">0.10</span>
+<span class="p">[</span><span class="mi">4396</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">3</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id14">
+<h2>回购定盘利率-历史<a class="headerlink" href="#id14" title="链接到此标题。"></a></h2>
+<p>接口: repo_rate_hist</p>
+<p>目标地址: https://www.chinamoney.com.cn/chinese/bkfrr/</p>
+<p>描述: 回购定盘利率数据</p>
+<p>限量: 单次返回指定日期间(一年)的所有历史数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>start_date</td>
+<td>str</td>
+<td>start_date="20200930"; 开始时间与结束时间需要在一年内</td>
+</tr>
+<tr>
+<td>end_date</td>
+<td>str</td>
+<td>end_date="20201029"; 开始时间与结束时间需要在一年内</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>date</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>FR001</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>FR007</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>FR014</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>FDR001</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>FDR007</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>FDR014</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">repo_rate_hist_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">repo_rate_hist</span><span class="p">(</span><span class="n">start_date</span><span class="o">=</span><span class="s2">&quot;20231001&quot;</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="s2">&quot;20240101&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">repo_rate_hist_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>          <span class="n">date</span>   <span class="n">FR001</span>   <span class="n">FR007</span>  <span class="n">FR014</span>  <span class="n">FDR001</span>  <span class="n">FDR007</span>  <span class="n">FDR014</span>
+<span class="mi">0</span>   <span class="mi">2023</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">07</span>  <span class="mf">1.7000</span>  <span class="mf">1.8500</span>   <span class="mf">1.82</span>  <span class="mf">1.7000</span>  <span class="mf">1.8224</span>    <span class="mf">1.82</span>
+<span class="mi">1</span>   <span class="mi">2023</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">08</span>  <span class="mf">1.5600</span>  <span class="mf">1.8000</span>   <span class="mf">1.78</span>  <span class="mf">1.5300</span>  <span class="mf">1.7500</span>    <span class="mf">1.75</span>
+<span class="mi">2</span>   <span class="mi">2023</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">09</span>  <span class="mf">1.8100</span>  <span class="mf">2.0100</span>   <span class="mf">1.85</span>  <span class="mf">1.7400</span>  <span class="mf">1.8000</span>    <span class="mf">1.80</span>
+<span class="mi">3</span>   <span class="mi">2023</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">10</span>  <span class="mf">1.9300</span>  <span class="mf">2.0500</span>   <span class="mf">2.22</span>  <span class="mf">1.8400</span>  <span class="mf">1.8600</span>    <span class="mf">1.90</span>
+<span class="mi">4</span>   <span class="mi">2023</span><span class="o">-</span><span class="mi">10</span><span class="o">-</span><span class="mi">11</span>  <span class="mf">1.9600</span>  <span class="mf">2.1400</span>   <span class="mf">2.20</span>  <span class="mf">1.8700</span>  <span class="mf">1.9200</span>    <span class="mf">2.00</span>
+<span class="o">..</span>         <span class="o">...</span>     <span class="o">...</span>     <span class="o">...</span>    <span class="o">...</span>     <span class="o">...</span>     <span class="o">...</span>     <span class="o">...</span>
+<span class="mi">57</span>  <span class="mi">2023</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">25</span>  <span class="mf">1.6210</span>  <span class="mf">1.8117</span>   <span class="mf">3.90</span>  <span class="mf">1.5900</span>  <span class="mf">1.8000</span>    <span class="mf">3.15</span>
+<span class="mi">58</span>  <span class="mi">2023</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">26</span>  <span class="mf">1.5500</span>  <span class="mf">4.3500</span>   <span class="mf">3.80</span>  <span class="mf">1.4969</span>  <span class="mf">1.8305</span>    <span class="mf">3.10</span>
+<span class="mi">59</span>  <span class="mi">2023</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">27</span>  <span class="mf">1.5100</span>  <span class="mf">4.0000</span>   <span class="mf">3.10</span>  <span class="mf">1.4400</span>  <span class="mf">1.8728</span>    <span class="mf">3.05</span>
+<span class="mi">60</span>  <span class="mi">2023</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">28</span>  <span class="mf">1.5000</span>  <span class="mf">3.2000</span>   <span class="mf">3.00</span>  <span class="mf">1.3900</span>  <span class="mf">1.9572</span>    <span class="mf">2.95</span>
+<span class="mi">61</span>  <span class="mi">2023</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">29</span>  <span class="mf">1.9149</span>  <span class="mf">2.4000</span>   <span class="mf">2.45</span>  <span class="mf">1.7400</span>  <span class="mf">2.3000</span>    <span class="mf">2.40</span>
+<span class="p">[</span><span class="mi">62</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">7</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id15">
+<h2>回购定盘利率-近期<a class="headerlink" href="#id15" title="链接到此标题。"></a></h2>
+<p>接口: repo_rate_query</p>
+<p>目标地址: https://www.chinamoney.com.cn/chinese/bkfrr/</p>
+<p>描述: 回购定盘利率数据</p>
+<p>限量: 单次返回指定 symbol 的近期数据</p>
+<p>输入参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>symbol</td>
+<td>str</td>
+<td>symbol="回购定盘利率"; choice of {"回购定盘利率", "银银间回购定盘利率"}</td>
+</tr>
+</tbody>
+</table><p>输出参数</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>date</td>
+<td>object</td>
+<td>-</td>
+</tr>
+<tr>
+<td>FR001</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>FR007</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+<tr>
+<td>FR014</td>
+<td>float64</td>
+<td>注意单位: %</td>
+</tr>
+</tbody>
+</table><p>接口示例</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">akshare</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ak</span>
+
+<span class="n">repo_rate_query_df</span> <span class="o">=</span> <span class="n">ak</span><span class="o">.</span><span class="n">repo_rate_query</span><span class="p">(</span><span class="n">symbol</span><span class="o">=</span><span class="s2">&quot;回购定盘利率&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">repo_rate_query_df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>数据示例</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>           <span class="n">date</span>   <span class="n">FR001</span>  <span class="n">FR007</span>  <span class="n">FR014</span>
+<span class="mi">0</span>    <span class="mi">2021</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">19</span>  <span class="mf">2.3000</span>   <span class="mf">2.46</span>   <span class="mf">2.55</span>
+<span class="mi">1</span>    <span class="mi">2021</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">20</span>  <span class="mf">2.5000</span>   <span class="mf">2.65</span>   <span class="mf">2.80</span>
+<span class="mi">2</span>    <span class="mi">2021</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">21</span>  <span class="mf">2.6500</span>   <span class="mf">2.60</span>   <span class="mf">2.70</span>
+<span class="mi">3</span>    <span class="mi">2021</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">22</span>  <span class="mf">2.5500</span>   <span class="mf">2.40</span>   <span class="mf">2.70</span>
+<span class="mi">4</span>    <span class="mi">2021</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">25</span>  <span class="mf">2.5000</span>   <span class="mf">2.50</span>   <span class="mf">2.78</span>
+<span class="o">..</span>          <span class="o">...</span>     <span class="o">...</span>    <span class="o">...</span>    <span class="o">...</span>
+<span class="mi">746</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">15</span>  <span class="mf">1.8300</span>   <span class="mf">2.25</span>   <span class="mf">2.20</span>
+<span class="mi">747</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">16</span>  <span class="mf">1.9528</span>   <span class="mf">2.25</span>   <span class="mf">2.38</span>
+<span class="mi">748</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">17</span>  <span class="mf">2.0107</span>   <span class="mf">2.30</span>   <span class="mf">2.55</span>
+<span class="mi">749</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">18</span>  <span class="mf">1.8800</span>   <span class="mf">2.20</span>   <span class="mf">2.30</span>
+<span class="mi">750</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">19</span>  <span class="mf">1.8600</span>   <span class="mf">2.15</span>   <span class="mf">2.40</span>
+<span class="p">[</span><span class="mi">751</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">4</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../spot/spot.html" class="btn btn-neutral float-left" title="AKShare 现货数据" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../fund/fund_private.html" class="btn btn-neutral float-right" title="AKShare 私募基金数据" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2019–2026, AKShare Developers。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
