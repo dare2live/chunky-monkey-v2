@@ -63,12 +63,24 @@ select {
   display: flex;
   align-items: center;
   gap: 20px;
-  padding: 10px 28px;
+  padding: 8px 28px;
   background: var(--panel);
-  border-bottom: 1px solid var(--line);
+  border-bottom: none;
   position: sticky;
   top: 0;
   z-index: 100;
+  box-shadow: none;
+}
+
+.sub-bar {
+  display: flex;
+  justify-content: center;
+  padding: 6px 28px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 40px;
+  z-index: 99;
   box-shadow: var(--shadow-sm);
 }
 
@@ -131,25 +143,27 @@ select {
 
 .nav-group-btn {
   padding: 6px 20px;
-  border: none;
-  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-pill);
   background: transparent;
   color: var(--text-2);
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 150ms ease;
   letter-spacing: 0.5px;
-  border-bottom: 2px solid transparent;
 }
 
 .nav-group-btn:hover {
   color: var(--primary);
+  border-color: var(--primary);
 }
 
 .nav-group-btn.active {
-  color: var(--primary);
-  border-bottom-color: var(--primary);
+  color: #fff;
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
 }
 
 .nav-sub-bar {

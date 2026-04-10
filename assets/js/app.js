@@ -128,8 +128,7 @@
     }
     if (tabName === 'overview') loadEtfOverview();
     if (tabName === 'list') loadEtfList();
-    if (tabName === 'mining') loadEtfMining();
-    if (tabName === 'rotation') loadEtfRotation();
+    if (tabName === 'etf-qlib') loadEtfQlib();
   }
 
   // 顶层板块切换
@@ -4580,8 +4579,6 @@
     // 渲染当前活跃子标签
     loadEtfOverview();
     if (_currentEtfTab === 'list') loadEtfList();
-    if (_currentEtfTab === 'mining') loadEtfMining();
-    if (_currentEtfTab === 'rotation') loadEtfRotation();
   }
 
   function loadEtfOverview() {
@@ -4973,7 +4970,14 @@
       '</svg>';
   }
 
-  // 轮动预测 Top 5 — SVG 条形图
+  // ETF Qlib 页面（独立于股东挖掘Qlib）
+  async function loadEtfQlib() {
+    var box = el('etfQlibContainer');
+    if (!box) return;
+    box.innerHTML = '<div class="muted" style="padding:40px;text-align:center">ETF Qlib 功能开发中...</div>';
+  }
+
+  // 轮动预测 Top 5 — SVG 条形图（被整体判断调用）
   async function loadEtfRotation() {
     var box = el('etfRotationContainer');
     if (!box) return;

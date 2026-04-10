@@ -15,29 +15,29 @@
       <span class="logo-text">Chunky Monkey<small>机构事件研究系统</small></span>
     </div>
     <nav class="main-nav" id="mainNav">
-      <!-- 顶层板块选择 -->
       <div class="nav-top-bar">
         <button class="nav-group-btn active" data-group="holder">股东挖掘</button>
         <button class="nav-group-btn" id="nav-group-etf" data-group="etf" style="display:none">ETF研究</button>
-      </div>
-      <!-- 股东挖掘二级导航 -->
-      <div class="nav-sub-bar" id="nav-sub-holder">
-        <button class="nav-btn active" data-view="dashboard">工作台</button>
-        <button class="nav-btn" data-view="research">机构研究</button>
-        <button class="nav-btn" data-view="stocks">股票研究</button>
-        <button class="nav-btn" id="nav-qlib" data-view="qlib" style="display:none">Qlib</button>
-      </div>
-      <!-- ETF研究二级导航 -->
-      <div class="nav-sub-bar" id="nav-sub-etf" style="display:none">
-        <button class="nav-btn" data-view="etf" data-etftab="overview">整体判断</button>
-        <button class="nav-btn" data-view="etf" data-etftab="list">ETF列表</button>
-        <button class="nav-btn" data-view="etf" data-etftab="mining">挖掘建议</button>
-        <button class="nav-btn" data-view="etf" data-etftab="rotation">轮动预测</button>
       </div>
     </nav>
     <button class="btn-outline" id="btnLifeboat" style="font-size:12px;padding:5px 12px;white-space:nowrap"
       title="独立查询：跟踪机构最新新进了哪些股票">救生艇</button>
   </header>
+  <div class="sub-bar" id="subBar">
+    <!-- 股东挖掘二级导航 -->
+    <div class="nav-sub-bar" id="nav-sub-holder">
+      <button class="nav-btn active" data-view="dashboard">工作台</button>
+      <button class="nav-btn" data-view="research">机构研究</button>
+      <button class="nav-btn" data-view="stocks">股票研究</button>
+      <button class="nav-btn" id="nav-qlib" data-view="qlib" style="display:none">Qlib</button>
+    </div>
+    <!-- ETF研究二级导航 -->
+    <div class="nav-sub-bar" id="nav-sub-etf" style="display:none">
+      <button class="nav-btn" data-view="etf" data-etftab="overview">整体判断</button>
+      <button class="nav-btn" data-view="etf" data-etftab="list">ETF列表</button>
+      <button class="nav-btn" id="nav-etf-qlib" data-view="etf" data-etftab="etf-qlib" style="display:none">Qlib</button>
+    </div>
+  </div>
 
   <main class="content">
     <!-- ==================== 工作台 ==================== -->
@@ -283,7 +283,7 @@
         </div>
       </div>
 
-      <!-- 整体判断 -->
+      <!-- 整体判断（含挖掘建议+轮动预测） -->
       <div class="etf-tab-content active" id="etftab-overview">
         <div id="etfOverviewContainer" style="margin-bottom:14px"></div>
       </div>
@@ -295,34 +295,15 @@
             <span style="font-weight:600">ETF 列表与动量</span>
           </div>
           <div id="etfCategoryFilter" style="margin-bottom:10px"></div>
+          <div id="etfStrategyFilter" style="margin-bottom:10px"></div>
           <div id="etfTableContainer">加载中...</div>
         </div>
       </div>
 
-      <!-- 挖掘建议 -->
-      <div class="etf-tab-content" id="etftab-mining">
-        <div class="panel">
-          <div class="panel-head">
-            <span style="font-weight:600">ETF 挖掘建议</span>
-          </div>
-          <div id="etfMiningContainer" style="background:#f1f5f9;padding:12px;border-radius:6px">
-            正在加载...
-          </div>
-        </div>
-      </div>
-
-      <!-- 轮动预测 -->
-      <div class="etf-tab-content" id="etftab-rotation">
-        <div class="panel">
-          <div class="panel-head">
-            <span style="font-weight:600">行业预轮动 Top 5</span>
-          </div>
-          <div id="etfRotationContainer">
-            <div class="muted" style="padding:20px;text-align:center">加载中...</div>
-          </div>
-          <div class="muted" style="font-size:11px;margin-top:8px">
-            预轮动分数由 Qlib 均分位、20日/60日预测得分、高置信股票密度加权合成。每日盘后自动更新。
-          </div>
+      <!-- ETF Qlib -->
+      <div class="etf-tab-content" id="etftab-etf-qlib">
+        <div id="etfQlibContainer">
+          <div class="muted" style="padding:20px;text-align:center">加载中...</div>
         </div>
       </div>
     </section>
