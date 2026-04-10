@@ -4787,10 +4787,14 @@
     // --- 1. 头部信息卡 ---
     var ratingColors = { '强烈推荐': { bg: '#dcfce7', fg: '#166534' }, '推荐': { bg: '#dbeafe', fg: '#1d4ed8' }, '中性': { bg: '#fef3c7', fg: '#b45309' }, '谨慎': { bg: '#fee2e2', fg: '#991b1b' } };
     var rc = ratingColors[verdict.rating] || ratingColors['中性'];
+    var recStrategy = d.recommended_strategy || '';
+    var recStratBg = recStrategy === '网格交易' ? '#fef3c7' : '#dbeafe';
+    var recStratFg = recStrategy === '网格交易' ? '#b45309' : '#1d4ed8';
     var headerHtml =
       '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px">' +
       '<div style="font-weight:700;font-size:16px">' + esc(info.name || code) + ' <span class="muted" style="font-size:12px;font-weight:400">' + esc(code) + '</span></div>' +
       '<span style="padding:3px 12px;border-radius:var(--radius-pill);background:' + rc.bg + ';color:' + rc.fg + ';font-size:12px;font-weight:700">' + esc(verdict.rating || '分析中') + '</span>' +
+      (recStrategy ? '<span style="padding:3px 10px;border-radius:var(--radius-pill);background:' + recStratBg + ';color:' + recStratFg + ';font-size:11px;font-weight:700">推荐: ' + esc(recStrategy) + '</span>' : '') +
       (info.strategy_type ? '<span style="padding:2px 8px;border-radius:var(--radius-pill);background:var(--primary-light);color:var(--primary);font-size:11px;font-weight:600">' + esc(info.strategy_type) + '</span>' : '') +
       (info.setup_state ? '<span style="padding:2px 8px;border-radius:var(--radius-pill);background:var(--line-light);color:var(--text-2);font-size:11px;font-weight:600">' + esc(info.setup_state) + '</span>' : '') +
       '</div>';

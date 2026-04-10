@@ -54,8 +54,10 @@ def _max_drawdown(values: list[float]) -> Optional[float]:
 def _run_grid_backtest(price_rows: list[dict], step_pct: float,
                        tranche_count: int = 8, fee_bps: float = 5.0,
                        *, full_curve: bool = False) -> Optional[dict]:
-    """网格回测，返回收益/回撤/交易次数等指标。
-    full_curve=True 时额外返回每日净值序列（用于画图和高级分析）。
+    """固定网格回测：以起始价为中心建立对称网格，每到一个低网格买入一档，
+    到高网格卖出一档。使用 FIFO 追踪买入成本，正确统计胜率。
+
+    full_curve=True 时额外返回每日净值序列。
     """
     closes = [_safe_float(row.get("close")) for row in price_rows]
     dates = [row.get("date") for row in price_rows]
@@ -65,40 +67,86 @@ def _run_grid_backtest(price_rows: list[dict], step_pct: float,
 
     fee = fee_bps / 10000.0
     initial_price = closes[0][0]
-    cash = 0.5
-    units = 0.5 / initial_price
-    tranche_cash = 1.0 / tranche_count
-    anchor_price = initial_price
+    step_ratio = step_pct / 100.0
+
+    # 建立固定网格：基准价 = 起始价，向上/向下各 tranche_count 级
+    grid_levels = []
+    for i in range(-tranche_count, tranche_count + 1):
+        grid_levels.append(initial_price * (1 + i * step_ratio))
+    grid_levels.sort()
+
+    # 初始仓位：持有 tranche_count//2 份（半仓），对应中间网格
+    initial_tranches = tranche_count // 2
+    tranche_value = 1.0 / tranche_count  # 每档价值占总资产比例
+    cash = 1.0 - initial_tranches * tranche_value
+    units = (initial_tranches * tranche_value) / initial_price
+    # FIFO 买入队列：[(buy_price, units_bought), ...]
+    buy_queue = [(initial_price, units)] if units > 0 else []
+
+    # 跟踪当前持仓对应的"网格持仓层级"
+    # 起始在中间层，买入降一层，卖出升一层
+    center_idx = len(grid_levels) // 2
+    current_level = center_idx - initial_tranches  # 下一次买入触发的网格索引
+    sell_level = center_idx + 1  # 下一次卖出触发的网格索引
+
     trade_count = 0
     buy_count = 0
     sell_count = 0
     win_trades = 0
-    last_buy_price = initial_price
+    lose_trades = 0
     portfolio_values = [1.0]
     curve_dates = [closes[0][1]]
 
+    prev_close = initial_price
     for close, date in closes[1:]:
-        while close <= anchor_price * (1 - step_pct / 100.0) and cash >= tranche_cash * 0.5:
-            invest = min(tranche_cash, cash)
-            units += (invest * (1 - fee)) / close
+        # 买入逻辑：价格降到当前买入网格以下
+        while (current_level >= 0 and
+               close <= grid_levels[current_level] and
+               cash >= tranche_value * 0.3):
+            invest = min(tranche_value, cash)
+            bought_units = (invest * (1 - fee)) / close
+            units += bought_units
             cash -= invest
-            anchor_price *= (1 - step_pct / 100.0)
+            buy_queue.append((close, bought_units))
             trade_count += 1
             buy_count += 1
-            last_buy_price = close
-        while close >= anchor_price * (1 + step_pct / 100.0) and units * close >= tranche_cash * 0.5:
-            gross_value = min(tranche_cash, units * close)
-            sell_units = gross_value / close
+            current_level -= 1
+            sell_level -= 1
+
+        # 卖出逻辑：价格升到当前卖出网格以上
+        while (sell_level < len(grid_levels) and
+               close >= grid_levels[sell_level] and
+               units * close >= tranche_value * 0.3):
+            sell_value = min(tranche_value, units * close)
+            sell_units = sell_value / close
             units -= sell_units
-            cash += gross_value * (1 - fee)
-            anchor_price *= (1 + step_pct / 100.0)
+            cash += sell_value * (1 - fee)
             trade_count += 1
             sell_count += 1
-            if close > last_buy_price:
-                win_trades += 1
+            # FIFO 胜率：与最早买入的成本比较
+            if buy_queue:
+                cost_price = buy_queue[0][0]
+                if close > cost_price:
+                    win_trades += 1
+                else:
+                    lose_trades += 1
+                # 消耗 FIFO 队列
+                remaining = sell_units
+                while remaining > 1e-10 and buy_queue:
+                    bp, bu = buy_queue[0]
+                    if bu <= remaining + 1e-10:
+                        remaining -= bu
+                        buy_queue.pop(0)
+                    else:
+                        buy_queue[0] = (bp, bu - remaining)
+                        remaining = 0
+            current_level += 1
+            sell_level += 1
+
         pv = cash + units * close
         portfolio_values.append(pv)
         curve_dates.append(date)
+        prev_close = close
 
     final_value = cash + units * closes[-1][0]
     max_dd = _max_drawdown(portfolio_values)
@@ -130,11 +178,9 @@ def _run_grid_backtest(price_rows: list[dict], step_pct: float,
     if annual_return is not None and max_dd and max_dd > 0:
         calmar = round(annual_return / max_dd, 2)
 
-    # 胜率
-    win_rate = None
-    total_sell = sell_count
-    if total_sell > 0:
-        win_rate = round(win_trades / total_sell * 100.0, 1)
+    # 胜率（基于实际卖出交易）
+    total_completed = win_trades + lose_trades
+    win_rate = round(win_trades / total_completed * 100.0, 1) if total_completed > 0 else None
 
     result = {
         "step_pct": round(step_pct, 1),
@@ -150,13 +196,11 @@ def _run_grid_backtest(price_rows: list[dict], step_pct: float,
         "days": days,
     }
     if full_curve:
-        # 采样净值曲线：最多 60 个点（足够前端画 SVG）
         step = max(1, len(portfolio_values) // 60)
         result["curve"] = [
             {"date": curve_dates[i], "nav": round(portfolio_values[i], 4)}
             for i in range(0, len(portfolio_values), step)
         ]
-        # 确保最后一个点
         if len(portfolio_values) > 1:
             result["curve"].append({
                 "date": curve_dates[-1],
@@ -246,8 +290,8 @@ def _multi_period_backtest(mkt_conn, code: str) -> list[dict]:
     windows = [
         (60, "近60天"),
         (120, "近120天"),
-        (180, "近半年"),
         (250, "近一年"),
+        (500, "近两年"),
     ]
     results = []
     for limit, label in windows:
@@ -289,8 +333,8 @@ def analyze_etf_deep(conn, mkt_conn, code: str) -> Optional[dict]:
     if not etf_row:
         return None
 
-    # 加载 K 线（最多 250 天用于深度分析）
-    price_rows = _load_price_rows(mkt_conn, code, 250)
+    # 加载 K 线（最多 500 天用于深度分析，覆盖更多市场周期）
+    price_rows = _load_price_rows(mkt_conn, code, 500)
     if len(price_rows) < 40:
         return None
 
@@ -342,7 +386,36 @@ def analyze_etf_deep(conn, mkt_conn, code: str) -> Optional[dict]:
     # 5) 多周期对比
     multi_period = _multi_period_backtest(mkt_conn, code)
 
-    # 6) 量化基金经理视角结论
+    # 6) 策略推荐：网格 vs 买入持有
+    recommended = "买入持有"  # 默认
+    if best_step_result and bh:
+        grid_sharpe = best_step_result.get("sharpe") or 0
+        bh_sharpe = bh.get("sharpe") or 0
+        grid_ret = best_step_result.get("return_pct") or 0
+        bh_ret = bh.get("return_pct") or 0
+        grid_dd = best_step_result.get("max_drawdown_pct") or 999
+        bh_dd = bh.get("max_drawdown_pct") or 999
+        # 多周期中跑赢持有的窗口数
+        mp_wins = sum(1 for p in multi_period
+                      if p.get("best") and p.get("buy_hold")
+                      and (p["best"].get("return_pct") or 0) > (p["buy_hold"].get("return_pct") or 0))
+        mp_total = sum(1 for p in multi_period if p.get("best") and p.get("buy_hold"))
+        # 综合判断：收益差距>30%直接判负；否则看Sharpe+多周期+回撤
+        if bh_ret > 0 and grid_ret < bh_ret * 0.7:
+            recommended = "买入持有"  # 网格收益差距太大
+        else:
+            grid_score = 0
+            if grid_sharpe > bh_sharpe * 1.05:
+                grid_score += 1
+            if mp_total > 0 and mp_wins / mp_total > 0.5:
+                grid_score += 2
+            if grid_ret >= bh_ret:
+                grid_score += 2
+            if grid_dd < bh_dd * 0.6:
+                grid_score += 1
+            recommended = "网格交易" if grid_score >= 3 else "买入持有"
+
+    # 7) 量化基金经理视角结论
     verdict = _build_verdict(etf_info, best_step_result, bh, all_steps, multi_period)
 
     return {
@@ -366,6 +439,7 @@ def analyze_etf_deep(conn, mkt_conn, code: str) -> Optional[dict]:
         "buy_hold": bh,
         "multi_period": multi_period,
         "verdict": verdict,
+        "recommended_strategy": recommended,
     }
 
 
