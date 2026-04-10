@@ -5074,7 +5074,73 @@
   async function loadEtfQlib() {
     var box = el('etfQlibContainer');
     if (!box) return;
-    box.innerHTML = '<div class="muted" style="padding:40px;text-align:center">ETF Qlib 功能开发中...</div>';
+    box.innerHTML = '<div class="muted" style="padding:40px;text-align:center">加载 ETF Qlib 概览...</div>';
+
+    var r = await api('/api/etf/qlib-summary');
+    if (r?.status !== 'ok' || !r?.data) {
+      box.innerHTML = '<div class="panel" style="padding:20px"><div class="muted">加载失败: ' + esc(r?.message || '未知错误') + '</div></div>';
+      return;
+    }
+    var data = r.data;
+    var model = data.model;
+    var sectors = data.sectors || [];
+
+    // 模型信息
+    var modelHtml = '';
+    if (!model) {
+      modelHtml = '<div class="panel" style="padding:20px"><div class="muted">尚未训练 Qlib 模型。请先在股东挖掘 > Qlib 页面训练模型。</div></div>';
+      box.innerHTML = modelHtml;
+      return;
+    }
+    var stockWarn = model.stock_count < 200
+      ? '<span style="color:var(--danger);font-weight:600"> ⚠ 覆盖不足，建议重新训练（不设 sample_stock_limit）</span>'
+      : '';
+    modelHtml =
+      '<div class="panel" style="margin-bottom:14px">' +
+      '<div class="panel-head"><span style="font-weight:600">Qlib 模型概况</span></div>' +
+      '<div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px">' +
+      '<div>模型: <strong>' + esc(model.model_id) + '</strong></div>' +
+      '<div>覆盖股票: <strong>' + fmt(model.stock_count) + '</strong>' + stockWarn + '</div>' +
+      '<div>IC: <strong>' + (model.ic_mean != null ? model.ic_mean.toFixed(4) : '-') + '</strong></div>' +
+      '<div>训练窗口: ' + esc(model.train_start || '-') + ' ~ ' + esc(model.test_end || '-') + '</div>' +
+      '<div>创建: ' + esc((model.created_at || '').slice(0, 16)) + '</div>' +
+      '</div></div>';
+
+    // 行业 Qlib 热力表
+    var sectorHtml = '';
+    if (sectors.length) {
+      sectorHtml =
+        '<div class="panel">' +
+        '<div class="panel-head"><span style="font-weight:600">行业 Qlib 共识</span> <span class="muted" style="font-size:11px">按 Qlib 均分位降序</span></div>' +
+        '<div style="overflow-x:auto"><table class="data-table" style="font-size:12px"><thead><tr>' +
+        '<th>行业</th><th>Qlib 均分位</th><th>高置信(≥80)</th><th>低置信(≤20)</th><th>覆盖股票</th><th>轮动分</th><th>轮动状态</th><th>代表ETF</th>' +
+        '</tr></thead><tbody>';
+      sectors.forEach(function (s) {
+        var avg = s.avg_percentile != null ? s.avg_percentile.toFixed(1) : '-';
+        var avgColor = s.avg_percentile >= 60 ? 'var(--danger)' : s.avg_percentile <= 40 ? 'var(--success)' : 'var(--text)';
+        var bucket = s.rotation_bucket || '-';
+        var bucketColor = bucket === 'leader' ? '#166534' : bucket === 'blacklist' ? '#b91c1c' : '#6b7280';
+        var etfLinks = (s.etfs || []).map(function (e) {
+          var prefix = e.code.startsWith('1') ? 'SZ' : 'SH';
+          return '<a href="https://xueqiu.com/S/' + prefix + esc(e.code) + '" target="_blank" rel="noopener" style="color:var(--primary);font-size:11px">' + esc(e.name) + '</a>';
+        }).join(', ') || '<span class="muted">-</span>';
+        sectorHtml += '<tr>' +
+          '<td style="font-weight:600">' + esc(s.sector_name) + '</td>' +
+          '<td style="color:' + avgColor + ';font-weight:700">' + avg + '</td>' +
+          '<td style="color:var(--danger)">' + (s.high_count || 0) + '</td>' +
+          '<td style="color:var(--success)">' + (s.low_count || 0) + '</td>' +
+          '<td>' + (s.stock_count || 0) + '</td>' +
+          '<td>' + (s.rotation_score != null ? s.rotation_score.toFixed(1) : '-') + '</td>' +
+          '<td><span style="padding:2px 6px;border-radius:999px;background:' + bucketColor + '18;color:' + bucketColor + ';font-size:10px;font-weight:600">' + esc(bucket) + '</span></td>' +
+          '<td>' + etfLinks + '</td>' +
+          '</tr>';
+      });
+      sectorHtml += '</tbody></table></div></div>';
+    } else {
+      sectorHtml = '<div class="panel" style="padding:20px"><div class="muted">暂无行业级 Qlib 数据。模型覆盖股票不足或行业映射缺失。</div></div>';
+    }
+
+    box.innerHTML = modelHtml + sectorHtml;
   }
 
   // 轮动预测 Top 5 — SVG 条形图（被整体判断调用）

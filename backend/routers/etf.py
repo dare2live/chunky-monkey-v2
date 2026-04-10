@@ -232,3 +232,64 @@ async def get_etf_analysis(code: str) -> Dict[str, Any]:
     finally:
         conn.close()
         mkt_conn.close()
+
+
+@router.get("/qlib-summary")
+async def get_etf_qlib_summary() -> Dict[str, Any]:
+    """ETF 视角的 Qlib 概览：按行业聚合 Qlib 预测，映射到对应 ETF。"""
+    from services.db import get_conn
+
+    conn = get_conn()
+    try:
+        # 最新模型
+        model_row = conn.execute(
+            "SELECT model_id, stock_count, train_start, test_end, ic_mean, created_at "
+            "FROM qlib_model_state WHERE status='trained' ORDER BY created_at DESC LIMIT 1"
+        ).fetchone()
+        if not model_row:
+            return {"status": "ok", "data": {"model": None, "sectors": []}}
+        model = dict(model_row)
+        model_id = model["model_id"]
+
+        # 按行业聚合 Qlib 预测
+        sector_rows = conn.execute(
+            """
+            SELECT ctx.sw_level1 AS sector_name,
+                   AVG(p.qlib_percentile) AS avg_percentile,
+                   AVG(p.qlib_score) AS avg_score,
+                   SUM(CASE WHEN p.qlib_percentile >= 80 THEN 1 ELSE 0 END) AS high_count,
+                   SUM(CASE WHEN p.qlib_percentile <= 20 THEN 1 ELSE 0 END) AS low_count,
+                   COUNT(*) AS stock_count,
+                   msm.rotation_bucket,
+                   msm.rotation_score
+            FROM qlib_predictions p
+            INNER JOIN dim_stock_industry_context_latest ctx ON ctx.stock_code = p.stock_code
+            LEFT JOIN mart_sector_momentum msm ON msm.sector_name = ctx.sw_level1
+            WHERE p.model_id = ?
+              AND ctx.sw_level1 IS NOT NULL AND ctx.sw_level1 != ''
+            GROUP BY ctx.sw_level1
+            HAVING COUNT(*) >= 3
+            ORDER BY AVG(p.qlib_percentile) DESC
+            """,
+            (model_id,),
+        ).fetchall()
+
+        sectors = []
+        for row in sector_rows:
+            s = dict(row)
+            # 找到该行业对应的 ETF
+            etf_rows = conn.execute(
+                "SELECT code, name FROM dim_asset_universe "
+                "WHERE asset_type='etf' AND category=? "
+                "ORDER BY code LIMIT 5",
+                (s["sector_name"],),
+            ).fetchall()
+            s["etfs"] = [dict(e) for e in etf_rows]
+            sectors.append(s)
+
+        return {"status": "ok", "data": {"model": model, "sectors": sectors}}
+    except Exception as e:
+        logger.error(f"[ETF] Qlib 概览失败: {e}")
+        return {"status": "error", "message": str(e)}
+    finally:
+        conn.close()
