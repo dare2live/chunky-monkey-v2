@@ -1002,7 +1002,7 @@ select {
 /* ====== 卡片式表格行 ====== */
 .data-table-cards {
   border-collapse: separate;
-  border-spacing: 0 6px;
+  border-spacing: 0 4px;
 }
 
 .data-table-cards thead th {
@@ -1026,7 +1026,7 @@ select {
 .data-table-cards tbody tr[data-stock-idx] td,
 .data-table-cards tbody tr[data-inst-idx] td {
   border-bottom: none;
-  padding: 10px 12px;
+  padding: 6px 10px;
   border-top: 1px solid var(--line-light);
   border-bottom: 1px solid var(--line-light);
 }

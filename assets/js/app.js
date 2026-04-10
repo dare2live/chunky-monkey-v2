@@ -3057,7 +3057,8 @@
     }
 
     api('/api/inst/stocks/detail/' + encodeURIComponent(stockCode)).then(function (r) {
-      if (!r || !r.ok) { panel.innerHTML = '<div class="detail-loading">加载失败</div>'; return; }
+      if (!r || !r.ok) { panel.innerHTML = '<div class="detail-loading">加载失败: ' + esc(r && r.detail || '未知') + '</div>'; return; }
+      try {
       var insts = r.institutions || [];
       var indStr = r.industry ? (r.industry.sw_level1 || '') + (r.industry.sw_level2 ? ' > ' + r.industry.sw_level2 : '') + (r.industry.sw_level3 ? ' > ' + r.industry.sw_level3 : '') : '';
       var html = '';
@@ -3074,7 +3075,8 @@
       }).join('');
       html += '</tbody></table>';
       panel.innerHTML = html;
-    });
+      } catch (e) { panel.innerHTML = '<div class="detail-loading">渲染出错: ' + esc(String(e)) + '</div>'; }
+    }).catch(function (e) { panel.innerHTML = '<div class="detail-loading">请求出错: ' + esc(String(e)) + '</div>'; });
   }
 
   // ============================================================
