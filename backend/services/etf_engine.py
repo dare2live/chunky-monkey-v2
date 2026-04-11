@@ -5,6 +5,7 @@ import math
 from typing import List, Dict, Optional, Callable
 
 from services.utils import safe_float as _safe_float, clamp as _clamp
+from services.etf_grid_engine import is_supported_exchange_etf_code
 from services.constants import (
     ETF_NON_INDUSTRY_CATS, ETF_INDUSTRY_MAP, ETF_CATEGORY_SORT_ORDER,
     ETF_FALLBACK_INDUSTRY, ETF_CROSS_BORDER_KW, ETF_COMMODITY_KW,
@@ -17,7 +18,7 @@ logger = logging.getLogger("cm-api")
 
 # ETF 引擎：独立模块，不依赖 scoring.py
 # 数据源：mootdx（通达信）→ akshare_client.fetch_etf_list / fetch_etf_kline
-# 写入：dim_asset_universe（smartmoney.db） + price_kline（market_data.db）
+# 写入：etf_asset_universe + etf_price_kline（etf.db）
 
 # 进度回调签名：fn(stage: str, current: int, total: int, message: str)
 ProgressCb = Optional[Callable[[str, int, int, str], None]]
@@ -121,6 +122,12 @@ def _classify_etf_strategy(row: Dict) -> tuple[str, str, Optional[float], float]
     volatility_20d = _safe_float(row.get("volatility_20d"))
     amplitude_20d = _safe_float(row.get("amplitude_20d"))
     drawdown_60d = _safe_float(row.get("max_drawdown_60d"))
+    qlib_score = _safe_float(row.get("qlib_consensus_score"))
+    qlib_model_status = row.get("qlib_model_status") or ""
+    qlib_factor_group = row.get("qlib_consensus_factor_group") or ""
+    qlib_preferred_strategy = row.get("qlib_preferred_strategy") or ""
+    qlib_predicted_best_step = _safe_float(row.get("qlib_predicted_best_step_pct"))
+    qlib_consensus_ok = qlib_model_status == "trained" and qlib_score is not None and qlib_score >= 65.0
 
     grid_score = 0.0
     if cat == "宽基" or is_industry_like:
@@ -145,6 +152,14 @@ def _classify_etf_strategy(row: Dict) -> tuple[str, str, Optional[float], float]
         grid_score -= 26
     if drawdown_60d is not None and -18 <= drawdown_60d <= -4:
         grid_score += 10
+    if qlib_consensus_ok:
+        grid_score += 10
+        if qlib_preferred_strategy == "网格交易":
+            grid_score += 6
+        elif qlib_preferred_strategy == "买入持有":
+            grid_score -= 4
+        elif qlib_factor_group == "etf_grid":
+            grid_score += 4
     grid_score = round(_clamp(grid_score, 0, 100), 1)
 
     suggested_step = None
@@ -156,15 +171,36 @@ def _classify_etf_strategy(row: Dict) -> tuple[str, str, Optional[float], float]
         # 兜底：数据不足时给行业 ETF 典型步长，避免前端空白
         suggested_step = 1.5
 
+    if qlib_predicted_best_step is not None:
+        suggested_step = round(_clamp(qlib_predicted_best_step, 0.8, 4.5), 1)
+
+    if qlib_consensus_ok and suggested_step is not None and (amplitude_20d is None or amplitude_20d <= 20):
+        suggested_step = round(min(suggested_step, 2.6), 1)
+
     if cat in ("债券", "货币") and (volatility_20d is None or volatility_20d <= 12):
         return "防守停泊", "低波动资产，更适合防守配置和资金停泊。", None, grid_score
     if rotation_bucket == "blacklist" or (trend == "空头" and rel_12w < 0):
         return "暂不参与", "相对宽基偏弱或日线结构破坏，先回避等待轮动改善。", suggested_step, grid_score
     if (cat == "宽基" or is_industry_like) and trend == "多头" and rel_12w > 0 and setup_state in ("收敛待发", "趋势跟随"):
         return "趋势持有", "相对宽基走强且日线结构健康，更适合买入持有或趋势跟随。", suggested_step, grid_score
-    if grid_score >= 60:
-        return "网格候选", "波动和振幅适中，趋势不过热，更适合区间网格。", suggested_step, grid_score
+    threshold = 54 if qlib_consensus_ok else 60
+    if grid_score >= threshold:
+        reason = "波动和振幅适中，趋势不过热，更适合区间网格。"
+        if qlib_consensus_ok:
+            reason += f" Qlib 共识 {qlib_score:.1f} 分提供辅助支持。"
+        return "网格候选", reason, suggested_step, grid_score
     return "观察池", "当前轮动或结构都未完全到位，继续观察更合适。", suggested_step, grid_score
+
+
+def _load_qlib_consensus_snapshot() -> dict:
+    from services.etf_db import get_etf_conn
+    from services.etf_qlib_engine import get_latest_etf_qlib_signal_snapshot
+
+    etf_conn = get_etf_conn()
+    try:
+        return get_latest_etf_qlib_signal_snapshot(etf_conn, topk=50)
+    finally:
+        etf_conn.close()
 
 
 def _rotation_eligible(row: Dict) -> bool:
@@ -193,17 +229,19 @@ def _rotation_eligible(row: Dict) -> bool:
 
 
 async def sync_etf_universe(conn, mkt_conn, sync_kline: bool = True,
-                              kline_days: int = 120, max_etfs: int = None,
+                              kline_days: int = 120,
+                              kline_start_date: Optional[str] = None,
+                              max_etfs: int = None,
                               progress_cb: ProgressCb = None) -> Dict[str, int]:
     """
-    从 mootdx 拉取 ETF 列表写入 dim_asset_universe，并可选地同步最近 N 天 K 线。
+    从 mootdx 拉取 ETF 列表写入 etf_asset_universe，并可选地同步 K 线。
 
     progress_cb(stage, current, total, message) 在关键节点回调，让前端能展示进度条。
 
     返回 {"etf_count": N, "kline_etf_count": M, "kline_rows": K}
     """
     from services.akshare_client import fetch_etf_list, fetch_etf_kline
-    from services.market_db import upsert_price_rows, update_sync_state
+    from services.etf_db import upsert_price_rows, update_sync_state
 
     def _progress(stage: str, current: int, total: int, message: str) -> None:
         if progress_cb:
@@ -217,9 +255,18 @@ async def sync_etf_universe(conn, mkt_conn, sync_kline: bool = True,
     _progress("fetch_list", 0, 0, "拉取 ETF 列表")
     etf_list = await fetch_etf_list()
     if not etf_list:
-        logger.warning("[ETF] mootdx 未返回 ETF 列表，跳过")
+        logger.warning("[ETF] ETF 列表源均未返回有效结果，跳过")
         _progress("done", 0, 0, "未获取到 ETF 列表")
         return {"etf_count": 0, "kline_etf_count": 0, "kline_rows": 0}
+
+    raw_count = len(etf_list)
+    etf_list = [
+        item for item in etf_list
+        if is_supported_exchange_etf_code(item.get("code") or "")
+    ]
+    skipped_count = raw_count - len(etf_list)
+    if skipped_count > 0:
+        logger.info(f"[ETF] 已过滤 {skipped_count} 只疑似场外基金份额（如 519 开头产品）")
 
     if max_etfs:
         etf_list = etf_list[:max_etfs]
@@ -227,11 +274,11 @@ async def sync_etf_universe(conn, mkt_conn, sync_kline: bool = True,
     logger.info(f"[ETF] 共 {total_etfs} 只 ETF 待入库")
     _progress("fetch_list", total_etfs, total_etfs, f"获取到 {total_etfs} 只 ETF")
 
-    # 1) 写入 dim_asset_universe
+    # 1) 写入 etf_asset_universe
     etf_count = 0
     conn.execute("BEGIN IMMEDIATE")
     try:
-        conn.execute("DELETE FROM dim_asset_universe WHERE asset_type = 'etf'")
+        conn.execute("DELETE FROM etf_asset_universe")
         for e in etf_list:
             code = e.get("code")
             name = (e.get("name") or "").replace("\x00", "").strip()
@@ -240,13 +287,13 @@ async def sync_etf_universe(conn, mkt_conn, sync_kline: bool = True,
                 continue
             category = _infer_etf_category(code, name)
             conn.execute("""
-                INSERT INTO dim_asset_universe
-                  (code, asset_type, name, market, category, is_active, updated_at)
-                VALUES (?, 'etf', ?, ?, ?, 1, ?)
+                INSERT INTO etf_asset_universe
+                  (code, name, market, category, is_active, updated_at)
+                VALUES (?, ?, ?, ?, 1, ?)
             """, (code, name, market, category, now))
             etf_count += 1
         conn.commit()
-        logger.info(f"[ETF] 写入 dim_asset_universe: {etf_count} 只 ETF")
+        logger.info(f"[ETF] 写入 etf_asset_universe: {etf_count} 只 ETF")
         _progress("write_universe", etf_count, total_etfs, f"已写入 {etf_count} 只 ETF")
     except Exception as e:
         conn.rollback()
@@ -259,8 +306,13 @@ async def sync_etf_universe(conn, mkt_conn, sync_kline: bool = True,
     kline_rows = 0
     if sync_kline:
         end_dt = datetime.now()
-        start_dt = end_dt - timedelta(days=kline_days * 2)  # 多拉点防节假日
-        start_date = start_dt.strftime("%Y%m%d")
+        start_date = (kline_start_date or "").strip()
+        if start_date:
+            if len(start_date) != 8 or not start_date.isdigit():
+                raise ValueError("kline_start_date 必须是 YYYYMMDD")
+        else:
+            start_dt = end_dt - timedelta(days=kline_days * 2)  # 兼容旧调用
+            start_date = start_dt.strftime("%Y%m%d")
         end_date = end_dt.strftime("%Y%m%d")
         batch_id = f"etf_sync_{end_dt.strftime('%Y%m%d_%H%M%S')}"
 
@@ -332,21 +384,32 @@ async def sync_etf_universe(conn, mkt_conn, sync_kline: bool = True,
 
 def calc_etf_momentum(conn, mkt_conn) -> List[Dict]:
     """
-    基于 market_data.db 的 K 线计算 ETF 动量指标。
+    基于 etf.db 的 ETF 专属 K 线计算 ETF 动量指标。
     简单口径：20 日收益率 → 转 0~100 分；趋势状态由动量分档。
     """
     etfs = conn.execute(
-        "SELECT code, name, category FROM dim_asset_universe "
-        "WHERE asset_type = 'etf' AND is_active = 1"
+        "SELECT code, name, category FROM etf_asset_universe WHERE is_active = 1"
     ).fetchall()
     results = []
+    qlib_consensus = {}
+    qlib_signal_map = {}
+    try:
+        qlib_consensus = _load_qlib_consensus_snapshot()
+        qlib_signal_map = qlib_consensus.get("prediction_map") or {}
+    except Exception as exc:
+        logger.warning("[ETF] 加载 Qlib ETF 共识失败: %s", exc)
+        qlib_consensus = {"model_status": "error"}
+        qlib_signal_map = {}
 
     for row in etfs:
         code = row["code"]
         name = row["name"]
-        cat = _infer_etf_category(code, name)
+        if not is_supported_exchange_etf_code(code):
+            continue
+        cat = row["category"] or _infer_etf_category(code, name)
+        qlib_signal = qlib_signal_map.get(code) or {}
         prices_60 = mkt_conn.execute("""
-            SELECT date, high, low, close, amount FROM price_kline
+            SELECT date, high, low, close, amount FROM etf_price_kline
             WHERE code = ? AND freq = 'daily' ORDER BY date DESC LIMIT 60
         """, (code,)).fetchall()
 
@@ -421,6 +484,18 @@ def calc_etf_momentum(conn, mkt_conn) -> List[Dict]:
             "code": code,
             "name": name,
             "category": cat,
+            "qlib_consensus_score": qlib_signal.get("consensus_score"),
+            "qlib_consensus_percentile": qlib_signal.get("consensus_percentile"),
+            "qlib_consensus_factor_group": qlib_signal.get("leading_factor_group"),
+            "qlib_high_conviction_count": qlib_signal.get("high_conviction_count"),
+            "qlib_model_status": qlib_signal.get("model_status") or qlib_consensus.get("model_status") or "none",
+            "qlib_test_top50_avg_return": qlib_signal.get("test_top50_avg_return") or qlib_consensus.get("test_top20_strategy_return"),
+            "qlib_preferred_strategy": qlib_signal.get("preferred_strategy"),
+            "qlib_predicted_buy_hold_return_pct": qlib_signal.get("predicted_buy_hold_return_pct"),
+            "qlib_predicted_grid_return_pct": qlib_signal.get("predicted_grid_return_pct"),
+            "qlib_predicted_grid_excess_pct": qlib_signal.get("predicted_grid_excess_pct"),
+            "qlib_predicted_best_step_pct": qlib_signal.get("predicted_best_step_pct"),
+            "qlib_strategy_edge_pct": qlib_signal.get("strategy_edge_pct"),
             "momentum_20d": round(momentum, 2),
             "momentum_60d": round(momentum_60d, 2),
             "volatility_20d": volatility_20d,
@@ -593,8 +668,8 @@ def calc_etf_overview(rows: List[Dict]) -> Dict:
     leader_rows = [item for item in industry_rows if item.get("rotation_bucket") == "leader"][:3]
     laggard_rows = [item for item in sorted(industry_rows, key=lambda item: item.get("rotation_rank") or 999) if item.get("rotation_bucket") == "blacklist"][:3]
     strategy_counts = {
-        "grid": sum(1 for item in rows if item.get("strategy_type") == "网格候选"),
-        "trend": sum(1 for item in rows if item.get("strategy_type") == "趋势持有"),
+        "grid": sum(1 for item in rows if item.get("strategy_type") == "网格交易"),
+        "trend": sum(1 for item in rows if item.get("strategy_type") == "买入持有"),
         "defensive": sum(1 for item in rows if item.get("strategy_type") == "防守停泊"),
         "avoid": sum(1 for item in rows if item.get("strategy_type") == "暂不参与"),
     }

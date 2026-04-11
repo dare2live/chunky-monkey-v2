@@ -27,6 +27,7 @@ class QlibTrainParams(BaseModel):
     train_end: str = "2025-03-31"
     valid_end: str = "2025-09-30"
     test_end: str = "2026-01-31"
+    sample_stock_limit: int = 0
     num_boost_round: int = 500
     early_stopping_rounds: int = 50
     num_leaves: int = 64

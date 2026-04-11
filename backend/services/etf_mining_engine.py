@@ -3,22 +3,37 @@ etf_mining_engine.py — ETF 挖掘建议引擎
 
 职责：
 - 对 ETF 做确定性策略分类后的进一步建议
-- 网格候选：用简单可解释的区间网格回测，给出步长建议
-- 趋势持有：给出当前动作建议
-- 下一轮动板块：聚合现有股票 Qlib 预测，输出行业观察名单
+- 通过独立网格引擎复用回测/持有基准/策略判定结果
+- 买入持有：趋势和因子同时占优的标的
+- 下一轮动类别：基于 ETF 原生因子聚合的观察名单
 
 说明：
-- 网格回测是确定性策略问题，不交给 Qlib
-- 板块轮动前瞻属于未来收益问题，优先复用现有股票 Qlib 结果做行业聚合
+- 网格回测仍是确定性策略问题，但只使用 ETF 原生价格、强弱和结构信号
+- 轮动前瞻完全来自 ETF 原生因子聚合，不再叠加股票侧预测链
 """
 
 from __future__ import annotations
 
 import math
-from typing import Dict, List, Optional
+from typing import Optional
 
 from services.etf_engine import calc_etf_momentum
-from services.utils import safe_float as _safe_float, clamp as _clamp
+from services.etf_grid_engine import (
+    assess_etf_tradeability,
+    _build_grid_step_candidates,
+    _build_strategy_decision,
+    _buy_hold_stats,
+    _multi_period_backtest_from_rows,
+    _optimize_grid,
+    _run_grid_backtest,
+    _score_grid_backtest,
+)
+from services.etf_snapshot_manager import _price_coverage_summary, load_cached_etf_row
+from services.utils import (
+    safe_float as _safe_float,
+    clamp as _clamp,
+    percentile_ranks as _percentile_ranks,
+)
 from services.constants import ETF_NON_INDUSTRY_CATS
 
 
@@ -26,7 +41,7 @@ def _load_price_rows(mkt_conn, code: str, limit: int = 180) -> list[dict]:
     rows = mkt_conn.execute(
         """
         SELECT date, close
-        FROM price_kline
+        FROM etf_price_kline
         WHERE code = ? AND freq = 'daily' AND adjust = 'qfq'
         ORDER BY date DESC
         LIMIT ?
@@ -36,280 +51,160 @@ def _load_price_rows(mkt_conn, code: str, limit: int = 180) -> list[dict]:
     return list(reversed([dict(row) for row in rows]))
 
 
-def _max_drawdown(values: list[float]) -> Optional[float]:
-    if len(values) < 2:
-        return None
-    peak = values[0]
-    max_dd = 0.0
-    for value in values:
-        if value > peak:
-            peak = value
-        if peak > 0:
-            dd = (peak - value) / peak * 100
-            if dd > max_dd:
-                max_dd = dd
-    return round(max_dd, 2)
+def _strategy_return_snapshot(strategy_type: Optional[str], grid_ret: Optional[float], buy_hold_ret: Optional[float]) -> dict:
+    strategy_type = strategy_type or "买入持有"
+    if strategy_type == "网格交易" and grid_ret is not None:
+        recommended_label = "最优网格"
+        recommended_return = grid_ret
+        comparison_label = "买入持有" if buy_hold_ret is not None else None
+        comparison_return = buy_hold_ret
+    else:
+        recommended_label = strategy_type
+        recommended_return = buy_hold_ret if buy_hold_ret is not None else grid_ret
+        comparison_label = "最优网格" if grid_ret is not None else None
+        comparison_return = grid_ret
 
-
-def _run_grid_backtest(price_rows: list[dict], step_pct: float,
-                       tranche_count: int = 8, fee_bps: float = 5.0,
-                       *, full_curve: bool = False) -> Optional[dict]:
-    """固定网格回测：以起始价为中心建立对称网格，每到一个低网格买入一档，
-    到高网格卖出一档。使用 FIFO 追踪买入成本，正确统计胜率。
-
-    full_curve=True 时额外返回每日净值序列。
-    """
-    closes = [_safe_float(row.get("close")) for row in price_rows]
-    dates = [row.get("date") for row in price_rows]
-    closes = [(c, d) for c, d in zip(closes, dates) if c not in (None, 0)]
-    if len(closes) < 40:
-        return None
-
-    fee = fee_bps / 10000.0
-    initial_price = closes[0][0]
-    step_ratio = step_pct / 100.0
-
-    # 建立固定网格：基准价 = 起始价，向上/向下各 tranche_count 级
-    grid_levels = []
-    for i in range(-tranche_count, tranche_count + 1):
-        grid_levels.append(initial_price * (1 + i * step_ratio))
-    grid_levels.sort()
-
-    # 初始仓位：持有 tranche_count//2 份（半仓），对应中间网格
-    initial_tranches = tranche_count // 2
-    tranche_value = 1.0 / tranche_count  # 每档价值占总资产比例
-    cash = 1.0 - initial_tranches * tranche_value
-    units = (initial_tranches * tranche_value) / initial_price
-    # FIFO 买入队列：[(buy_price, units_bought), ...]
-    buy_queue = [(initial_price, units)] if units > 0 else []
-
-    # 跟踪当前持仓对应的"网格持仓层级"
-    # 起始在中间层，买入降一层，卖出升一层
-    center_idx = len(grid_levels) // 2
-    current_level = center_idx - initial_tranches  # 下一次买入触发的网格索引
-    sell_level = center_idx + 1  # 下一次卖出触发的网格索引
-
-    trade_count = 0
-    buy_count = 0
-    sell_count = 0
-    win_trades = 0
-    lose_trades = 0
-    portfolio_values = [1.0]
-    curve_dates = [closes[0][1]]
-
-    prev_close = initial_price
-    for close, date in closes[1:]:
-        # 买入逻辑：价格降到当前买入网格以下
-        while (current_level >= 0 and
-               close <= grid_levels[current_level] and
-               cash >= tranche_value * 0.3):
-            invest = min(tranche_value, cash)
-            bought_units = (invest * (1 - fee)) / close
-            units += bought_units
-            cash -= invest
-            buy_queue.append((close, bought_units))
-            trade_count += 1
-            buy_count += 1
-            current_level -= 1
-            sell_level -= 1
-
-        # 卖出逻辑：价格升到当前卖出网格以上
-        while (sell_level < len(grid_levels) and
-               close >= grid_levels[sell_level] and
-               units * close >= tranche_value * 0.3):
-            sell_value = min(tranche_value, units * close)
-            sell_units = sell_value / close
-            units -= sell_units
-            cash += sell_value * (1 - fee)
-            trade_count += 1
-            sell_count += 1
-            # FIFO 胜率：与最早买入的成本比较
-            if buy_queue:
-                cost_price = buy_queue[0][0]
-                if close > cost_price:
-                    win_trades += 1
-                else:
-                    lose_trades += 1
-                # 消耗 FIFO 队列
-                remaining = sell_units
-                while remaining > 1e-10 and buy_queue:
-                    bp, bu = buy_queue[0]
-                    if bu <= remaining + 1e-10:
-                        remaining -= bu
-                        buy_queue.pop(0)
-                    else:
-                        buy_queue[0] = (bp, bu - remaining)
-                        remaining = 0
-            current_level += 1
-            sell_level += 1
-
-        pv = cash + units * close
-        portfolio_values.append(pv)
-        curve_dates.append(date)
-        prev_close = close
-
-    final_value = cash + units * closes[-1][0]
-    max_dd = _max_drawdown(portfolio_values)
-    days = len(closes)
-
-    # 日收益率序列
-    daily_returns = []
-    for i in range(1, len(portfolio_values)):
-        if portfolio_values[i - 1] > 0:
-            daily_returns.append(portfolio_values[i] / portfolio_values[i - 1] - 1.0)
-
-    # 年化收益
-    annual_return = None
-    if days > 1:
-        annual_return = round(((final_value) ** (252.0 / days) - 1.0) * 100.0, 2)
-
-    # Sharpe ratio (假设无风险利率 2%)
-    sharpe = None
-    if daily_returns:
-        mean_ret = sum(daily_returns) / len(daily_returns)
-        rf_daily = 0.02 / 252.0
-        variance = sum((r - mean_ret) ** 2 for r in daily_returns) / len(daily_returns)
-        std = math.sqrt(variance) if variance > 0 else 0
-        if std > 0:
-            sharpe = round((mean_ret - rf_daily) / std * math.sqrt(252), 2)
-
-    # Calmar ratio
-    calmar = None
-    if annual_return is not None and max_dd and max_dd > 0:
-        calmar = round(annual_return / max_dd, 2)
-
-    # 胜率（基于实际卖出交易）
-    total_completed = win_trades + lose_trades
-    win_rate = round(win_trades / total_completed * 100.0, 1) if total_completed > 0 else None
-
-    result = {
-        "step_pct": round(step_pct, 1),
-        "return_pct": round((final_value - 1.0) * 100.0, 2),
-        "annual_return_pct": annual_return,
-        "trade_count": trade_count,
-        "buy_count": buy_count,
-        "sell_count": sell_count,
-        "win_rate": win_rate,
-        "max_drawdown_pct": max_dd,
-        "sharpe": sharpe,
-        "calmar": calmar,
-        "days": days,
-    }
-    if full_curve:
-        step = max(1, len(portfolio_values) // 60)
-        result["curve"] = [
-            {"date": curve_dates[i], "nav": round(portfolio_values[i], 4)}
-            for i in range(0, len(portfolio_values), step)
-        ]
-        if len(portfolio_values) > 1:
-            result["curve"].append({
-                "date": curve_dates[-1],
-                "nav": round(portfolio_values[-1], 4),
-            })
-    return result
-
-
-def _optimize_grid(price_rows: list[dict]) -> Optional[dict]:
-    candidates = [0.8, 1.2, 1.6, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5]
-    results = []
-    for step in candidates:
-        backtest = _run_grid_backtest(price_rows, step)
-        if backtest:
-            results.append(backtest)
-    if not results:
-        return None
-    results.sort(
-        key=lambda item: (
-            -(item.get("return_pct") or -999.0),
-            item.get("max_drawdown_pct") or 999.0,
-            -(item.get("trade_count") or 0),
-        )
-    )
-    return results[0]
-
-
-# ------------------------------------------------------------------
-# 买入持有基准 + 多周期对比
-# ------------------------------------------------------------------
-
-def _buy_hold_stats(price_rows: list[dict]) -> Optional[dict]:
-    """买入持有基准计算：收益率、年化、最大回撤、Sharpe。"""
-    closes = [_safe_float(row.get("close")) for row in price_rows]
-    dates = [row.get("date") for row in price_rows]
-    pairs = [(c, d) for c, d in zip(closes, dates) if c not in (None, 0)]
-    if len(pairs) < 10:
-        return None
-
-    first = pairs[0][0]
-    values = [c / first for c, _ in pairs]
-    final = values[-1]
-    days = len(pairs)
-    max_dd = _max_drawdown(values)
-
-    annual_return = round(((final) ** (252.0 / days) - 1.0) * 100.0, 2)
-
-    daily_returns = []
-    for i in range(1, len(values)):
-        daily_returns.append(values[i] / values[i - 1] - 1.0)
-
-    sharpe = None
-    if daily_returns:
-        mean_ret = sum(daily_returns) / len(daily_returns)
-        rf_daily = 0.02 / 252.0
-        variance = sum((r - mean_ret) ** 2 for r in daily_returns) / len(daily_returns)
-        std = math.sqrt(variance) if variance > 0 else 0
-        if std > 0:
-            sharpe = round((mean_ret - rf_daily) / std * math.sqrt(252), 2)
-
-    calmar = None
-    if max_dd and max_dd > 0:
-        calmar = round(annual_return / max_dd, 2)
-
-    # 采样净值曲线
-    step = max(1, len(values) // 60)
-    curve = [
-        {"date": pairs[i][1], "nav": round(values[i], 4)}
-        for i in range(0, len(values), step)
-    ]
-    if len(values) > 1:
-        curve.append({"date": pairs[-1][1], "nav": round(values[-1], 4)})
+    strategy_edge = None
+    if recommended_return is not None and comparison_return is not None:
+        strategy_edge = round(recommended_return - comparison_return, 2)
 
     return {
-        "return_pct": round((final - 1.0) * 100.0, 2),
-        "annual_return_pct": annual_return,
-        "max_drawdown_pct": max_dd,
-        "sharpe": sharpe,
-        "calmar": calmar,
-        "days": days,
-        "curve": curve,
+        "recommended_strategy_label": recommended_label,
+        "recommended_strategy_return_pct": recommended_return,
+        "comparison_strategy_label": comparison_label,
+        "comparison_strategy_return_pct": comparison_return,
+        "strategy_edge_pct": strategy_edge,
     }
 
 
-def _multi_period_backtest(mkt_conn, code: str) -> list[dict]:
-    """对 60/120/180/250 天窗口分别做最优网格回测。"""
-    windows = [
-        (60, "近60天"),
-        (120, "近120天"),
-        (250, "近一年"),
-        (500, "近两年"),
-    ]
-    results = []
-    for limit, label in windows:
-        rows = _load_price_rows(mkt_conn, code, limit)
-        if len(rows) < 40:
-            results.append({"window": label, "days": len(rows), "best": None, "buy_hold": None})
+def enrich_etf_rows_with_strategy_validation(
+    rows: list[dict],
+    conn,
+    mkt_conn,
+    *,
+    analysis_limit: int = 500,
+) -> list[dict]:
+    if not rows:
+        return []
+
+    enriched = [dict(row) for row in rows]
+    rs12_pct = _percentile_ranks([_safe_float(row.get("relative_strength_12w")) for row in enriched])
+    rs4_pct = _percentile_ranks([_safe_float(row.get("relative_strength_4w")) for row in enriched])
+    mom20_pct = _percentile_ranks([_safe_float(row.get("momentum_20d")) for row in enriched])
+    drawdown_pct = _percentile_ranks([_safe_float(row.get("max_drawdown_60d")) for row in enriched])
+    setup_score_map = {
+        "收敛待发": 100.0,
+        "趋势跟随": 88.0,
+        "震荡观察": 62.0,
+        "低波防守": 58.0,
+        "待补结构": 45.0,
+        "结构松散": 18.0,
+    }
+    trend_score_map = {"多头": 100.0, "震荡": 60.0, "空头": 10.0}
+
+    for idx, row in enumerate(enriched):
+        row["heuristic_strategy_type"] = row.get("strategy_type")
+        row["heuristic_strategy_reason"] = row.get("strategy_reason")
+        row["heuristic_grid_score"] = row.get("grid_score")
+        row["heuristic_grid_step_pct"] = row.get("grid_step_pct")
+
+        factor_score = (
+            (rs12_pct[idx] or 0.0) * 0.30
+            + (rs4_pct[idx] or 0.0) * 0.25
+            + (mom20_pct[idx] or 0.0) * 0.15
+            + (drawdown_pct[idx] or 0.0) * 0.10
+            + setup_score_map.get(row.get("setup_state") or "", 45.0) * 0.10
+            + trend_score_map.get(row.get("trend_status") or "", 45.0) * 0.10
+        )
+        row["factor_score"] = round(_clamp(factor_score, 0.0, 100.0), 1)
+
+        price_rows = _load_price_rows(mkt_conn, row.get("code") or "", analysis_limit)
+        tradeability = assess_etf_tradeability(
+            row.get("code") or "",
+            row.get("name") or "",
+            row.get("category"),
+            price_rows,
+        )
+        row["tradeability_supported"] = tradeability.get("supported")
+        row["tradeability_status"] = tradeability.get("status")
+        row["tradeability_reason"] = tradeability.get("reason")
+        row["tradeability_profile"] = tradeability.get("profile") or {}
+        if not tradeability.get("supported"):
+            row["strategy_type"] = "暂不参与"
+            row["strategy_reason"] = tradeability.get("reason") or "该产品暂不适合进入 ETF 交易池。"
+            row["grid_step_pct"] = None
+            row["backtest_best_step_pct"] = None
+            row["backtest_return_pct"] = None
+            row["buy_hold_return_pct"] = None
+            row["backtest_excess_pct"] = None
+            row["backtest_sharpe"] = None
+            row["buy_hold_sharpe"] = None
+            row["backtest_max_drawdown_pct"] = None
+            row["buy_hold_max_drawdown_pct"] = None
+            row["grid_candidate_score"] = None
+            row["grid_regime_score"] = None
+            row["backtest_trade_quality_score"] = None
+            row["backtest_trade_count"] = None
+            row["backtest_sell_count"] = None
+            row["backtest_win_rate"] = None
+            row["backtest_window_days"] = len(price_rows)
+            row["backtest_audit_passed"] = False
+            row["backtest_hard_gate_passed"] = False
+            row["backtest_hard_gate_reason"] = tradeability.get("reason") or "该产品未通过 ETF 基础交易性检查。"
+            row["snapshot_confident"] = False
             continue
-        best = _optimize_grid(rows)
-        bh = _buy_hold_stats(rows)
-        if best:
-            best["window"] = label
-        results.append({
-            "window": label,
-            "days": len(rows),
-            "best": best,
-            "buy_hold": bh,
-        })
-    return results
+
+        best = _optimize_grid(price_rows, row=row) if len(price_rows) >= 40 else None
+        bh = _buy_hold_stats(price_rows) if len(price_rows) >= 40 else None
+        multi_period = _multi_period_backtest_from_rows(
+            price_rows,
+            row=row,
+            windows=[(60, "近60天"), (120, "近120天"), (250, "近一年")],
+        ) if len(price_rows) >= 40 else []
+        decision = _build_strategy_decision(row, best, bh, multi_period)
+
+        grid_ret = _safe_float(best.get("return_pct")) if best else None
+        bh_ret = _safe_float(bh.get("return_pct")) if bh else None
+        row.update(decision)
+        row["grid_step_pct"] = best.get("step_pct") if best else row.get("heuristic_grid_step_pct")
+        row["backtest_best_step_pct"] = best.get("step_pct") if best else None
+        row["backtest_return_pct"] = grid_ret
+        row["buy_hold_return_pct"] = bh_ret
+        row["backtest_excess_pct"] = best.get("backtest_excess_pct") if best else (round(grid_ret - bh_ret, 2) if grid_ret is not None and bh_ret is not None else None)
+        row["backtest_sharpe"] = best.get("sharpe") if best else None
+        row["buy_hold_sharpe"] = bh.get("sharpe") if bh else None
+        row["backtest_max_drawdown_pct"] = best.get("max_drawdown_pct") if best else None
+        row["buy_hold_max_drawdown_pct"] = bh.get("max_drawdown_pct") if bh else None
+        row["grid_candidate_score"] = best.get("candidate_score") if best else None
+        row["grid_regime_score"] = best.get("regime_score") if best else None
+        row["backtest_trade_quality_score"] = best.get("trade_quality_score") if best else None
+        row["backtest_trade_count"] = best.get("trade_count") if best else None
+        row["backtest_sell_count"] = best.get("sell_count") if best else None
+        row["backtest_win_rate"] = best.get("win_rate") if best else None
+        row["backtest_window_days"] = best.get("days") if best else len(price_rows)
+        row["backtest_audit_passed"] = (best.get("audit") or {}).get("audit_passed") if best else None
+        row["backtest_hard_gate_passed"] = best.get("hard_gate_passed") if best else False
+        row["backtest_hard_gate_reason"] = best.get("hard_gate_reason") if best else "未找到通过实盘硬约束的网格步长"
+        row["snapshot_confident"] = len(price_rows) >= 120 and best is not None
+        row.update(_strategy_return_snapshot(row.get("strategy_type"), grid_ret, bh_ret))
+
+    enriched.sort(key=lambda item: (-(item.get("factor_score") or 0.0), item.get("code") or ""))
+    for rank, row in enumerate(enriched, start=1):
+        row["factor_rank"] = rank
+    return enriched
+
+
+def _multi_period_backtest(
+    mkt_conn,
+    code: str,
+    *,
+    row: Optional[dict] = None,
+) -> list[dict]:
+    """对 60/120/250/500 天窗口分别做最优网格回测。"""
+    return _multi_period_backtest_from_rows(
+        _load_price_rows(mkt_conn, code, 500),
+        row=row,
+    )
 
 
 def analyze_etf_deep(conn, mkt_conn, code: str) -> Optional[dict]:
@@ -326,8 +221,7 @@ def analyze_etf_deep(conn, mkt_conn, code: str) -> Optional[dict]:
     """
     # 获取 ETF 基础信息
     etf_row = conn.execute(
-        "SELECT code, name, category FROM dim_asset_universe "
-        "WHERE code = ? AND asset_type = 'etf'",
+        "SELECT code, name, category FROM etf_asset_universe WHERE code = ?",
         (code,),
     ).fetchone()
     if not etf_row:
@@ -338,82 +232,133 @@ def analyze_etf_deep(conn, mkt_conn, code: str) -> Optional[dict]:
     if len(price_rows) < 40:
         return None
 
-    # 计算 ETF 动量指标（单只）
-    all_etfs = calc_etf_momentum(conn, mkt_conn)
-    etf_info = None
-    for row in all_etfs:
-        if row.get("code") == code:
-            etf_info = row
-            break
+    # 优先读最新快照，避免详情页再次扫描全 ETF 宇宙。
+    etf_info = load_cached_etf_row(conn, code)
     if not etf_info:
-        etf_info = {"code": code, "name": dict(etf_row).get("name"), "category": dict(etf_row).get("category")}
+        all_etfs = calc_etf_momentum(conn, mkt_conn)
+        for row in all_etfs:
+            if row.get("code") == code:
+                etf_info = row
+                break
+        if not etf_info:
+            etf_info = {"code": code, "name": dict(etf_row).get("name"), "category": dict(etf_row).get("category")}
+        etf_info = enrich_etf_rows_with_strategy_validation(
+            [etf_info],
+            conn,
+            mkt_conn,
+        )[0]
+
+    tradeability = assess_etf_tradeability(
+        etf_info.get("code") or code,
+        etf_info.get("name") or dict(etf_row).get("name") or code,
+        etf_info.get("category") or dict(etf_row).get("category"),
+        price_rows,
+    )
+    etf_info["tradeability_supported"] = tradeability.get("supported")
+    etf_info["tradeability_status"] = tradeability.get("status")
+    etf_info["tradeability_reason"] = tradeability.get("reason")
+    etf_info["tradeability_profile"] = tradeability.get("profile") or {}
+
+    if not tradeability.get("supported"):
+        reason = tradeability.get("reason") or "该产品未通过 ETF 基础交易性检查。"
+        name = etf_info.get("name") or code
+        return {
+            "info": {
+                "code": etf_info.get("code"),
+                "name": name,
+                "category": etf_info.get("category"),
+                "qlib_consensus_score": etf_info.get("qlib_consensus_score"),
+                "qlib_consensus_percentile": etf_info.get("qlib_consensus_percentile"),
+                "qlib_consensus_factor_group": etf_info.get("qlib_consensus_factor_group"),
+                "qlib_high_conviction_count": etf_info.get("qlib_high_conviction_count"),
+                "qlib_model_status": etf_info.get("qlib_model_status"),
+                "qlib_test_top50_avg_return": etf_info.get("qlib_test_top50_avg_return"),
+                "qlib_preferred_strategy": etf_info.get("qlib_preferred_strategy"),
+                "qlib_predicted_buy_hold_return_pct": etf_info.get("qlib_predicted_buy_hold_return_pct"),
+                "qlib_predicted_grid_return_pct": etf_info.get("qlib_predicted_grid_return_pct"),
+                "qlib_predicted_grid_excess_pct": etf_info.get("qlib_predicted_grid_excess_pct"),
+                "qlib_predicted_best_step_pct": etf_info.get("qlib_predicted_best_step_pct"),
+                "qlib_strategy_edge_pct": etf_info.get("qlib_strategy_edge_pct"),
+                "setup_state": etf_info.get("setup_state"),
+                "strategy_type": "暂不参与",
+                "strategy_reason": reason,
+                "heuristic_strategy_type": etf_info.get("heuristic_strategy_type"),
+                "heuristic_grid_score": etf_info.get("heuristic_grid_score"),
+                "factor_score": etf_info.get("factor_score"),
+                "grid_score": etf_info.get("heuristic_grid_score"),
+                "volatility_20d": etf_info.get("volatility_20d"),
+                "momentum_20d": etf_info.get("momentum_20d"),
+                "momentum_60d": etf_info.get("momentum_60d"),
+                "max_drawdown_60d": etf_info.get("max_drawdown_60d"),
+                "rotation_bucket": etf_info.get("rotation_bucket"),
+                "relative_strength_4w": etf_info.get("relative_strength_4w"),
+                "relative_strength_12w": etf_info.get("relative_strength_12w"),
+                "grid_candidate_score": None,
+                "tradeability_supported": False,
+                "tradeability_status": tradeability.get("status"),
+                "tradeability_reason": reason,
+            },
+            "optimizer_summary": {
+                "candidate_step_count": 0,
+                "valid_step_count": 0,
+                "rejected_step_count": 0,
+                "grid_available": False,
+                "model_rules": [
+                    reason,
+                    "系统已停止为该产品输出 ETF 网格收益和逐笔交易结论。",
+                ],
+            },
+            "all_steps": [],
+            "best_step": {},
+            "buy_hold": {},
+            "daily_prices": [{"date": row.get("date"), "close": row.get("close")} for row in price_rows],
+            "multi_period": [],
+            "verdict": {
+                "rating": "谨慎",
+                "summary": reason,
+                "lines": [
+                    f"{name} 当前不再按 ETF 交易产品处理。",
+                    reason,
+                    "因此系统不会给出网格收益、逐笔买卖点或买入持有收益结论。",
+                ],
+            },
+            "recommended_strategy": "暂不参与",
+        }
 
     # 1) 全部 9 个步长的回测
-    step_candidates = [0.8, 1.2, 1.6, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5]
+    step_candidates = _build_grid_step_candidates(price_rows, row=etf_info)
+    bh = _buy_hold_stats(price_rows)
     all_steps = []
     for step in step_candidates:
         bt = _run_grid_backtest(price_rows, step, full_curve=False)
         if bt:
-            all_steps.append(bt)
+            all_steps.append(_score_grid_backtest(bt, bh, row=etf_info))
 
-    # 2) 找最优步长（综合排名: 收益 40% + Sharpe 30% + 最大回撤逆序 30%）
-    best_step_result = None
-    if all_steps:
-        ranked = list(all_steps)
-        n = len(ranked)
-        # 分项排名
-        by_return = sorted(range(n), key=lambda i: -(ranked[i].get("return_pct") or -999))
-        by_sharpe = sorted(range(n), key=lambda i: -(ranked[i].get("sharpe") or -999))
-        by_dd = sorted(range(n), key=lambda i: ranked[i].get("max_drawdown_pct") or 999)
-        ranks = {}
-        for order, indices in [(by_return, 0.4), (by_sharpe, 0.3), (by_dd, 0.3)]:
-            for rank, idx in enumerate(order):
-                ranks.setdefault(idx, 0.0)
-                ranks[idx] += rank * indices
-        best_idx = min(ranks, key=ranks.get)
-        best_step_result = ranked[best_idx]
+    feasible_steps = [step for step in all_steps if step.get("hard_gate_passed")]
+
+    # 2) 找最优步长（与列表/概览共用同一套综合排序）
+    best_step_result = _optimize_grid(price_rows, row=etf_info)
 
     # 3) 最优步长的完整净值曲线
     best_curve_result = None
     if best_step_result:
         best_curve_result = _run_grid_backtest(
-            price_rows, best_step_result["step_pct"], full_curve=True
+            price_rows,
+            best_step_result["step_pct"],
+            full_curve=True,
+            include_trades=True,
         )
+        if best_curve_result:
+            best_curve_result = _score_grid_backtest(best_curve_result, bh, row=etf_info)
 
     # 4) 买入持有基准
-    bh = _buy_hold_stats(price_rows)
+    bh = bh or _buy_hold_stats(price_rows)
 
     # 5) 多周期对比
-    multi_period = _multi_period_backtest(mkt_conn, code)
+    multi_period = _multi_period_backtest(mkt_conn, code, row=etf_info)
 
-    # 6) 策略推荐：网格 vs 买入持有
-    recommended = "买入持有"  # 默认
-    if best_step_result and bh:
-        grid_sharpe = best_step_result.get("sharpe") or 0
-        bh_sharpe = bh.get("sharpe") or 0
-        grid_ret = best_step_result.get("return_pct") or 0
-        bh_ret = bh.get("return_pct") or 0
-        grid_dd = best_step_result.get("max_drawdown_pct") or 999
-        bh_dd = bh.get("max_drawdown_pct") or 999
-        # 多周期中跑赢持有的窗口数
-        mp_wins = sum(1 for p in multi_period
-                      if p.get("best") and p.get("buy_hold")
-                      and (p["best"].get("return_pct") or 0) > (p["buy_hold"].get("return_pct") or 0))
-        mp_total = sum(1 for p in multi_period if p.get("best") and p.get("buy_hold"))
-        # 综合判断：收益差距>30%直接判负；否则看Sharpe+多周期+回撤
-        if bh_ret > 0 and grid_ret < bh_ret * 0.7:
-            recommended = "买入持有"  # 网格收益差距太大
-        else:
-            grid_score = 0
-            if grid_sharpe > bh_sharpe * 1.05:
-                grid_score += 1
-            if mp_total > 0 and mp_wins / mp_total > 0.5:
-                grid_score += 2
-            if grid_ret >= bh_ret:
-                grid_score += 2
-            if grid_dd < bh_dd * 0.6:
-                grid_score += 1
-            recommended = "网格交易" if grid_score >= 3 else "买入持有"
+    # 6) 策略推荐：直接复用统一验证后的策略结论
+    recommended = etf_info.get("strategy_type") or "买入持有"
 
     # 7) 量化基金经理视角结论
     verdict = _build_verdict(etf_info, best_step_result, bh, all_steps, multi_period)
@@ -423,9 +368,25 @@ def analyze_etf_deep(conn, mkt_conn, code: str) -> Optional[dict]:
             "code": etf_info.get("code"),
             "name": etf_info.get("name"),
             "category": etf_info.get("category"),
+            "qlib_consensus_score": etf_info.get("qlib_consensus_score"),
+            "qlib_consensus_percentile": etf_info.get("qlib_consensus_percentile"),
+            "qlib_consensus_factor_group": etf_info.get("qlib_consensus_factor_group"),
+            "qlib_high_conviction_count": etf_info.get("qlib_high_conviction_count"),
+            "qlib_model_status": etf_info.get("qlib_model_status"),
+            "qlib_test_top50_avg_return": etf_info.get("qlib_test_top50_avg_return"),
+            "qlib_preferred_strategy": etf_info.get("qlib_preferred_strategy"),
+            "qlib_predicted_buy_hold_return_pct": etf_info.get("qlib_predicted_buy_hold_return_pct"),
+            "qlib_predicted_grid_return_pct": etf_info.get("qlib_predicted_grid_return_pct"),
+            "qlib_predicted_grid_excess_pct": etf_info.get("qlib_predicted_grid_excess_pct"),
+            "qlib_predicted_best_step_pct": etf_info.get("qlib_predicted_best_step_pct"),
+            "qlib_strategy_edge_pct": etf_info.get("qlib_strategy_edge_pct"),
             "setup_state": etf_info.get("setup_state"),
             "strategy_type": etf_info.get("strategy_type"),
-            "grid_score": etf_info.get("grid_score"),
+            "strategy_reason": etf_info.get("strategy_reason"),
+            "heuristic_strategy_type": etf_info.get("heuristic_strategy_type"),
+            "heuristic_grid_score": etf_info.get("heuristic_grid_score"),
+            "factor_score": etf_info.get("factor_score"),
+            "grid_score": etf_info.get("heuristic_grid_score"),
             "volatility_20d": etf_info.get("volatility_20d"),
             "momentum_20d": etf_info.get("momentum_20d"),
             "momentum_60d": etf_info.get("momentum_60d"),
@@ -433,10 +394,28 @@ def analyze_etf_deep(conn, mkt_conn, code: str) -> Optional[dict]:
             "rotation_bucket": etf_info.get("rotation_bucket"),
             "relative_strength_4w": etf_info.get("relative_strength_4w"),
             "relative_strength_12w": etf_info.get("relative_strength_12w"),
+            "grid_candidate_score": etf_info.get("grid_candidate_score"),
+            "tradeability_supported": etf_info.get("tradeability_supported"),
+            "tradeability_status": etf_info.get("tradeability_status"),
+            "tradeability_reason": etf_info.get("tradeability_reason"),
+        },
+        "optimizer_summary": {
+            "candidate_step_count": len(all_steps),
+            "valid_step_count": len(feasible_steps),
+            "rejected_step_count": max(len(all_steps) - len(feasible_steps), 0),
+            "grid_available": best_step_result is not None,
+            "model_rules": [
+                "卖出必须被已持有份额覆盖",
+                "现金余额不可为负",
+                "成交必须满足100份整手",
+                "现金流、份额流、盈亏流都要能对账闭合",
+                "没有有效卖出回笼的步长不能进入寻优",
+            ],
         },
         "all_steps": all_steps,
         "best_step": best_curve_result or best_step_result,
         "buy_hold": bh,
+        "daily_prices": [{"date": row.get("date"), "close": row.get("close")} for row in price_rows],
         "multi_period": multi_period,
         "verdict": verdict,
         "recommended_strategy": recommended,
@@ -447,19 +426,41 @@ def _build_verdict(info: dict, best: Optional[dict], bh: Optional[dict],
                    all_steps: list, multi_period: list) -> dict:
     """基于回测数据生成量化基金经理视角的投资结论。"""
     lines = []
-    strategy = info.get("strategy_type") or "观察池"
-    setup = info.get("setup_state") or "待补结构"
+    strategy = info.get("strategy_type") or "买入持有"
     name = info.get("name") or info.get("code") or "-"
+    feasible_steps = [step for step in all_steps if step.get("hard_gate_passed")]
+    qlib_score = _safe_float(info.get("qlib_consensus_score"))
+    qlib_factor_group = info.get("qlib_consensus_factor_group") or ""
+    qlib_model_status = info.get("qlib_model_status") or ""
 
     # 策略适配性
-    if strategy == "网格候选":
-        lines.append(f"{name} 波动特征适合网格交易，振幅和波动率处于网格策略甜蜜区。")
-    elif strategy == "趋势持有":
-        lines.append(f"{name} 处于趋势上行通道，建议持有为主，不宜频繁做网格。")
+    if strategy == "网格交易":
+        lines.append(f"{name} 只有在回测验证通过后才保留网格标签，当前属于少数真正可做网格的 ETF。")
+    elif strategy == "买入持有":
+        lines.append(f"{name} 当前更适合买入持有，不再把启发式网格画像直接当成交易结论。")
+    elif strategy == "防守停泊":
+        lines.append(f"{name} 属于低波防守资产，更适合作为资金停泊和仓位缓冲。")
     elif strategy == "暂不参与":
         lines.append(f"{name} 结构偏弱，建议回避等待趋势修复后再介入。")
     else:
         lines.append(f"{name} 当前处于 {strategy} 状态。")
+
+    if qlib_model_status == "trained" and qlib_score is not None:
+        factor_text = f"，领先因子组 {qlib_factor_group}" if qlib_factor_group else ""
+        lines.append(f"ETF-only Qlib 共识 {qlib_score:.1f} 分{factor_text}。")
+
+    if all_steps and not feasible_steps:
+        lines.append("候选步长均未通过实盘硬约束或未形成有效卖出回笼，因此本轮不保留网格策略。")
+    elif all_steps and feasible_steps and len(feasible_steps) < len(all_steps):
+        lines.append(f"{len(feasible_steps)}/{len(all_steps)} 个候选步长通过实盘硬约束，最优步长只从可执行方案中选取。")
+
+    audit_target = best or bh or {}
+    audit = audit_target.get("audit") or {}
+    if audit:
+        if audit.get("audit_passed"):
+            lines.append("回测使用 10 万本金、100 份整手和现金/仓位账本约束，未出现负现金或无仓卖出。")
+        else:
+            lines.append("账本约束校验未通过，该回测结果不能直接作为策略结论。")
 
     # 最优步长 vs 买入持有
     if best and bh:
@@ -511,21 +512,22 @@ def _build_verdict(info: dict, best: Optional[dict], bh: Optional[dict],
 
     # 最终评级
     rating = "中性"
-    if best:
+    rating_target = best if strategy == "网格交易" else (bh or best)
+    if rating_target:
         score = 0
-        if (best.get("sharpe") or 0) > 1.0:
+        if (rating_target.get("sharpe") or 0) > 1.0:
             score += 2
-        elif (best.get("sharpe") or 0) > 0.5:
+        elif (rating_target.get("sharpe") or 0) > 0.5:
             score += 1
-        if (best.get("return_pct") or 0) > 5:
+        if (rating_target.get("return_pct") or 0) > 5:
             score += 2
-        elif (best.get("return_pct") or 0) > 0:
+        elif (rating_target.get("return_pct") or 0) > 0:
             score += 1
-        if (best.get("max_drawdown_pct") or 99) < 5:
+        if (rating_target.get("max_drawdown_pct") or 99) < 5:
             score += 2
-        elif (best.get("max_drawdown_pct") or 99) < 10:
+        elif (rating_target.get("max_drawdown_pct") or 99) < 10:
             score += 1
-        if (best.get("win_rate") or 0) > 60:
+        if strategy == "网格交易" and (rating_target.get("win_rate") or 0) > 60:
             score += 1
         if score >= 6:
             rating = "强烈推荐"
@@ -543,7 +545,7 @@ def _build_verdict(info: dict, best: Optional[dict], bh: Optional[dict],
     }
 
 
-def _trend_action(row: Dict) -> dict:
+def _trend_action(row: dict) -> dict:
     setup_state = row.get("setup_state") or ""
     rotation_bucket = row.get("rotation_bucket") or ""
     rel_4w = _safe_float(row.get("relative_strength_4w")) or 0.0
@@ -570,108 +572,38 @@ def _trend_action(row: Dict) -> dict:
     }
 
 
-def _load_next_rotation_watchlist(conn, topn: int = 5) -> dict:
-    model_row = conn.execute(
-        """
-        SELECT model_id
-        FROM qlib_model_state
-        WHERE status = 'trained'
-        ORDER BY created_at DESC
-        LIMIT 1
-        """
-    ).fetchone()
-    if not model_row:
-        return {"model_id": None, "data": []}
-    model_id = model_row["model_id"]
-
-    rows = conn.execute(
-        """
-        SELECT ctx.sw_level1 AS sector_name,
-               AVG(p.qlib_percentile) AS avg_qlib_percentile,
-               AVG(p.qlib_score) AS avg_qlib_score,
-               SUM(CASE WHEN p.qlib_percentile >= 80 THEN 1 ELSE 0 END) AS high_conviction_count,
-               COUNT(*) AS stock_count,
-               msm.rotation_score,
-               msm.rotation_rank_1m,
-               msm.rotation_rank_3m,
-               msm.rotation_bucket,
-               msm.trend_state,
-               msm.momentum_score
-        FROM qlib_predictions p
-        INNER JOIN dim_stock_industry_context_latest ctx ON ctx.stock_code = p.stock_code
-        LEFT JOIN mart_sector_momentum msm ON msm.sector_name = ctx.sw_level1
-        WHERE p.model_id = ?
-          AND ctx.sw_level1 IS NOT NULL
-          AND ctx.sw_level1 != ''
-        GROUP BY ctx.sw_level1
-        HAVING COUNT(*) >= 5
-        """,
-        (model_id,),
-    ).fetchall()
-
-    candidates = []
-    for row in rows:
-        item = dict(row)
-        if item.get("rotation_bucket") == "leader":
-            continue
-        avg_q = _safe_float(item.get("avg_qlib_percentile")) or 0.0
-        improve = (item.get("rotation_rank_3m") or 99) - (item.get("rotation_rank_1m") or 99)
-        trend_bonus = {
-            "recovering": 10,
-            "bullish": 8,
-            "neutral": 2,
-            "weakening": -4,
-            "bearish": -8,
-        }.get(item.get("trend_state") or "", 0)
-        next_rotation_score = (
-            avg_q * 0.60
-            + _clamp(improve * 2.5, -10, 15)
-            + ((_safe_float(item.get("momentum_score")) or 50.0) - 50.0) * 0.20
-            + trend_bonus
-        )
-        if item.get("rotation_bucket") == "blacklist" and avg_q < 75:
-            continue
-        item["next_rotation_score"] = round(_clamp(next_rotation_score, 0, 100), 1)
-        candidates.append(item)
-
-    candidates.sort(
-        key=lambda item: (
-            -(item.get("next_rotation_score") or 0.0),
-            -(item.get("avg_qlib_percentile") or 0.0),
-            -(item.get("high_conviction_count") or 0),
-            item.get("sector_name") or "",
-        )
-    )
-    return {
-        "model_id": model_id,
-        "data": candidates[:topn],
-    }
+def _avg_metric(items: list[dict], key: str) -> Optional[float]:
+    values = [_safe_float(item.get(key)) for item in items]
+    values = [value for value in values if value is not None]
+    if not values:
+        return None
+    return round(sum(values) / len(values), 2)
 
 
-def build_etf_mining_snapshot(conn, mkt_conn, *, grid_topn: int = 6,
-                              trend_topn: int = 6, rotation_topn: int = 5) -> dict:
-    rows = calc_etf_momentum(conn, mkt_conn)
-
+def _build_etf_mining_snapshot_from_rows(rows: list[dict], factor_snapshot: Optional[dict],
+                                         *, grid_topn: int = 6,
+                                         trend_topn: int = 6,
+                                         rotation_topn: int = 5) -> dict:
     _NON_INDUSTRY = ETF_NON_INDUSTRY_CATS
     grid_candidates = [
         row for row in rows
-        if row.get("strategy_type") == "网格候选"
+        if row.get("strategy_type") == "网格交易"
         and (row.get("category") or "") not in _NON_INDUSTRY
+        and _safe_float(row.get("backtest_excess_pct")) is not None
+        and _safe_float(row.get("backtest_excess_pct")) >= 0.0
     ]
     grid_candidates.sort(
         key=lambda row: (
-            -(row.get("grid_score") or 0.0),
-            -(row.get("rotation_score") or 0.0),
-            abs(_safe_float(row.get("relative_strength_4w")) or 0.0),
+            -(row.get("grid_candidate_score") or 0.0),
+            -(row.get("backtest_excess_pct") or -999.0),
+            -(row.get("backtest_return_pct") or -999.0),
+            row.get("backtest_max_drawdown_pct") or 999.0,
+            -(row.get("factor_score") or 0.0),
             row.get("code") or "",
         )
     )
-    grid_results = []
-    for row in grid_candidates[: max(grid_topn * 4, 18)]:
-        backtest = _optimize_grid(_load_price_rows(mkt_conn, row["code"], 180))
-        if not backtest:
-            continue
-        grid_results.append({
+    grid_results = [
+        {
             "code": row.get("code"),
             "name": row.get("name"),
             "category": row.get("category"),
@@ -679,23 +611,21 @@ def build_etf_mining_snapshot(conn, mkt_conn, *, grid_topn: int = 6,
             "relative_strength_4w": row.get("relative_strength_4w"),
             "relative_strength_12w": row.get("relative_strength_12w"),
             "setup_state": row.get("setup_state"),
-            "grid_score": row.get("grid_score"),
-            "best_step_pct": backtest.get("step_pct"),
-            "backtest_return_pct": backtest.get("return_pct"),
-            "backtest_trade_count": backtest.get("trade_count"),
-            "backtest_max_drawdown_pct": backtest.get("max_drawdown_pct"),
-        })
-    grid_results.sort(
-        key=lambda item: (
-            -(item.get("backtest_return_pct") or -999.0),
-            item.get("backtest_max_drawdown_pct") or 999.0,
-            -(item.get("rotation_score") or 0.0),
-        )
-    )
+            "grid_score": row.get("heuristic_grid_score"),
+            "best_step_pct": row.get("backtest_best_step_pct"),
+            "backtest_return_pct": row.get("backtest_return_pct"),
+            "backtest_excess_pct": row.get("backtest_excess_pct"),
+            "backtest_trade_count": row.get("backtest_trade_count"),
+            "backtest_max_drawdown_pct": row.get("backtest_max_drawdown_pct"),
+            "grid_candidate_score": row.get("grid_candidate_score"),
+            "comparison_return_pct": row.get("comparison_strategy_return_pct"),
+        }
+        for row in grid_candidates[:grid_topn]
+    ]
 
     trend_candidates = [
         row for row in rows
-        if row.get("strategy_type") == "趋势持有"
+        if row.get("strategy_type") == "买入持有"
         or (
             row.get("rotation_bucket") == "leader"
             and row.get("setup_state") in ("收敛待发", "趋势跟随", "震荡观察")
@@ -703,6 +633,11 @@ def build_etf_mining_snapshot(conn, mkt_conn, *, grid_topn: int = 6,
     ]
     trend_candidates.sort(
         key=lambda row: (
+            -(
+                ((_safe_float(row.get("rotation_score")) or 0.0) * 0.45)
+                + ((_safe_float(row.get("factor_score")) or 0.0) * 0.35)
+                + ((_safe_float(row.get("relative_strength_12w")) or 0.0) * 0.20)
+            ),
             -(row.get("rotation_score") or 0.0),
             -(_safe_float(row.get("relative_strength_12w")) or 0.0),
             -(_safe_float(row.get("relative_strength_4w")) or 0.0),
@@ -719,16 +654,208 @@ def build_etf_mining_snapshot(conn, mkt_conn, *, grid_topn: int = 6,
             "rotation_score": row.get("rotation_score"),
             "relative_strength_4w": row.get("relative_strength_4w"),
             "relative_strength_12w": row.get("relative_strength_12w"),
+            "factor_score": row.get("factor_score"),
             "setup_state": row.get("setup_state"),
             "action": signal["action"],
             "reason": signal["reason"],
         })
 
-    next_rotation = _load_next_rotation_watchlist(conn, topn=rotation_topn)
+    next_rotation = [
+        {
+            "sector_name": item.get("category"),
+            "next_rotation_score": item.get("next_rotation_score"),
+            "avg_factor_score": item.get("avg_factor_score"),
+            "avg_rotation_score": item.get("avg_rotation_score"),
+            "avg_relative_strength_4w": item.get("avg_relative_strength_4w"),
+            "avg_relative_strength_12w": item.get("avg_relative_strength_12w"),
+            "leader_etf_count": item.get("leader_etf_count"),
+            "buy_hold_count": item.get("buy_hold_count"),
+            "grid_count": item.get("grid_count"),
+            "rotation_reason": item.get("rotation_reason"),
+            "top_etfs": item.get("top_etfs") or [],
+            "top_return_etfs": item.get("top_return_etfs") or [],
+        }
+        for item in (factor_snapshot or {}).get("categories") or []
+        if (item.get("category") or "") not in ETF_NON_INDUSTRY_CATS
+    ][:rotation_topn]
 
     return {
         "grid_candidates": grid_results[:grid_topn],
         "trend_candidates": trend_results[:trend_topn],
-        "next_rotation_watchlist": next_rotation.get("data") or [],
-        "qlib_model_id": next_rotation.get("model_id"),
+        "next_rotation_watchlist": next_rotation,
+        "factor_snapshot_id": ((factor_snapshot or {}).get("model") or {}).get("snapshot_id"),
     }
+
+
+def _build_etf_factor_snapshot_from_rows(
+    rows: list[dict],
+    mkt_conn,
+    *,
+    leader_topn: int = 24,
+    category_topn: int = 12,
+) -> dict:
+    if not rows:
+        return {"model": None, "leaders": [], "categories": []}
+
+    coverage = _price_coverage_summary(mkt_conn)
+    top_cutoff = max(5, math.ceil(len(rows) * 0.15))
+    leaders = []
+    for row in rows[:leader_topn]:
+        leaders.append({
+            "code": row.get("code"),
+            "name": row.get("name"),
+            "category": row.get("category"),
+            "factor_rank": row.get("factor_rank"),
+            "factor_score": row.get("factor_score"),
+            "strategy_type": row.get("strategy_type"),
+            "strategy_reason": row.get("strategy_reason"),
+            "relative_strength_4w": row.get("relative_strength_4w"),
+            "relative_strength_12w": row.get("relative_strength_12w"),
+            "rotation_score": row.get("rotation_score"),
+            "trend_status": row.get("trend_status"),
+            "setup_state": row.get("setup_state"),
+            "backtest_best_step_pct": row.get("backtest_best_step_pct"),
+            "backtest_return_pct": row.get("backtest_return_pct"),
+            "buy_hold_return_pct": row.get("buy_hold_return_pct"),
+            "backtest_excess_pct": row.get("backtest_excess_pct"),
+            "grid_candidate_score": row.get("grid_candidate_score"),
+        })
+
+    grouped: dict[str, list[dict]] = {}
+    for row in rows:
+        grouped.setdefault(row.get("category") or "其他", []).append(row)
+
+    categories = []
+    for category, items in grouped.items():
+        items_sorted = sorted(items, key=lambda item: (-(item.get("factor_score") or 0.0), item.get("code") or ""))
+        top_items = items_sorted[:3]
+        top_return_items = sorted(
+            [item for item in items if _safe_float(item.get("recommended_strategy_return_pct")) is not None],
+            key=lambda item: (
+                -(_safe_float(item.get("recommended_strategy_return_pct")) or -9999.0),
+                -(_safe_float(item.get("strategy_edge_pct")) or -9999.0),
+                item.get("code") or "",
+            ),
+        )[:5]
+        avg_factor = _avg_metric(top_items, "factor_score") or 0.0
+        avg_rotation = _avg_metric(top_items, "rotation_score")
+        avg_rs4 = _avg_metric(top_items, "relative_strength_4w") or 0.0
+        avg_rs12 = _avg_metric(top_items, "relative_strength_12w") or 0.0
+        relative_signal = _clamp(50.0 + avg_rs4 * 2.2 + avg_rs12 * 1.4, 0.0, 100.0)
+        rotation_signal = _clamp(avg_rotation if avg_rotation is not None else 50.0, 0.0, 100.0)
+        next_rotation_score = round(
+            _clamp(
+                avg_factor * 0.45
+                + rotation_signal * 0.35
+                + relative_signal * 0.20,
+                0.0,
+                100.0,
+            ),
+            1,
+        )
+        leader_etf_count = sum(1 for item in items if (item.get("factor_rank") or 999999) <= top_cutoff)
+        buy_hold_count = sum(1 for item in items if item.get("strategy_type") == "买入持有")
+        grid_count = sum(1 for item in items if item.get("strategy_type") == "网格交易")
+        rotation_reason = (
+            f"前三只 ETF 平均因子分 {avg_factor:.1f}，"
+            + (f"平均轮动分 {avg_rotation:.1f}，" if avg_rotation is not None else "")
+            + f"4周相强 {avg_rs4:+.2f}% ，12周相强 {avg_rs12:+.2f}% ，"
+            + f"前排 ETF {leader_etf_count} 只，买入持有 {buy_hold_count} 只，网格交易 {grid_count} 只。"
+        )
+        categories.append({
+            "category": category,
+            "avg_factor_score": round(avg_factor, 1),
+            "avg_rotation_score": round(avg_rotation, 1) if avg_rotation is not None else None,
+            "avg_relative_strength_4w": round(avg_rs4, 2),
+            "avg_relative_strength_12w": round(avg_rs12, 2),
+            "next_rotation_score": next_rotation_score,
+            "leader_etf_count": leader_etf_count,
+            "buy_hold_count": buy_hold_count,
+            "grid_count": grid_count,
+            "rotation_reason": rotation_reason,
+            "top_etfs": [
+                {
+                    "code": item.get("code"),
+                    "name": item.get("name"),
+                    "factor_score": item.get("factor_score"),
+                    "strategy_type": item.get("strategy_type"),
+                }
+                for item in top_items
+            ],
+            "top_return_etfs": [
+                {
+                    "code": item.get("code"),
+                    "name": item.get("name"),
+                    "strategy_type": item.get("strategy_type"),
+                    "recommended_strategy_label": item.get("recommended_strategy_label"),
+                    "recommended_strategy_return_pct": item.get("recommended_strategy_return_pct"),
+                    "comparison_strategy_label": item.get("comparison_strategy_label"),
+                    "comparison_strategy_return_pct": item.get("comparison_strategy_return_pct"),
+                    "strategy_edge_pct": item.get("strategy_edge_pct"),
+                    "buy_hold_return_pct": item.get("buy_hold_return_pct"),
+                    "backtest_return_pct": item.get("backtest_return_pct"),
+                    "backtest_excess_pct": item.get("backtest_excess_pct"),
+                    "relative_strength_4w": item.get("relative_strength_4w"),
+                    "relative_strength_12w": item.get("relative_strength_12w"),
+                }
+                for item in top_return_items
+            ],
+        })
+
+    categories.sort(
+        key=lambda item: (
+            -(item.get("next_rotation_score") or 0.0),
+            -(item.get("avg_factor_score") or 0.0),
+            item.get("category") or "",
+        )
+    )
+    history_end = coverage.get("max_date")
+    return {
+        "model": {
+            "snapshot_id": f"etf_factor_{(history_end or 'na').replace('-', '')}",
+            "model_type": "etf_native_factor_snapshot",
+            "etf_count": len(rows),
+            "factor_count": 6,
+            "history_start": coverage.get("min_date"),
+            "history_end": history_end,
+            "basis": "ETF 原生价格、相对强弱和结构因子快照。",
+        },
+        "leaders": leaders,
+        "categories": categories[:category_topn],
+    }
+
+
+def build_etf_factor_snapshot(conn, mkt_conn, *, leader_topn: int = 24, category_topn: int = 12) -> dict:
+    rows = enrich_etf_rows_with_strategy_validation(
+        calc_etf_momentum(conn, mkt_conn),
+        conn,
+        mkt_conn,
+    )
+    return _build_etf_factor_snapshot_from_rows(
+        rows,
+        mkt_conn,
+        leader_topn=leader_topn,
+        category_topn=category_topn,
+    )
+
+
+def build_etf_mining_snapshot(conn, mkt_conn, *, grid_topn: int = 6,
+                              trend_topn: int = 6, rotation_topn: int = 5) -> dict:
+    rows = enrich_etf_rows_with_strategy_validation(
+        calc_etf_momentum(conn, mkt_conn),
+        conn,
+        mkt_conn,
+    )
+    factor_snapshot = _build_etf_factor_snapshot_from_rows(
+        rows,
+        mkt_conn,
+        leader_topn=18,
+        category_topn=max(rotation_topn, 10),
+    )
+    return _build_etf_mining_snapshot_from_rows(
+        rows,
+        factor_snapshot,
+        grid_topn=grid_topn,
+        trend_topn=trend_topn,
+        rotation_topn=rotation_topn,
+    )

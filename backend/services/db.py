@@ -899,6 +899,46 @@ def init_db():
         conn.execute(
             "CREATE INDEX IF NOT EXISTS idx_dau_type ON dim_asset_universe(asset_type)"
         )
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS mart_etf_snapshot_latest (
+                code            TEXT PRIMARY KEY,
+                snapshot_id     TEXT NOT NULL,
+                category        TEXT,
+                factor_rank     INTEGER,
+                factor_score    REAL,
+                rotation_score  REAL,
+                strategy_type   TEXT,
+                payload_json    TEXT NOT NULL,
+                updated_at      TEXT
+            )
+        """)
+        conn.execute(
+            "CREATE INDEX IF NOT EXISTS idx_metf_snapshot ON mart_etf_snapshot_latest(snapshot_id)"
+        )
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS mart_etf_snapshot_state (
+                state_key               TEXT PRIMARY KEY,
+                snapshot_id             TEXT,
+                schema_version          INTEGER DEFAULT 1,
+                computed_at             TEXT,
+                etf_count               INTEGER DEFAULT 0,
+                history_start           TEXT,
+                history_end             TEXT,
+                overview_json           TEXT,
+                factor_snapshot_json    TEXT,
+                mining_snapshot_json    TEXT,
+                source_status_json      TEXT
+            )
+        """)
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS mart_audit_snapshot_state (
+                state_key       TEXT PRIMARY KEY,
+                schema_version  INTEGER DEFAULT 1,
+                computed_at     TEXT,
+                source          TEXT,
+                audit_json      TEXT
+            )
+        """)
         conn.commit()
         conn.execute("""
             INSERT OR IGNORE INTO app_settings (key, value, updated_at)

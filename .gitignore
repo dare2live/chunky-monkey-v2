@@ -10,6 +10,9 @@ Users/
 data/qlib_data/features/
 data/qlib_models/
 data/qlib_runs/
+data/qlib_etf_data/
+data/qlib_etf_models/
+data/qlib_etf_runs/
 mlruns/
 node_modules/
 .env

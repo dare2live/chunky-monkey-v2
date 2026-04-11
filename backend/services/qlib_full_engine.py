@@ -45,6 +45,35 @@ def _safe_round(value, digits: int = 4):
         return None
 
 
+_SW_LEVEL1_TO_ETF_CATEGORY = [
+    (("医药", "医疗", "生物"), "医疗健康"),
+    (("半导体", "芯片"), "半导体"),
+    (("电力设备", "新能源", "光伏", "风电", "电池"), "新能源"),
+    (("食品饮料", "家用电器", "商贸零售", "社会服务", "美容护理", "纺织服饰", "轻工制造"), "消费"),
+    (("银行", "非银金融", "金融"), "金融"),
+    (("国防军工",), "军工"),
+    (("房地产", "建筑装饰", "建筑材料"), "地产建筑"),
+    (("基础化工", "石油石化", "有色金属", "钢铁", "煤炭", "环保", "农林牧渔"), "周期资源"),
+    (("计算机", "通信", "传媒", "电子", "互联网"), "数字科技"),
+    (("交通运输", "物流"), "交通物流"),
+    (("公用事业",), "电力公用"),
+    (("汽车",), "汽车"),
+    (("机械设备",), "高端制造"),
+]
+
+
+def _map_sw_level1_to_etf_category(sw_level1: Optional[str]) -> Optional[str]:
+    if not sw_level1:
+        return None
+    text = str(sw_level1).strip()
+    if not text:
+        return None
+    for aliases, category in _SW_LEVEL1_TO_ETF_CATEGORY:
+        if any(alias in text for alias in aliases):
+            return category
+    return None
+
+
 # ============================================================
 # Schema
 # ============================================================
@@ -1057,4 +1086,128 @@ def get_model_summary(conn, model_id: Optional[str] = None) -> dict:
             }
             if backtest_row else None
         ),
+    }
+
+
+def get_qlib_etf_consensus(conn, model_id: Optional[str] = None, topk: int = 50) -> dict:
+    """聚合 Qlib 股票预测，产出 ETF 分类可消费的共识摘要。"""
+    ensure_tables(conn)
+    summary = get_model_summary(conn, model_id=model_id)
+    if not summary:
+        return {
+            "available": False,
+            "model_id": None,
+            "model_status": "none",
+            "signal_date": None,
+            "topk": int(topk),
+            "categories": [],
+            "category_signal_map": {},
+            "factor_consensus": {},
+            "leading_factor_group": None,
+        }
+
+    model_id = summary.get("model_id")
+    model_status = summary.get("status") or "unknown"
+    rows = conn.execute(
+        """
+        SELECT p.stock_code, p.stock_name, p.qlib_score, p.qlib_rank, p.qlib_percentile,
+               ctx.sw_level1
+        FROM qlib_predictions p
+        LEFT JOIN dim_stock_industry_context_latest ctx ON ctx.stock_code = p.stock_code
+        WHERE p.model_id = ?
+        ORDER BY p.qlib_rank ASC, p.stock_code ASC
+        LIMIT ?
+        """,
+        (model_id, int(topk)),
+    ).fetchall()
+
+    factor_groups = summary.get("factor_groups") or []
+    total_importance = sum(float(item.get("total_importance") or 0.0) for item in factor_groups)
+    factor_consensus = {}
+    for item in factor_groups:
+        group = item.get("factor_group") or "unknown"
+        importance = float(item.get("total_importance") or 0.0)
+        factor_consensus[group] = _safe_round(importance / total_importance, 4) if total_importance > 0 else None
+    leading_factor_group = factor_groups[0].get("factor_group") if factor_groups else None
+
+    grouped: dict[str, list[dict]] = {}
+    mapped_stock_count = 0
+    for row in rows:
+        item = dict(row)
+        category = _map_sw_level1_to_etf_category(item.get("sw_level1"))
+        if not category:
+            continue
+        mapped_stock_count += 1
+        grouped.setdefault(category, []).append(item)
+
+    categories = []
+    for category, items in grouped.items():
+        percentiles = [float(item.get("qlib_percentile") or 0.0) for item in items]
+        scores = [float(item.get("qlib_score") or 0.0) for item in items]
+        ranks = [int(item.get("qlib_rank") or 0) for item in items if item.get("qlib_rank") is not None]
+        stock_count = len(items)
+        high_conviction_count = sum(1 for item in items if float(item.get("qlib_percentile") or 0.0) >= 80.0)
+        avg_percentile = sum(percentiles) / stock_count if stock_count else 0.0
+        avg_score = sum(scores) / stock_count if stock_count else 0.0
+        median_rank = int(np.median(ranks)) if ranks else None
+        conviction_ratio = high_conviction_count / stock_count if stock_count else 0.0
+        consensus_score = _safe_round(min(max(avg_percentile * 0.8 + conviction_ratio * 20.0, 0.0), 100.0), 1)
+        categories.append({
+            "category": category,
+            "consensus_score": consensus_score,
+            "avg_score": _safe_round(avg_score, 4),
+            "avg_percentile": _safe_round(avg_percentile, 2),
+            "median_rank": median_rank,
+            "stock_count": stock_count,
+            "high_conviction_count": high_conviction_count,
+            "top_components": [
+                {
+                    "stock_code": item.get("stock_code"),
+                    "stock_name": item.get("stock_name"),
+                    "qlib_rank": item.get("qlib_rank"),
+                    "qlib_percentile": _safe_round(item.get("qlib_percentile"), 2),
+                }
+                for item in items[:3]
+            ],
+            "leading_factor_group": leading_factor_group,
+            "model_status": model_status,
+            "test_top50_avg_return": summary.get("test_top50_avg_return"),
+        })
+
+    categories.sort(
+        key=lambda item: (
+            -(item.get("consensus_score") or 0.0),
+            -(item.get("avg_percentile") or 0.0),
+            -(item.get("stock_count") or 0),
+            item.get("category") or "",
+        )
+    )
+    category_signal_map = {
+        item["category"]: {
+            "consensus_score": item.get("consensus_score"),
+            "avg_percentile": item.get("avg_percentile"),
+            "avg_score": item.get("avg_score"),
+            "median_rank": item.get("median_rank"),
+            "stock_count": item.get("stock_count"),
+            "high_conviction_count": item.get("high_conviction_count"),
+            "leading_factor_group": item.get("leading_factor_group"),
+            "model_status": item.get("model_status"),
+            "test_top50_avg_return": item.get("test_top50_avg_return"),
+            "top_components": item.get("top_components") or [],
+        }
+        for item in categories
+    }
+    return {
+        "available": bool(categories),
+        "model_id": model_id,
+        "model_status": model_status,
+        "signal_date": summary.get("predict_date") or summary.get("finished_at") or summary.get("created_at"),
+        "topk": int(topk),
+        "source_prediction_count": int(summary.get("prediction_count") or 0),
+        "mapped_stock_count": mapped_stock_count,
+        "factor_consensus": factor_consensus,
+        "leading_factor_group": leading_factor_group,
+        "test_top50_avg_return": summary.get("test_top50_avg_return"),
+        "categories": categories,
+        "category_signal_map": category_signal_map,
     }

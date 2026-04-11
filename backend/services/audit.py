@@ -6,11 +6,14 @@
 - build_smart_plan() — 决定哪些步骤需要跑
 """
 
+import json
 import logging
 import time
 from datetime import datetime
+from typing import Optional
 
 from services.db import get_conn
+from services.gap_queue import reconcile_gap_queue_snapshot
 from services.industry import count_industry_rows, summarize_industry_coverage
 from services.market_db import get_market_conn
 
@@ -40,6 +43,99 @@ _PLAN_CACHE: dict = {"ts": 0.0, "payload": None, "force": None}
 _TFP_CACHE: dict = {"date": None, "codes": None, "ts": 0.0}
 _AUDIT_TTL_SECONDS = 8.0  # 工作台轮询节奏 1-2s，8s 内复用
 _TFP_TTL_SECONDS = 1800   # 停牌列表 30 分钟刷新一次
+_AUDIT_SNAPSHOT_KEY = "holder_workbench"
+_AUDIT_SNAPSHOT_SCHEMA_VERSION = 1
+
+
+def _json_dumps(payload) -> str:
+    return json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+
+
+def _json_loads(text):
+    if not text:
+        return None
+    try:
+        return json.loads(text)
+    except Exception:
+        return None
+
+
+def _attach_snapshot_meta(payload: dict, *, computed_at: Optional[str], source: Optional[str]) -> dict:
+    result = dict(payload or {})
+    result["snapshot_meta"] = {
+        "state_key": _AUDIT_SNAPSHOT_KEY,
+        "schema_version": _AUDIT_SNAPSHOT_SCHEMA_VERSION,
+        "computed_at": computed_at or "",
+        "source": source or "",
+    }
+    return result
+
+
+def load_quality_audit_snapshot(conn) -> Optional[dict]:
+    row = conn.execute(
+        """
+        SELECT computed_at, source, audit_json
+        FROM mart_audit_snapshot_state
+        WHERE state_key = ?
+        LIMIT 1
+        """,
+        (_AUDIT_SNAPSHOT_KEY,),
+    ).fetchone()
+    if not row:
+        return None
+    payload = _json_loads(row["audit_json"])
+    if not isinstance(payload, dict) or not payload.get("layers"):
+        return None
+    snapshot = _attach_snapshot_meta(
+        payload,
+        computed_at=row["computed_at"],
+        source=row["source"],
+    )
+    _AUDIT_CACHE["payload"] = snapshot
+    _AUDIT_CACHE["ts"] = time.time()
+    return snapshot
+
+
+def persist_quality_audit_snapshot(conn, audit_payload: dict, *, source: str) -> dict:
+    computed_at = datetime.now().isoformat()
+    conn.execute(
+        """
+        INSERT INTO mart_audit_snapshot_state
+            (state_key, schema_version, computed_at, source, audit_json)
+        VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(state_key) DO UPDATE SET
+            schema_version = excluded.schema_version,
+            computed_at = excluded.computed_at,
+            source = excluded.source,
+            audit_json = excluded.audit_json
+        """,
+        (
+            _AUDIT_SNAPSHOT_KEY,
+            _AUDIT_SNAPSHOT_SCHEMA_VERSION,
+            computed_at,
+            source,
+            _json_dumps(audit_payload),
+        ),
+    )
+    conn.commit()
+    snapshot = _attach_snapshot_meta(audit_payload, computed_at=computed_at, source=source)
+    _AUDIT_CACHE["payload"] = snapshot
+    _AUDIT_CACHE["ts"] = time.time()
+    return snapshot
+
+
+def refresh_quality_audit_snapshot(conn, *, source: str = "manual") -> dict:
+    reconcile_gap_queue_snapshot(conn, commit=True)
+    audit_payload = run_quality_audit(conn, use_cache=False)
+    return persist_quality_audit_snapshot(conn, audit_payload, source=source)
+
+
+def get_quality_audit(conn, *, force: bool = False) -> dict:
+    if not force:
+        snapshot = load_quality_audit_snapshot(conn)
+        if snapshot:
+            return snapshot
+    return refresh_quality_audit_snapshot(conn, source="manual_force" if force else "bootstrap")
 
 
 def invalidate_audit_cache() -> None:
@@ -99,6 +195,7 @@ def run_quality_audit(conn, use_cache: bool = True) -> dict:
     raw_count = _scalar(conn, "SELECT MAX(rowid) FROM market_raw_holdings")
     raw_stocks = _scalar(conn, "SELECT COUNT(DISTINCT stock_code) FROM market_raw_holdings")
     raw_latest = conn.execute("SELECT MAX(notice_date) FROM market_raw_holdings").fetchone()[0]
+    raw_total_periods = _scalar(conn, "SELECT COUNT(DISTINCT report_date) FROM market_raw_holdings")
     raw_periods = conn.execute(
         "SELECT DISTINCT report_date FROM market_raw_holdings ORDER BY report_date DESC LIMIT 5"
     ).fetchall()
@@ -592,6 +689,7 @@ def run_quality_audit(conn, use_cache: bool = True) -> dict:
                 "count": raw_count,
                 "stocks": raw_stocks,
                 "latest_notice": raw_latest or "",
+                "total_periods": raw_total_periods,
                 "periods": [r[0] for r in raw_periods],
             },
             "institutions": {"total": inst_total, "tracked": inst_tracked},
@@ -739,7 +837,7 @@ def run_quality_audit(conn, use_cache: bool = True) -> dict:
     return payload
 
 
-def build_smart_plan(conn, force_all=False) -> dict:
+def build_smart_plan(conn, force_all=False, *, audit: Optional[dict] = None, use_cache: bool = True) -> dict:
     """根据数据状态智能生成更新计划
 
     返回：
@@ -765,16 +863,18 @@ def build_smart_plan(conn, force_all=False) -> dict:
         return plan
 
     # 进程级缓存：8 秒内复用上一次 plan，避免工作台 1s 轮询打爆 audit
-    cached_plan = _PLAN_CACHE.get("payload")
-    if (
-        cached_plan
-        and _PLAN_CACHE.get("force") == force_all
-        and (time.time() - _PLAN_CACHE.get("ts", 0)) < _AUDIT_TTL_SECONDS
-    ):
-        return cached_plan
+    if use_cache:
+        cached_plan = _PLAN_CACHE.get("payload")
+        if (
+            cached_plan
+            and _PLAN_CACHE.get("force") == force_all
+            and (time.time() - _PLAN_CACHE.get("ts", 0)) < _AUDIT_TTL_SECONDS
+        ):
+            return cached_plan
 
     # 运行质量审计（这里允许复用 audit 缓存——run_quality_audit 自带 TTL）
-    audit = run_quality_audit(conn)
+    if audit is None:
+        audit = load_quality_audit_snapshot(conn) or run_quality_audit(conn, use_cache=use_cache)
 
     # 1. 原始数据是否过期（> 1 天无新数据）
     raw_latest = audit["layers"]["raw"].get("latest_notice", "")
@@ -1045,7 +1145,8 @@ def build_smart_plan(conn, force_all=False) -> dict:
     plan["steps"] = unique_steps
 
     plan["audit"] = audit
-    _PLAN_CACHE["payload"] = plan
-    _PLAN_CACHE["ts"] = time.time()
-    _PLAN_CACHE["force"] = force_all
+    if use_cache:
+        _PLAN_CACHE["payload"] = plan
+        _PLAN_CACHE["ts"] = time.time()
+        _PLAN_CACHE["force"] = force_all
     return plan

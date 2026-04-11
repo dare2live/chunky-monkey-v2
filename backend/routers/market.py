@@ -154,6 +154,23 @@ async def market_status():
     """全市场数据概况"""
     conn = get_conn()
     try:
+        from services.audit import load_quality_audit_snapshot
+
+        audit = load_quality_audit_snapshot(conn)
+        if audit and audit.get("layers"):
+            raw = audit["layers"].get("raw", {})
+            holdings = audit["layers"].get("holdings", {})
+            current_rel = audit["layers"].get("current_relationship", {})
+            return {
+                "total_records": raw.get("count", 0),
+                "latest_notice_date": raw.get("latest_notice"),
+                "total_stocks": raw.get("stocks", 0),
+                "matched_stocks": holdings.get("stocks", 0),
+                "current_stocks": current_rel.get("stocks", 0),
+                "total_periods": raw.get("total_periods", 0),
+                "snapshot_meta": audit.get("snapshot_meta"),
+            }
+
         total = conn.execute("SELECT COUNT(*) FROM market_raw_holdings").fetchone()[0]
         latest = conn.execute("SELECT MAX(notice_date) FROM market_raw_holdings").fetchone()[0]
         stocks = conn.execute("SELECT COUNT(DISTINCT stock_code) FROM market_raw_holdings").fetchone()[0]

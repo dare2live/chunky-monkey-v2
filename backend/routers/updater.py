@@ -149,6 +149,7 @@ _is_running = False
 _stop_requested = False
 _run_context = None
 _last_run_context = None
+_audit_snapshot_refresh_task = None
 
 
 class _RunStopped(Exception):
@@ -198,9 +199,43 @@ def _finish_run_context(extra: Optional[dict] = None):
     # 跑完任何更新后立即让 audit 缓存失效，下一次 /update/audit 走最新数据
     try:
         from services.audit import invalidate_audit_cache
+        from services.etf_snapshot_manager import invalidate_etf_snapshot_cache
+
         invalidate_audit_cache()
+        invalidate_etf_snapshot_cache()
     except Exception:
         pass
+
+
+def _is_audit_snapshot_refreshing() -> bool:
+    return bool(_audit_snapshot_refresh_task and not _audit_snapshot_refresh_task.done())
+
+
+def _refresh_holder_audit_snapshot_sync(source: str):
+    from services.audit import refresh_quality_audit_snapshot
+
+    conn = get_conn(timeout=120)
+    try:
+        refresh_quality_audit_snapshot(conn, source=source)
+    finally:
+        conn.close()
+
+
+def _schedule_holder_audit_snapshot_refresh(source: str):
+    global _audit_snapshot_refresh_task
+    if _is_audit_snapshot_refreshing():
+        logger.info("[审计快照] 已有刷新任务在运行，跳过重复触发")
+        return
+
+    async def _run():
+        try:
+            logger.info(f"[审计快照] 开始刷新: {source}")
+            await asyncio.to_thread(_refresh_holder_audit_snapshot_sync, source)
+            logger.info(f"[审计快照] 刷新完成: {source}")
+        except Exception as exc:
+            logger.warning(f"[审计快照] 刷新失败: {source}: {exc}")
+
+    _audit_snapshot_refresh_task = asyncio.create_task(_run())
 
 
 def _prime_step_status_rows(conn, active_step_ids, *, inactive_mode: str = "idle",
@@ -549,49 +584,133 @@ _CONNECTIVITY_LABELS = {
     "industry_source": "行业源",
 }
 
+_CONNECTIVITY_CACHE_TTL_SECONDS = 300
+_connectivity_cache = {
+    "checked_at": 0.0,
+    "data": None,
+}
 
-async def check_connectivity() -> dict:
+
+async def _compute_connectivity() -> dict:
+    results = {}
+
+    async def _check_holdings():
+        try:
+            async with httpx.AsyncClient(timeout=5.0, trust_env=False) as client:
+                resp = await client.get(_CONNECTIVITY_TARGETS["holdings_source"])
+                ok = resp.status_code < 500
+                return {
+                    "holdings_source": ok,
+                    "holdings_source_detail": f"HTTP {resp.status_code}" if ok else None,
+                }
+        except Exception:
+            return {"holdings_source": False}
+
+    async def _check_kline():
+        from services.akshare_client import test_kline_availability
+
+        try:
+            probe = await asyncio.wait_for(test_kline_availability(), timeout=20)
+            payload = {"kline_source": bool(probe.get("available"))}
+            payload["kline_source_degraded"] = bool(
+                probe.get("available")
+                and (probe.get("effective_source") or "") != "mootdx"
+            )
+            if probe.get("detail"):
+                payload["kline_source_detail"] = probe.get("detail")
+            payload["kline_source_meta"] = probe
+            return payload
+        except Exception:
+            return {
+                "kline_source": False,
+                "kline_source_degraded": False,
+                "kline_source_detail": "probe timeout",
+                "kline_source_meta": {
+                    "available": False,
+                    "detail": "probe timeout",
+                },
+            }
+
+    async def _check_industry():
+        from services.akshare_client import test_industry_availability
+
+        try:
+            industry_ok, industry_source = await asyncio.wait_for(test_industry_availability(), timeout=8)
+            payload = {"industry_source": industry_ok}
+            if industry_source:
+                payload["industry_source_detail"] = industry_source
+            return payload
+        except Exception:
+            return {"industry_source": False}
+
+    parts = await asyncio.gather(_check_holdings(), _check_kline(), _check_industry())
+    for part in parts:
+        results.update(part)
+
+    unreachable = []
+    for key, label in _CONNECTIVITY_LABELS.items():
+        if not results.get(key):
+            unreachable.append(label)
+    degraded = []
+    if results.get("kline_source_degraded"):
+        degraded.append(f"K线源已降级（{results.get('kline_source_detail') or 'fallback'}）")
+
+    if not unreachable and not degraded:
+        results["message"] = "所有数据源正常"
+    elif not unreachable:
+        results["message"] = "；".join(degraded)
+    else:
+        parts = [f"{'、'.join(unreachable)}不可用，建议切换至手机热点"]
+        parts.extend(degraded)
+        results["message"] = "；".join(parts)
+    return results
+
+
+async def check_connectivity(force: bool = False) -> dict:
     """测试数据源连通性，返回 {source: bool, ...} + message
 
     K线源用 requests 库测试（与 akshare 保持一致），
     股东源用 httpx 测试（与 sync_raw 保持一致）。
     """
-    results = {}
+    now = time.time()
+    cached = _connectivity_cache.get("data")
+    checked_at = float(_connectivity_cache.get("checked_at") or 0.0)
+    if not force and cached and (now - checked_at) < _CONNECTIVITY_CACHE_TTL_SECONDS:
+        results = dict(cached)
+        results["cached"] = True
+        results["checked_at"] = datetime.fromtimestamp(checked_at).isoformat()
+        results["cache_age_seconds"] = int(now - checked_at)
+        return results
 
-    # 股东源：用 httpx（sync_raw 用 httpx）
-    try:
-        async with httpx.AsyncClient(timeout=5.0, trust_env=False) as client:
-            resp = await client.get(_CONNECTIVITY_TARGETS["holdings_source"])
-            results["holdings_source"] = resp.status_code < 500
-    except Exception:
-        results["holdings_source"] = False
-
-    from services.akshare_client import test_kline_availability, test_industry_availability
-
-    try:
-        kline_ok, kline_source = await asyncio.wait_for(test_kline_availability(), timeout=20)
-        results["kline_source"] = kline_ok
-        if kline_source:
-            results["kline_source_detail"] = kline_source
-    except Exception:
-        results["kline_source"] = False
-
-    try:
-        industry_ok, industry_source = await asyncio.wait_for(test_industry_availability(), timeout=30)
-        results["industry_source"] = industry_ok
-        if industry_source:
-            results["industry_source_detail"] = industry_source
-    except Exception:
-        results["industry_source"] = False
-
-    # 构建提示消息
-    unreachable = [_CONNECTIVITY_LABELS[k] for k, v in results.items() if not v]
-    if not unreachable:
-        results["message"] = "所有数据源正常"
-    else:
-        results["message"] = f"{'、'.join(unreachable)}不可用，建议切换至手机热点"
-
+    results = await _compute_connectivity()
+    _connectivity_cache["data"] = dict(results)
+    _connectivity_cache["checked_at"] = now
+    results["cached"] = False
+    results["checked_at"] = datetime.fromtimestamp(now).isoformat()
+    results["cache_age_seconds"] = 0
     return results
+
+
+def get_cached_connectivity() -> dict:
+    now = time.time()
+    cached = _connectivity_cache.get("data")
+    checked_at = float(_connectivity_cache.get("checked_at") or 0.0)
+    if cached:
+        results = dict(cached)
+        results["cached"] = True
+        results["checked_at"] = datetime.fromtimestamp(checked_at).isoformat() if checked_at else None
+        results["cache_age_seconds"] = int(now - checked_at) if checked_at else None
+        return results
+    return {
+        "holdings_source": None,
+        "kline_source": None,
+        "industry_source": None,
+        "message": "尚未执行连通性探测",
+        "cached": True,
+        "pending": True,
+        "checked_at": None,
+        "cache_age_seconds": None,
+    }
 
 
 def _should_stop():
@@ -2375,6 +2494,7 @@ async def update_all():
             _is_running = False
             _stop_requested = False
             _finish_run_context()
+            _schedule_holder_audit_snapshot_refresh("full_update")
 
     asyncio.create_task(_run())
     return {"ok": True, "steps": len(STEPS)}
@@ -2462,22 +2582,23 @@ async def reset_derived():
 
 
 @router.get("/update/connectivity")
-async def connectivity_check():
+async def connectivity_check(force: bool = False):
     """测试数据源连通性"""
-    return await check_connectivity()
+    return await check_connectivity(force=force)
 
 
 @router.get("/update/audit")
 async def data_audit(force: bool = False):
     """数据质量审计
 
-    force=true：跳过 8 秒进程级缓存，强制重算（手动刷新场景）
+    默认优先返回最近一次同步后的审计快照；
+    force=true 时立即重算并覆盖快照。
     """
-    from services.audit import run_quality_audit
+    from services.audit import get_quality_audit
     conn = get_conn()
     try:
-        reconcile_gap_queue_snapshot(conn, commit=True)
-        payload = run_quality_audit(conn, use_cache=not force)
+        payload = get_quality_audit(conn, force=force)
+        payload["snapshot_refreshing"] = _is_audit_snapshot_refreshing()
         return payload
     finally:
         conn.close()
@@ -2685,6 +2806,7 @@ async def smart_update():
             _is_running = False
             _stop_requested = False
             _finish_run_context({"result": locals().get("result_counts")})
+            _schedule_holder_audit_snapshot_refresh("smart_update")
 
     asyncio.create_task(_run())
     return {"ok": True, "steps": len(steps_to_run), "step_ids": steps_to_run, "plan": plan}
@@ -2858,6 +2980,7 @@ async def run_single_step(step_id: str):
             _is_running = False
             _stop_requested = False
             _finish_run_context({"result": locals().get("result_counts")})
+            _schedule_holder_audit_snapshot_refresh(f"single_step:{step_id}")
 
     asyncio.create_task(_run())
     return {"ok": True, "step_id": step_id, "name": step_name, "steps": step_ids}
@@ -3073,6 +3196,7 @@ async def _run_group_pipeline(run_mode: str, run_name: str, group_id: str):
             _is_running = False
             _stop_requested = False
             _finish_run_context({"result": locals().get("result_counts")})
+            _schedule_holder_audit_snapshot_refresh(run_name)
 
     asyncio.create_task(_run())
     return {"ok": True, "steps": len(step_ids), "step_ids": step_ids}
