@@ -4,8 +4,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
   <title>Chunky Monkey v2</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=2.1.3">
+  <link rel="preconnect" href="https://rsms.me/">
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <link rel="stylesheet" href="assets/css/main.css?v=3.0.0">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 </head>
 
 <body>
@@ -88,10 +92,10 @@
           </div>
         </div>
         <div id="systemOpsPanel"
-          style="display:none;margin-bottom:14px;padding:12px 14px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc">
+          style="display:none;margin-bottom:14px;padding:12px 14px;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:rgba(255,255,255,0.03)">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
             <div>
-              <div style="font-size:13px;font-weight:600;color:#0f172a;margin-bottom:4px">系统操作</div>
+              <div style="font-size:13px;font-weight:590;color:#f7f8f8;margin-bottom:4px">系统操作</div>
               <div class="muted" style="font-size:11px;margin-bottom:12px;">清空事件、收益、画像和趋势派生层，从原始数据重新计算。</div>
               <div class="module-toggles" style="display:flex;gap:12px;font-size:12px;">
                 <label><input type="checkbox" id="chkModuleQlib"> 启用 Qlib (需后端支持)</label>
@@ -280,7 +284,7 @@
         </div>
         <div id="etfMsg" class="muted" style="font-size:12px">数据可能非最新，请先点击同步。</div>
         <div id="etfLogBox"
-          style="margin-top:8px;max-height:160px;overflow:auto;background:#0f172a08;border:1px solid #e2e8f0;border-radius:6px;padding:8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5">
+          style="margin-top:8px;max-height:160px;overflow:auto;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:8px;font-family:'Berkeley Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5;color:#d0d6e0">>
         </div>
       </div>
 
@@ -427,10 +431,10 @@
 
   <!-- 自定义模态框 -->
   <div id="modalOverlay"
-    style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:1000;align-items:center;justify-content:center">
+    style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;align-items:center;justify-content:center">
     <div
-      style="background:#fff;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;box-shadow:0 8px 30px rgba(0,0,0,0.15)">
-      <div id="modalBody" style="font-size:14px;line-height:1.6;margin-bottom:18px"></div>
+      style="background:#191a1b;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:24px 28px;max-width:420px;width:90%;box-shadow:0 8px 30px rgba(0,0,0,0.5)">
+      <div id="modalBody" style="font-size:14px;line-height:1.6;margin-bottom:18px;color:#d0d6e0"></div>
       <div style="display:flex;gap:8px;justify-content:flex-end">
         <button id="modalCancel" class="btn-outline" style="display:none;padding:6px 16px;border-radius:6px">取消</button>
         <button id="modalOk" class="btn-primary" style="padding:6px 16px;border-radius:6px">确定</button>
@@ -438,10 +442,10 @@
     </div>
   </div>
 
-  <script src="assets/js/app-cache.js?v=2.1.3"></script>
-  <script src="assets/js/app-nav.js?v=2.1.3"></script>
-  <script src="assets/js/app-list-state.js?v=2.1.3"></script>
-  <script src="assets/js/app.js?v=2.1.6"></script>
+  <script src="assets/js/app-cache.js?v=3.0.0"></script>
+  <script src="assets/js/app-nav.js?v=3.0.0"></script>
+  <script src="assets/js/app-list-state.js?v=3.0.0"></script>
+  <script src="assets/js/app.js?v=3.0.0"></script>
 </body>
 
 </html>

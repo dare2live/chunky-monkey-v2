@@ -28,7 +28,7 @@
     }
     var el = document.createElement('div');
     var bg = type === 'error' ? '#ef4444' : type === 'warn' ? '#f59e0b' : '#10b981';
-    el.style.cssText = 'padding:10px 18px;border-radius:8px;color:#fff;font-size:13px;background:' + bg + ';opacity:0;transition:opacity .3s;pointer-events:auto;max-width:360px;box-shadow:0 4px 12px rgba(0,0,0,.15);';
+    el.style.cssText = 'padding:10px 18px;border-radius:8px;color:#fff;font-size:13px;background:' + bg + ';opacity:0;transition:opacity .3s;pointer-events:auto;max-width:360px;box-shadow:0 4px 12px rgba(0,0,0,.5);';
     el.textContent = msg;
     _toastContainer.appendChild(el);
     requestAnimationFrame(function () { el.style.opacity = '1'; });
@@ -6118,6 +6118,6 @@
       if (polls > 120) { clearInterval(timer); btn.disabled = false; btn.textContent = '救生艇'; }
     }, 3000);
   }
-  window.App = { saveModuleSettings, showView, setAlias, setType, toggleBlack, deleteInst, restoreInst, calcInstScore, resetInstScore, toggleInstDetail, toggleInstBreakdown, toggleStockDetail, switchInstDim, switchStockDim, runSingleStep, openSectorValidation, clearStockValidationFilter, _api: api };
+  window.App = { saveModuleSettings, showView, setAlias, setType, toggleBlack, deleteInst, restoreInst, calcInstScore, resetInstScore, toggleInstDetail, toggleInstBreakdown, toggleStockDetail, switchInstDim, switchStockDim, runSingleStep, openSectorValidation, clearStockValidationFilter, renderScoreRadar, _api: api };
   document.addEventListener('DOMContentLoaded', init);
 })();

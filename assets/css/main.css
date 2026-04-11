@@ -1,31 +1,57 @@
 /* ============================================================
-   Chunky Monkey v2 — 全局样式
+   Chunky Monkey v2 — 全局样式 · Linear Dark Theme
    ============================================================ */
 
 :root {
-  --bg: #f0f2f7;
-  --bg-subtle: #f8fafc;
-  --panel: #ffffff;
-  --text: #1e293b;
-  --text-2: #475569;
-  --muted: #94a3b8;
-  --primary: #3b82f6;
-  --primary-dark: #2563eb;
-  --primary-light: #eff6ff;
-  --success: #22c55e;
-  --success-light: #f0fdf4;
+  /* ── 背景层级 ── */
+  --bg: #08090a;
+  --bg-subtle: #0f1011;
+  --panel: #191a1b;
+  --surface: #28282c;
+
+  /* ── 文本层级 ── */
+  --text: #f7f8f8;
+  --text-2: #d0d6e0;
+  --text-strong: #f7f8f8;
+  --text-subtle: #62666d;
+  --muted: #8a8f98;
+
+  /* ── 品牌色 ── */
+  --primary: #5e6ad2;
+  --primary-dark: #7170ff;
+  --primary-light: rgba(94, 106, 210, 0.12);
+  --primary-hover: #828fff;
+
+  /* ── 语义色 ── */
+  --success: #27a644;
+  --success-light: rgba(39, 166, 68, 0.12);
   --danger: #ef4444;
-  --danger-light: #fef2f2;
+  --danger-light: rgba(239, 68, 68, 0.12);
   --warning: #f59e0b;
-  --warning-light: #fffbeb;
-  --line: #e2e8f0;
-  --line-light: #f1f5f9;
+  --warning-light: rgba(245, 158, 11, 0.12);
+
+  /* ── A股红涨绿跌 ── */
+  --stock-up: #ef4444;
+  --stock-down: #10b981;
+
+  /* ── 边框 ── */
+  --line: rgba(255, 255, 255, 0.08);
+  --line-light: rgba(255, 255, 255, 0.05);
+  --border-solid: #23252a;
+
+  /* ── 圆角 ── */
   --radius: 10px;
   --radius-sm: 6px;
   --radius-pill: 999px;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+
+  /* ── 阴影（暗色面用背景亮度层级替代阴影） ── */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+  /* ── 覆盖层 ── */
+  --overlay: rgba(0, 0, 0, 0.85);
 }
 
 * {
@@ -35,11 +61,9 @@
 }
 
 body {
-  font-family: -apple-system, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "PingFang SC", sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(191, 219, 254, 0.35), transparent 28%),
-    radial-gradient(circle at top right, rgba(187, 247, 208, 0.28), transparent 24%),
-    linear-gradient(180deg, #f8fbff 0%, #eef3f8 100%);
+  font-family: "Inter Variable", "Inter", "SF Pro Display", -apple-system, system-ui, "Segoe UI", Roboto, "PingFang SC", sans-serif;
+  font-feature-settings: "cv01", "ss03";
+  background: #08090a;
   color: var(--text);
   font-size: 13px;
   line-height: 1.5;
@@ -67,12 +91,11 @@ select {
   align-items: center;
   gap: 20px;
   padding: 8px 28px;
-  background: rgba(255, 255, 255, 0.88);
-  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+  background: rgba(15, 16, 17, 0.92);
+  border-bottom: 1px solid var(--line);
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(16px);
 }
 
@@ -80,12 +103,11 @@ select {
   display: flex;
   justify-content: center;
   padding: 6px 28px;
-  background: rgba(255, 255, 255, 0.84);
-  border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+  background: rgba(15, 16, 17, 0.88);
+  border-bottom: 1px solid var(--line);
   position: sticky;
   top: 40px;
   z-index: 99;
-  box-shadow: 0 8px 24px rgba(148, 163, 184, 0.08);
   backdrop-filter: blur(16px);
 }
 
@@ -105,15 +127,17 @@ select {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fee2e2;
-  color: #dc2626;
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
   transition: all 300ms ease;
 }
 
 .logo-status.online {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
+  background: rgba(39, 166, 68, 0.15);
+  color: #27a644;
+  border-color: rgba(39, 166, 68, 0.25);
+  box-shadow: 0 0 12px rgba(39, 166, 68, 0.15);
 }
 
 .logo-text {
@@ -148,27 +172,27 @@ select {
 
 .nav-group-btn {
   padding: 6px 20px;
-  border: 1.5px solid var(--line);
+  border: 1px solid var(--line);
   border-radius: var(--radius-pill);
-  background: transparent;
+  background: rgba(255, 255, 255, 0.02);
   color: var(--text-2);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 510;
   cursor: pointer;
   transition: all 150ms ease;
-  letter-spacing: 0.5px;
 }
 
 .nav-group-btn:hover {
-  color: var(--primary);
-  border-color: var(--primary);
+  color: var(--primary-hover);
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .nav-group-btn.active {
   color: #fff;
   background: var(--primary);
   border-color: var(--primary);
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 0 16px rgba(94, 106, 210, 0.25);
 }
 
 .nav-sub-bar {
@@ -191,21 +215,21 @@ select {
   border: none;
   border-radius: var(--radius-pill);
   background: transparent;
-  color: var(--text-2);
+  color: var(--muted);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 510;
   transition: all 150ms ease;
 }
 
 .nav-btn:hover {
-  background: var(--primary-light);
-  color: var(--primary);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
 }
 
 .nav-btn.active {
   background: var(--primary);
   color: #fff;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 0 12px rgba(94, 106, 210, 0.2);
 }
 
 /* status badge 已合并到 .logo-status */
@@ -227,12 +251,11 @@ select {
 
 /* ====== 面板 ====== */
 .panel {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.97) 0%, rgba(248, 250, 252, 0.96) 100%);
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 18px 20px;
   margin-bottom: 14px;
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.04), 0 2px 6px rgba(15, 23, 42, 0.03);
 }
 
 .panel h3 {
@@ -279,7 +302,7 @@ select {
   border-radius: var(--radius-pill);
   font-size: 11px;
   border: 1px solid var(--line);
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.03);
   color: var(--text-2);
   transition: all 120ms ease;
 }
@@ -293,9 +316,9 @@ select {
 }
 
 .source-pill.online {
-  border-color: #d1fae5;
-  background: #f0fdf4;
-  color: #166534;
+  border-color: rgba(39, 166, 68, 0.3);
+  background: rgba(39, 166, 68, 0.1);
+  color: #10b981;
 }
 
 .source-pill.online .source-pill-dot {
@@ -303,9 +326,9 @@ select {
 }
 
 .source-pill.offline {
-  border-color: #fecaca;
-  background: #fef2f2;
-  color: #b91c1c;
+  border-color: rgba(239, 68, 68, 0.25);
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
 }
 
 .source-pill.offline .source-pill-dot {
@@ -314,12 +337,12 @@ select {
 
 .source-pill.pending {
   border-color: var(--line);
-  background: var(--bg-subtle);
-  color: #64748b;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted);
 }
 
 .source-pill.pending .source-pill-dot {
-  background: #94a3b8;
+  background: var(--muted);
 }
 
 /* ====== 统计卡片 ====== */
@@ -331,22 +354,21 @@ select {
 }
 
 .stat-card {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 12px;
   padding: 16px 18px;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
-  transition: transform 120ms, box-shadow 120ms;
+  transition: transform 120ms, background 120ms;
 }
 
 .stat-card:hover {
   transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .stat-value {
   font-size: 24px;
-  font-weight: 700;
+  font-weight: 590;
   color: var(--text);
   letter-spacing: -0.5px;
 }
@@ -398,47 +420,47 @@ select {
   padding: 6px 16px;
   border: 1px solid var(--line);
   border-radius: var(--radius-pill);
-  background: var(--panel);
-  color: var(--text-2);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--muted);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 510;
   transition: all 120ms;
 }
 
 .tab-btn:hover {
-  border-color: var(--primary);
-  color: var(--primary);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--text-2);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .tab-btn.active {
   background: var(--primary);
   color: #fff;
   border-color: var(--primary);
-  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 12px rgba(94, 106, 210, 0.2);
 }
 
 .pill-tab-btn {
   padding: 6px 16px;
   border: 1px solid var(--line);
   border-radius: var(--radius-pill);
-  background: var(--panel);
-  color: var(--text-2);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--muted);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 510;
   transition: all 120ms;
 }
 
 .pill-tab-btn:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  background: var(--primary-light);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--text-2);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .pill-tab-btn.active {
-  border-color: #bfdbfe;
-  color: var(--primary);
+  border-color: rgba(94, 106, 210, 0.3);
+  color: var(--primary-dark);
   background: var(--primary-light);
-  box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.08);
 }
 
 .tab-content {
@@ -481,9 +503,9 @@ select {
   padding: 4px 12px;
   border-radius: var(--radius);
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 510;
   border: 1px solid var(--line);
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.03);
   color: var(--text-2);
   cursor: pointer;
   transition: all 120ms;
@@ -491,8 +513,9 @@ select {
 }
 
 .type-tag:hover {
-  border-color: var(--primary);
-  color: var(--primary);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .type-tag.active {
@@ -521,16 +544,22 @@ select {
   padding: 7px 14px;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
   font-size: 12px;
   min-width: 200px;
   transition: border-color 120ms;
 }
 
+.search-input::placeholder {
+  color: var(--muted);
+}
+
 .search-input:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(94, 106, 210, 0.15);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 /* ====== 按钮 ====== */
@@ -540,19 +569,17 @@ select {
   border-radius: var(--radius-sm);
   background: var(--primary);
   color: #fff;
-  font-weight: 500;
+  font-weight: 510;
   font-size: 13px;
   transition: all 120ms;
-  box-shadow: 0 1px 3px rgba(59, 130, 246, 0.2);
 }
 
 .btn-primary:hover {
-  background: var(--primary-dark);
-  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+  background: var(--primary-hover);
 }
 
 .btn-primary:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
@@ -570,15 +597,16 @@ select {
   padding: 8px 18px;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.02);
   color: var(--text-2);
   font-size: 13px;
   transition: all 120ms;
 }
 
 .btn-outline:hover {
-  border-color: var(--primary);
-  color: var(--primary);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .btn-text {
@@ -654,17 +682,16 @@ select {
 }
 
 .inst-card {
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: 8px;
   padding: 18px;
-  box-shadow: var(--shadow);
-  transition: transform 120ms, box-shadow 120ms;
+  transition: transform 120ms, background 120ms;
 }
 
 .inst-card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .inst-card-head {
@@ -697,8 +724,9 @@ select {
   gap: 8px;
   margin: 10px 0;
   padding: 10px 12px;
-  background: var(--bg-subtle);
+  background: rgba(255, 255, 255, 0.03);
   border-radius: var(--radius-sm);
+  border: 1px solid var(--line-light);
 }
 
 .metric {
@@ -717,11 +745,11 @@ select {
 }
 
 .gain-pos {
-  color: var(--danger);
+  color: var(--stock-up);
 }
 
 .gain-neg {
-  color: var(--success);
+  color: var(--stock-down);
 }
 
 .inst-card-events {
@@ -742,7 +770,7 @@ select {
 
 .score-framework-card,
 .score-rule-card {
-  background: var(--bg-subtle);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 14px 16px;
@@ -767,10 +795,10 @@ select {
   align-items: center;
   padding: 2px 8px;
   border-radius: var(--radius-pill);
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--primary-light);
+  color: var(--primary-dark);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 590;
 }
 
 .score-framework-role {
@@ -805,7 +833,7 @@ select {
 }
 
 .scorecard-mini-card {
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 14px 16px;
@@ -856,7 +884,7 @@ select {
   padding: 10px 12px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .score-param-head {
@@ -876,9 +904,11 @@ select {
 .score-param-head .score-input {
   width: 64px;
   padding: 6px 8px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   text-align: center;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
 }
 
 .score-param-desc {
@@ -940,27 +970,27 @@ select {
 }
 
 .event-new {
-  background: #dcfce7;
-  color: #166534;
+  background: rgba(39, 166, 68, 0.15);
+  color: #10b981;
 }
 
 .event-up {
-  background: #fef3c7;
-  color: #92400e;
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
 }
 
 .event-down {
-  background: #fee2e2;
-  color: #991b1b;
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
 }
 
 .event-exit {
-  background: var(--line-light);
-  color: #64748b;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
 }
 
 .event-unchanged {
-  background: var(--line-light);
+  background: rgba(255, 255, 255, 0.04);
   color: var(--muted);
 }
 
@@ -974,10 +1004,10 @@ select {
 .data-table th {
   text-align: left;
   padding: 10px 12px;
-  font-weight: 600;
+  font-weight: 510;
   font-size: 11px;
   color: var(--muted);
-  border-bottom: 2px solid var(--line);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   white-space: nowrap;
   cursor: pointer;
   user-select: none;
@@ -986,7 +1016,7 @@ select {
 }
 
 .data-table th:hover {
-  color: var(--primary);
+  color: var(--text-2);
 }
 
 .data-table td {
@@ -994,6 +1024,7 @@ select {
   border-bottom: 1px solid var(--line-light);
   white-space: nowrap;
   vertical-align: middle;
+  color: var(--text-2);
 }
 
 .data-table tbody tr {
@@ -1001,7 +1032,7 @@ select {
 }
 
 .data-table tbody tr:hover {
-  background: var(--bg-subtle);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 /* ====== 卡片式表格行 ====== */
@@ -1017,15 +1048,13 @@ select {
 
 .data-table-cards tbody tr[data-stock-idx],
 .data-table-cards tbody tr[data-inst-idx] {
-  background: var(--panel);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  transition: box-shadow 120ms, transform 80ms;
+  background: rgba(255, 255, 255, 0.02);
+  transition: background 120ms;
 }
 
 .data-table-cards tbody tr[data-stock-idx]:hover,
 .data-table-cards tbody tr[data-inst-idx]:hover {
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .data-table-cards tbody tr[data-stock-idx] td,
@@ -1093,17 +1122,16 @@ select {
 
 .step-group-col {
   --col-color: var(--muted);
-  --col-bg-tint: #f1f5f9;
+  --col-bg-tint: rgba(255, 255, 255, 0.02);
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 12px;
   padding: 16px 14px 14px;
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
 }
 
 .step-group-col::before {
@@ -1138,17 +1166,17 @@ select {
 
 .step-group-col.data-col {
   --col-color: var(--primary);
-  --col-bg-tint: #eff6ff;
+  --col-bg-tint: rgba(94, 106, 210, 0.06);
 }
 
 .step-group-col.calc-col {
   --col-color: #f59e0b;
-  --col-bg-tint: #fffbeb;
+  --col-bg-tint: rgba(245, 158, 11, 0.06);
 }
 
 .step-group-col.mart-col {
   --col-color: #10b981;
-  --col-bg-tint: #ecfdf5;
+  --col-bg-tint: rgba(16, 185, 129, 0.06);
 }
 
 .step-group-col.mart-col .step-group-cards {
@@ -1233,18 +1261,18 @@ select {
 }
 
 .step-card {
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 16px 16px 14px;
   text-align: left;
   transition: all 200ms;
   min-height: 130px;
-  box-shadow: var(--shadow-sm);
 }
 
 .step-card.idle {
-  background: repeating-linear-gradient(45deg, #fff, #fff 8px, #fafbfd 8px, #fafbfd 16px);
+  background: rgba(255, 255, 255, 0.01);
+  border-style: dashed;
 }
 
 .step-card-desc {
@@ -1311,38 +1339,37 @@ select {
 
 .step-card.running {
   border-color: var(--primary);
-  background: linear-gradient(180deg, #f8fbff 0%, #eff6ff 100%);
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.12);
+  background: rgba(94, 106, 210, 0.08);
   animation: stepCardPulse 1.6s ease-in-out infinite;
 }
 
 .step-card.pending {
-  border-color: #cbd5e1;
-  background: linear-gradient(180deg, var(--panel) 0%, var(--bg-subtle) 100%);
+  border-color: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .step-card.completed {
-  border-color: #bbf7d0;
-  background: linear-gradient(180deg, var(--panel) 0%, #f8fffb 100%);
+  border-color: rgba(39, 166, 68, 0.3);
+  background: rgba(39, 166, 68, 0.06);
 }
 
 .step-card.partial {
-  border-color: #fecaca;
-  background: linear-gradient(180deg, var(--panel) 0%, #fff7f7 100%);
+  border-color: rgba(239, 68, 68, 0.25);
+  background: rgba(239, 68, 68, 0.06);
 }
 
 .step-card.failed {
-  border-color: #fecaca;
-  background: linear-gradient(180deg, var(--panel) 0%, #fff7f7 100%);
+  border-color: rgba(239, 68, 68, 0.25);
+  background: rgba(239, 68, 68, 0.06);
 }
 
 .step-card.blocked {
-  border-color: #fed7aa;
-  background: linear-gradient(180deg, var(--panel) 0%, #fffaf5 100%);
+  border-color: rgba(245, 158, 11, 0.25);
+  background: rgba(245, 158, 11, 0.06);
 }
 
 .step-card.skipped {
-  background: #fcfcfd;
+  background: rgba(255, 255, 255, 0.01);
 }
 
 .step-card-name {
@@ -1446,28 +1473,28 @@ select {
   padding: 2px 8px;
   border-radius: var(--radius-pill);
   font-size: 10px;
-  font-weight: 600;
-  border: 1px solid #cbd5e1;
-  background: var(--bg-subtle);
+  font-weight: 510;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
   color: var(--text-2);
 }
 
 .gap-chip.blocked {
-  border-color: #fdba74;
-  background: #fff7ed;
-  color: #c2410c;
+  border-color: rgba(245, 158, 11, 0.25);
+  background: rgba(245, 158, 11, 0.08);
+  color: #fb923c;
 }
 
 .gap-chip.retrying {
-  border-color: #93c5fd;
+  border-color: rgba(94, 106, 210, 0.25);
   background: var(--primary-light);
   color: var(--primary-dark);
 }
 
 .gap-chip.pending {
-  border-color: #cbd5e1;
-  background: var(--bg-subtle);
-  color: var(--text-2);
+  border-color: var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted);
 }
 
 /* ====== 日志 ====== */
@@ -1488,13 +1515,14 @@ select {
 .log-box {
   max-height: 160px;
   overflow-y: auto;
-  font-family: "SF Mono", "Menlo", "Monaco", monospace;
+  font-family: "Berkeley Mono", ui-monospace, "SF Mono", Menlo, monospace;
   font-size: 11px;
   line-height: 1.75;
   padding: 10px 12px;
-  background: var(--bg-subtle);
+  background: rgba(255, 255, 255, 0.02);
   border-radius: var(--radius-sm);
   border: 1px solid var(--line);
+  color: var(--text-2);
 }
 
 .update-log-box {
@@ -1613,47 +1641,57 @@ select {
 /* ====== 机构类型固定颜色 ====== */
 .type-tag[data-type="QFII"],
 .type-tag[data-color="qfii"] {
-  --tc: #2563eb;
+  --tc: #60a5fa;
 }
 
 .type-tag[data-type="社保"],
 .type-tag[data-color="shebao"] {
-  --tc: #7c3aed;
+  --tc: #a78bfa;
 }
 
 .type-tag[data-type="保险"],
 .type-tag[data-color="baoxian"] {
-  --tc: #ea580c;
+  --tc: #fb923c;
 }
 
 .type-tag[data-type="国家大基金"],
 .type-tag[data-color="guojia"] {
-  --tc: #dc2626;
+  --tc: #f87171;
 }
 
 .type-tag[data-type="国家队"],
 .type-tag[data-color="guojiadui"] {
-  --tc: #b91c1c;
+  --tc: #fbbf24;
 }
 
 .type-tag[data-type="北向"],
 .type-tag[data-color="beixiang"] {
-  --tc: #0f766e;
+  --tc: #2dd4bf;
 }
 
 .type-tag[data-type="牛散"],
 .type-tag[data-color="niusan"] {
-  --tc: #ca8a04;
+  --tc: #facc15;
 }
 
 .type-tag[data-type="基金"],
 .type-tag[data-color="jijin"] {
-  --tc: #0891b2;
+  --tc: #22d3ee;
 }
 
 .type-tag[data-type="券商"],
 .type-tag[data-color="quanshang"] {
-  --tc: #059669;
+  --tc: #34d399;
+}
+
+.type-tag[data-type="信托"],
+.type-tag[data-color="xintuo"] {
+  --tc: #c084fc;
+}
+
+.type-tag[data-type="私募"],
+.type-tag[data-color="simu"] {
+  --tc: #f472b6;
 }
 
 .type-tag[data-type="other"],
@@ -1715,19 +1753,18 @@ select {
   padding: 2px 8px;
   border-radius: var(--radius-sm);
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 510;
   text-decoration: none;
   transition: all 120ms;
-  border: 1px solid #dbeafe;
-  background: var(--primary-light);
+  border: 1px solid rgba(94, 106, 210, 0.2);
+  background: rgba(94, 106, 210, 0.08);
   color: var(--primary-dark);
-  letter-spacing: 0.3px;
 }
 
 .xq-link:hover {
-  background: var(--primary-dark);
+  background: var(--primary);
   color: #fff;
-  border-color: var(--primary-dark);
+  border-color: var(--primary);
 }
 
 .xq-link .xq-prefix {
@@ -1738,13 +1775,12 @@ select {
 
 /* ====== 详情展开面板 ====== */
 .detail-panel {
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 18px 20px;
   margin-top: 10px;
   margin-bottom: 10px;
-  box-shadow: var(--shadow-md);
   animation: detailSlide 150ms ease;
 }
 
@@ -1794,27 +1830,25 @@ tr.detail-row>td {
 
 tr.detail-row>td>.detail-panel {
   margin: 0 0 6px;
-  border: 1px solid #dbeafe;
+  border: 1px solid rgba(94, 106, 210, 0.2);
   border-radius: var(--radius);
-  box-shadow: 0 2px 12px rgba(59, 130, 246, 0.08);
-  background: var(--panel);
+  background: rgba(94, 106, 210, 0.04);
   padding: 20px 24px;
 }
 
 .clickable-name {
   cursor: pointer;
-  color: var(--primary);
-  font-weight: 600;
+  color: var(--primary-dark);
+  font-weight: 590;
 }
 
 /* ====== 股票 banner ====== */
 .stock-banner {
-  background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.96) 100%);
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 14px 18px;
   margin-bottom: 14px;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
 }
 
 .finance-module-grid {
@@ -1825,15 +1859,14 @@ tr.detail-row>td>.detail-panel {
 
 .finance-module-card {
   padding: 14px 16px;
-  border: 1px solid #dbe5f4;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .finance-surface-panel {
-  border-color: #dbe5f4;
-  background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(245,249,255,0.98) 100%);
+  border-color: var(--line);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .finance-note {
@@ -1841,21 +1874,21 @@ tr.detail-row>td>.detail-panel {
   align-items: center;
   padding: 3px 8px;
   border-radius: 999px;
-  background: #f1f5f9;
-  color: #64748b;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--muted);
   font-size: 10px;
   font-weight: 700;
 }
 
 .finance-rotation-card {
   padding: 14px;
-  border: 1px solid #dbeafe;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .finance-compare-table tbody tr:hover {
-  background: #f8fbff;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .stock-banner-nav {
@@ -1895,9 +1928,9 @@ tr.detail-row>td>.detail-panel {
   padding: 4px 12px;
   border-radius: var(--radius-pill);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 590;
   letter-spacing: 0.5px;
-  background: #be185d;
+  background: var(--primary);
   color: #fff;
   margin-right: 4px;
   user-select: none;
@@ -1917,11 +1950,11 @@ tr.detail-row>td>.detail-panel {
   align-items: center;
   padding: 4px 10px;
   border-radius: var(--radius-pill);
-  border: 1px solid #dbeafe;
+  border: 1px solid rgba(94, 106, 210, 0.2);
   background: var(--primary-light);
-  color: #1d4ed8;
+  color: var(--primary-dark);
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 510;
 }
 
 .industry-view-wrap {
@@ -1940,8 +1973,7 @@ tr.detail-row>td>.detail-panel {
   padding: 14px 16px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
-  background: linear-gradient(180deg, var(--panel) 0%, #f8fbff 100%);
-  box-shadow: var(--shadow-sm);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .industry-mini-label {
@@ -1953,8 +1985,8 @@ tr.detail-row>td>.detail-panel {
 .industry-mini-value {
   font-size: 18px;
   line-height: 1.2;
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: 590;
+  color: var(--text);
 }
 
 .industry-mini-sub {
@@ -1965,10 +1997,10 @@ tr.detail-row>td>.detail-panel {
 
 .industry-empty {
   padding: 24px 18px;
-  border: 1px dashed #cbd5e1;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
   border-radius: var(--radius);
-  background: var(--bg-subtle);
-  color: #64748b;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--muted);
   text-align: center;
   font-size: 12px;
 }
@@ -1983,8 +2015,7 @@ tr.detail-row>td>.detail-panel {
   padding: 18px 18px 16px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
-  background: linear-gradient(180deg, var(--panel) 0%, #f8fbff 100%);
-  box-shadow: var(--shadow);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .industry-sector-head {
@@ -1997,8 +2028,8 @@ tr.detail-row>td>.detail-panel {
 
 .industry-sector-title {
   font-size: 16px;
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: 590;
+  color: var(--text);
 }
 
 .industry-sector-code {
@@ -2039,10 +2070,10 @@ tr.detail-row>td>.detail-panel {
   gap: 6px;
   padding: 12px 14px;
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--line);
   font-size: 12px;
-  color: #334155;
+  color: var(--text-2);
 }
 
 .industry-section-label {
@@ -2080,8 +2111,8 @@ tr.detail-row>td>.detail-panel {
 
 .industry-card-section-title {
   font-size: 12px;
-  font-weight: 700;
-  color: #334155;
+  font-weight: 590;
+  color: var(--text-2);
   margin-bottom: 10px;
 }
 
@@ -2089,7 +2120,7 @@ tr.detail-row>td>.detail-panel {
   padding: 10px 12px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
-  background: linear-gradient(180deg, var(--panel) 0%, #f8fbff 100%);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .industry-feedback-head {
@@ -2103,8 +2134,8 @@ tr.detail-row>td>.detail-panel {
 
 .industry-feedback-title {
   font-size: 12px;
-  font-weight: 700;
-  color: #334155;
+  font-weight: 590;
+  color: var(--text-2);
 }
 
 .industry-feedback-note,
@@ -2131,15 +2162,15 @@ tr.detail-row>td>.detail-panel {
 
 .industry-feedback-block+.industry-feedback-block {
   padding-top: 10px;
-  border-top: 1px dashed #dbe7f5;
+  border-top: 1px dashed rgba(255, 255, 255, 0.06);
 }
 
 .industry-feedback-block-historical .industry-feedback-title {
-  color: #14532d;
+  color: #10b981;
 }
 
 .industry-feedback-block-history .industry-feedback-title {
-  color: #7c2d12;
+  color: #fb923c;
 }
 
 .industry-history-coverage {
@@ -2165,7 +2196,7 @@ tr.detail-row>td>.detail-panel {
   padding: 10px 12px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .industry-dist-head {
@@ -2178,8 +2209,8 @@ tr.detail-row>td>.detail-panel {
 
 .industry-dist-title {
   font-size: 12px;
-  font-weight: 700;
-  color: #334155;
+  font-weight: 590;
+  color: var(--text-2);
 }
 
 .industry-dist-total {
@@ -2268,7 +2299,7 @@ tr.detail-row>td>.detail-panel {
   padding: 10px 12px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .industry-top-stock-head {
@@ -2293,7 +2324,7 @@ tr.detail-row>td>.detail-panel {
 
 .industry-top-stock-score {
   background: var(--primary-light);
-  color: #1d4ed8;
+  color: var(--primary-dark);
 }
 
 .industry-top-stock-sub {
@@ -2307,8 +2338,8 @@ tr.detail-row>td>.detail-panel {
 }
 
 .industry-top-stock-setup {
-  background: #ecfdf5;
-  color: #047857;
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
 }
 
 .validation-kpi-grid {
@@ -2333,22 +2364,21 @@ tr.detail-row>td>.detail-panel {
 
 .validation-scope-title {
   font-size: 14px;
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: 590;
+  color: var(--text);
 }
 
 .validation-scope-sub {
   margin-top: 4px;
   font-size: 12px;
-  color: #64748b;
+  color: var(--muted);
 }
 
 .validation-kpi-card {
   padding: 14px 16px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
-  background: linear-gradient(180deg, var(--panel) 0%, #f8fbff 100%);
-  box-shadow: var(--shadow-sm);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .validation-kpi-label {
@@ -2360,14 +2390,14 @@ tr.detail-row>td>.detail-panel {
 .validation-kpi-value {
   font-size: 20px;
   line-height: 1.2;
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: 590;
+  color: var(--text);
 }
 
 .validation-kpi-sub {
   margin-top: 6px;
   font-size: 11px;
-  color: #64748b;
+  color: var(--muted);
 }
 
 .validation-section-grid {
@@ -2395,8 +2425,8 @@ tr.detail-row>td>.detail-panel {
 
 .validation-section-title {
   font-size: 14px;
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: 590;
+  color: var(--text);
 }
 
 .validation-section-sub,
@@ -2420,9 +2450,9 @@ tr.detail-row>td>.detail-panel {
   padding: 10px 12px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.02);
   font-size: 12px;
-  color: #334155;
+  color: var(--text-2);
 }
 
 @media (max-width: 900px) {
@@ -2487,8 +2517,8 @@ tr.detail-row>td>.detail-panel {
 
 .stock-signal-title {
   font-size: 12px;
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: 590;
+  color: var(--text);
   margin-top: 6px;
 }
 
@@ -2521,21 +2551,21 @@ tr.detail-row>td>.detail-panel {
 
 .stock-source-main {
   font-size: 12px;
-  font-weight: 600;
-  color: #0f172a;
+  font-weight: 590;
+  color: var(--text);
 }
 
 .stock-focus-card {
   margin: 0 0 14px 0;
   padding: 16px 20px;
-  border: 1px solid #dbeafe;
+  border: 1px solid rgba(94, 106, 210, 0.2);
   border-radius: var(--radius);
-  background: linear-gradient(135deg, #f8fbff 0%, #f0f7ff 100%);
+  background: rgba(94, 106, 210, 0.05);
 }
 
 .stock-focus-card--empty {
   padding: 12px 18px;
-  background: var(--bg-subtle);
+  background: rgba(255, 255, 255, 0.02);
   border-color: var(--line);
 }
 
@@ -2552,8 +2582,8 @@ tr.detail-row>td>.detail-panel {
 
 .stock-focus-headline {
   font-size: 16px;
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: 590;
+  color: var(--text);
 }
 
 .stock-focus-narrative {
@@ -2574,7 +2604,7 @@ tr.detail-row>td>.detail-panel {
   line-height: 1.6;
   padding: 8px 12px;
   border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--line);
 }
 
@@ -2595,9 +2625,8 @@ tr.detail-row>td>.detail-panel {
 .stock-detail-card {
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.02);
   padding: 14px 16px;
-  box-shadow: var(--shadow-sm);
 }
 
 .stock-detail-card-head {
@@ -2606,8 +2635,8 @@ tr.detail-row>td>.detail-panel {
 
 .stock-detail-card-title {
   font-size: 14px;
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: 590;
+  color: var(--text);
 }
 
 .stock-detail-card-sub {
@@ -2626,23 +2655,23 @@ tr.detail-row>td>.detail-panel {
 .stock-detail-item {
   padding: 8px 10px;
   border-radius: var(--radius);
-  background: var(--bg-subtle);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--line);
 }
 
 .stock-detail-item--accent {
-  background: var(--primary-light);
-  border-color: #bfdbfe;
+  background: rgba(94, 106, 210, 0.08);
+  border-color: rgba(94, 106, 210, 0.15);
 }
 
 .stock-detail-item--good {
-  background: #ecfdf5;
-  border-color: #a7f3d0;
+  background: rgba(39, 166, 68, 0.08);
+  border-color: rgba(39, 166, 68, 0.15);
 }
 
 .stock-detail-item--warn {
-  background: #fff7ed;
-  border-color: #fed7aa;
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.15);
 }
 
 .stock-detail-item-label {
@@ -2653,8 +2682,8 @@ tr.detail-row>td>.detail-panel {
 .stock-detail-item-value {
   margin-top: 4px;
   font-size: 13px;
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: 590;
+  color: var(--text);
   line-height: 1.35;
   word-break: break-word;
 }
@@ -2670,23 +2699,23 @@ tr.detail-row>td>.detail-panel {
   margin-top: 12px;
   padding: 10px 12px;
   border-radius: var(--radius);
-  background: var(--bg-subtle);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--line);
 }
 
 .stock-detail-text--positive {
-  background: #f0fdf4;
-  border-color: #bbf7d0;
+  background: rgba(39, 166, 68, 0.08);
+  border-color: rgba(39, 166, 68, 0.15);
 }
 
 .stock-detail-text--warning {
-  background: #fff7ed;
-  border-color: #fed7aa;
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.15);
 }
 
 .stock-detail-text--info {
-  background: var(--primary-light);
-  border-color: #bfdbfe;
+  background: rgba(94, 106, 210, 0.08);
+  border-color: rgba(94, 106, 210, 0.15);
 }
 
 .stock-detail-text--neutral {
@@ -2701,7 +2730,7 @@ tr.detail-row>td>.detail-panel {
 .stock-detail-text-body {
   margin-top: 4px;
   font-size: 12px;
-  color: #334155;
+  color: var(--text-2);
   line-height: 1.6;
 }
 
@@ -2710,18 +2739,17 @@ tr.detail-row>td>.detail-panel {
   border-radius: var(--radius-pill);
   background: var(--primary-light);
   color: var(--primary-dark);
-  border: 1px solid #dbeafe;
+  border: 1px solid rgba(94, 106, 210, 0.2);
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 510;
 }
 
 .setup-validation-panel {
   margin-bottom: 18px;
   padding: 16px 18px;
-  border: 1px solid #dbeafe;
+  border: 1px solid rgba(94, 106, 210, 0.2);
   border-radius: var(--radius);
-  background: linear-gradient(180deg, #f8fbff 0%, var(--panel) 100%);
-  box-shadow: var(--shadow-sm);
+  background: rgba(94, 106, 210, 0.04);
 }
 
 .setup-validation-head {
@@ -2735,8 +2763,8 @@ tr.detail-row>td>.detail-panel {
 
 .setup-validation-title {
   font-size: 14px;
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: 590;
+  color: var(--text);
 }
 
 .setup-validation-badge {
@@ -2749,9 +2777,9 @@ tr.detail-row>td>.detail-panel {
 }
 
 .setup-validation-badge.defer {
-  background: #fff7ed;
-  color: #c2410c;
-  border: 1px solid #fdba74;
+  background: rgba(245, 158, 11, 0.12);
+  color: #fb923c;
+  border: 1px solid rgba(245, 158, 11, 0.2);
 }
 
 .setup-validation-metrics {
@@ -2765,27 +2793,27 @@ tr.detail-row>td>.detail-panel {
   padding: 10px 12px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .setup-validation-callout {
   padding: 12px 14px;
   border-radius: var(--radius);
   margin-bottom: 12px;
-  border: 1px solid #fed7aa;
-  background: #fffaf5;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  background: rgba(245, 158, 11, 0.06);
 }
 
 .setup-validation-callout-title {
   font-size: 12px;
-  font-weight: 700;
-  color: #9a3412;
+  font-weight: 590;
+  color: #fb923c;
   margin-bottom: 6px;
 }
 
 .setup-validation-callout-text {
   font-size: 12px;
-  color: #7c2d12;
+  color: var(--text-2);
   line-height: 1.6;
 }
 
@@ -2795,9 +2823,10 @@ tr.detail-row>td>.detail-panel {
 
 .setup-validation-section-title {
   font-size: 13px;
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: 590;
+  color: var(--text);
   margin-bottom: 8px;
+}
 }
 
 .setup-validation-grid {
@@ -2811,7 +2840,7 @@ tr.detail-row>td>.detail-panel {
   padding: 12px 14px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .setup-validation-list {
@@ -2836,14 +2865,14 @@ tr.detail-row>td>.detail-panel {
 .qlib-param-card {
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: var(--bg-subtle);
+  background: rgba(255, 255, 255, 0.03);
   padding: 14px 15px;
 }
 
 .qlib-param-title {
   font-size: 12px;
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: 590;
+  color: var(--text);
   margin-bottom: 10px;
 }
 
@@ -2868,15 +2897,16 @@ tr.detail-row>td>.detail-panel {
 .qlib-param-field input {
   width: 100%;
   padding: 7px 10px;
-  border: 1px solid #d7dee7;
+  border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  background: var(--panel);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
 }
 
 .qlib-param-field input:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
+  box-shadow: 0 0 0 3px rgba(94, 106, 210, 0.15);
 }
 
 .qlib-toggle-list {
@@ -2884,7 +2914,7 @@ tr.detail-row>td>.detail-panel {
   flex-direction: column;
   gap: 8px;
   font-size: 12px;
-  color: #334155;
+  color: var(--text-2);
 }
 
 .qlib-toggle-list label {
@@ -2919,13 +2949,14 @@ tr.detail-row>td>.detail-panel {
 }
 
 .modal-box {
-  background: var(--panel);
+  background: #191a1b;
   border-radius: var(--radius);
   padding: 24px 28px;
   min-width: 360px;
   max-width: 520px;
   width: 90%;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
   animation: modalSlideIn 150ms ease;
 }
 
@@ -2943,9 +2974,9 @@ tr.detail-row>td>.detail-panel {
 
 .modal-title {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 590;
   margin-bottom: 14px;
-  color: #1e293b;
+  color: var(--text);
 }
 
 .modal-body {
@@ -2967,13 +2998,15 @@ tr.detail-row>td>.detail-panel {
   border-radius: var(--radius-sm);
   font-size: 13px;
   box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
 }
 
 .modal-body input:focus,
 .modal-body select:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 0 0 2px rgba(94, 106, 210, 0.2);
 }
 
 .modal-actions {
@@ -3079,4 +3112,620 @@ tr.detail-row>td>.detail-panel {
   .setup-validation-metrics {
     grid-template-columns: 1fr;
   }
+}
+
+/* ============================================================
+   骨架屏 (Skeleton Loading)
+   ============================================================ */
+@keyframes skeletonShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 25%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.03) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.8s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-line {
+  height: 12px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+}
+
+.skeleton-line:last-child {
+  width: 60%;
+}
+
+.skeleton-block {
+  height: 40px;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-card {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.skeleton-card .skeleton-title {
+  height: 16px;
+  width: 40%;
+  margin-bottom: 14px;
+}
+
+.skeleton-card .skeleton-metric {
+  height: 28px;
+  width: 60%;
+  margin-bottom: 10px;
+}
+
+.skeleton-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.skeleton-table th {
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.skeleton-table td {
+  padding: 8px 12px;
+}
+
+.skeleton-table .skeleton-cell {
+  height: 14px;
+  border-radius: 4px;
+}
+
+/* 统计卡片骨架 */
+.stat-skeleton {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.stat-skeleton .skeleton-card .skeleton-metric {
+  height: 24px;
+  width: 50%;
+}
+
+/* 表格骨架 */
+.table-skeleton {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* ============================================================
+   智能标签系统 (Smart Tags)
+   ============================================================ */
+.smart-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 510;
+  border: 1px solid transparent;
+  transition: all 120ms;
+}
+
+/* 国家队 — 金色高亮 */
+.smart-tag--national {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.2);
+}
+
+/* QFII — 蓝色 */
+.smart-tag--qfii {
+  background: rgba(96, 165, 250, 0.12);
+  color: #60a5fa;
+  border-color: rgba(96, 165, 250, 0.2);
+}
+
+/* 社保 — 紫色 */
+.smart-tag--social-security {
+  background: rgba(167, 139, 250, 0.12);
+  color: #a78bfa;
+  border-color: rgba(167, 139, 250, 0.2);
+}
+
+/* 保险 — 橙色 */
+.smart-tag--insurance {
+  background: rgba(251, 146, 60, 0.12);
+  color: #fb923c;
+  border-color: rgba(251, 146, 60, 0.2);
+}
+
+/* 北向 — 青色 */
+.smart-tag--northbound {
+  background: rgba(45, 212, 191, 0.12);
+  color: #2dd4bf;
+  border-color: rgba(45, 212, 191, 0.2);
+}
+
+/* 牛散 — 黄色 */
+.smart-tag--star-investor {
+  background: rgba(250, 204, 21, 0.12);
+  color: #facc15;
+  border-color: rgba(250, 204, 21, 0.2);
+}
+
+/* 基金 — 天蓝色 */
+.smart-tag--fund {
+  background: rgba(34, 211, 238, 0.12);
+  color: #22d3ee;
+  border-color: rgba(34, 211, 238, 0.2);
+}
+
+/* 券商 — 绿色 */
+.smart-tag--broker {
+  background: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.2);
+}
+
+/* 信托 — 浅紫色 */
+.smart-tag--trust {
+  background: rgba(192, 132, 252, 0.12);
+  color: #c084fc;
+  border-color: rgba(192, 132, 252, 0.2);
+}
+
+/* 私募 — 粉色 */
+.smart-tag--private {
+  background: rgba(244, 114, 182, 0.12);
+  color: #f472b6;
+  border-color: rgba(244, 114, 182, 0.2);
+}
+
+/* 国家大基金 — 红金 */
+.smart-tag--state-fund {
+  background: rgba(248, 113, 113, 0.12);
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.2);
+}
+
+/* 默认标签 */
+.smart-tag--default {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--muted);
+  border-color: var(--line);
+}
+
+/* 标签 icon */
+.smart-tag-icon {
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* ============================================================
+   评分雷达图容器
+   ============================================================ */
+.score-radar-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.score-dashboard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.score-dashboard-total {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.score-dashboard-value {
+  font-size: 48px;
+  font-weight: 590;
+  letter-spacing: -1.056px;
+  line-height: 1;
+  color: var(--text);
+}
+
+.score-dashboard-label {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 510;
+}
+
+/* ============================================================
+   A股红涨绿跌 — 持股变动
+   ============================================================ */
+.holding-change-up {
+  color: var(--stock-up);
+  font-weight: 510;
+}
+
+.holding-change-down {
+  color: var(--stock-down);
+  font-weight: 510;
+}
+
+.holding-change-new {
+  color: #fbbf24;
+  font-weight: 510;
+}
+
+.holding-change-exit {
+  color: var(--muted);
+  font-weight: 510;
+}
+
+/* ============================================================
+   滚动条 (全局暗色)
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* select boxes in dark mode */
+select {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* Fix industry momentum pill on dark theme */
+.industry-momentum-pill {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* ============================================================
+   骨架屏 (Skeleton Loading)
+   ============================================================ */
+@keyframes skeletonShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 25%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.03) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.8s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-line {
+  height: 12px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+}
+
+.skeleton-line:last-child {
+  width: 60%;
+}
+
+.skeleton-block {
+  height: 40px;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-card {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.skeleton-card .skeleton-title {
+  height: 16px;
+  width: 40%;
+  margin-bottom: 14px;
+}
+
+.skeleton-card .skeleton-metric {
+  height: 28px;
+  width: 60%;
+  margin-bottom: 10px;
+}
+
+.skeleton-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.skeleton-table th {
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.skeleton-table td {
+  padding: 8px 12px;
+}
+
+.skeleton-table .skeleton-cell {
+  height: 14px;
+  border-radius: 4px;
+}
+
+/* 统计卡片骨架 */
+.stat-skeleton {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.stat-skeleton .skeleton-card .skeleton-metric {
+  height: 24px;
+  width: 50%;
+}
+
+/* 表格骨架 */
+.table-skeleton {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* ============================================================
+   智能标签系统 (Smart Tags)
+   ============================================================ */
+.smart-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 510;
+  border: 1px solid transparent;
+  transition: all 120ms;
+}
+
+/* 国家队 — 金色高亮 */
+.smart-tag--national {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.2);
+}
+
+/* QFII — 蓝色 */
+.smart-tag--qfii {
+  background: rgba(96, 165, 250, 0.12);
+  color: #60a5fa;
+  border-color: rgba(96, 165, 250, 0.2);
+}
+
+/* 社保 — 紫色 */
+.smart-tag--social-security {
+  background: rgba(167, 139, 250, 0.12);
+  color: #a78bfa;
+  border-color: rgba(167, 139, 250, 0.2);
+}
+
+/* 保险 — 橙色 */
+.smart-tag--insurance {
+  background: rgba(251, 146, 60, 0.12);
+  color: #fb923c;
+  border-color: rgba(251, 146, 60, 0.2);
+}
+
+/* 北向 — 青色 */
+.smart-tag--northbound {
+  background: rgba(45, 212, 191, 0.12);
+  color: #2dd4bf;
+  border-color: rgba(45, 212, 191, 0.2);
+}
+
+/* 牛散 — 黄色 */
+.smart-tag--star-investor {
+  background: rgba(250, 204, 21, 0.12);
+  color: #facc15;
+  border-color: rgba(250, 204, 21, 0.2);
+}
+
+/* 基金 — 天蓝色 */
+.smart-tag--fund {
+  background: rgba(34, 211, 238, 0.12);
+  color: #22d3ee;
+  border-color: rgba(34, 211, 238, 0.2);
+}
+
+/* 券商 — 绿色 */
+.smart-tag--broker {
+  background: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.2);
+}
+
+/* 信托 — 浅紫色 */
+.smart-tag--trust {
+  background: rgba(192, 132, 252, 0.12);
+  color: #c084fc;
+  border-color: rgba(192, 132, 252, 0.2);
+}
+
+/* 私募 — 粉色 */
+.smart-tag--private {
+  background: rgba(244, 114, 182, 0.12);
+  color: #f472b6;
+  border-color: rgba(244, 114, 182, 0.2);
+}
+
+/* 国家大基金 — 红金 */
+.smart-tag--state-fund {
+  background: rgba(248, 113, 113, 0.12);
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.2);
+}
+
+/* 默认标签 */
+.smart-tag--default {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--muted);
+  border-color: var(--line);
+}
+
+/* 标签 icon */
+.smart-tag-icon {
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* ============================================================
+   评分雷达图容器
+   ============================================================ */
+.score-radar-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.score-dashboard {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.score-dashboard-total {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.score-dashboard-value {
+  font-size: 48px;
+  font-weight: 590;
+  letter-spacing: -1.056px;
+  line-height: 1;
+  color: var(--text);
+}
+
+.score-dashboard-label {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 510;
+}
+
+/* ============================================================
+   A股红涨绿跌 — 持股变动
+   ============================================================ */
+.holding-change-up {
+  color: var(--stock-up);
+  font-weight: 510;
+}
+
+.holding-change-down {
+  color: var(--stock-down);
+  font-weight: 510;
+}
+
+.holding-change-new {
+  color: #fbbf24;
+  font-weight: 510;
+}
+
+.holding-change-exit {
+  color: var(--muted);
+  font-weight: 510;
+}
+
+/* ============================================================
+   滚动条 (全局暗色)
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* select boxes in dark mode */
+select {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* Fix industry momentum pill on dark theme */
+.industry-momentum-pill {
+  background: var(--primary);
+  color: #fff;
 }
