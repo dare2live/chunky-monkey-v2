@@ -28,7 +28,7 @@
     }
     var el = document.createElement('div');
     var bg = type === 'error' ? '#ef4444' : type === 'warn' ? '#f59e0b' : '#10b981';
-    el.style.cssText = 'padding:10px 18px;border-radius:8px;color:#fff;font-size:13px;background:' + bg + ';opacity:0;transition:opacity .3s;pointer-events:auto;max-width:360px;box-shadow:0 4px 12px rgba(0,0,0,.5);';
+    el.style.cssText = 'padding:10px 18px;border-radius:8px;color:#fff;font-size:13px;background:' + bg + ';opacity:0;transition:opacity .3s;pointer-events:auto;max-width:360px;box-shadow:0 4px 12px rgba(0,0,0,.15);';
     el.textContent = msg;
     _toastContainer.appendChild(el);
     requestAnimationFrame(function () { el.style.opacity = '1'; });
@@ -211,7 +211,74 @@
   // Dashboard — Overview
   // ============================================================
   async function loadDashboard() {
+    // 并行加载：管线状态 + 候选池
+    var trendsP = api('/api/inst/stock-trends');
     await refreshDashboardStatus(true);
+    try {
+      var trends = await trendsP;
+      if (trends?.data) renderCandidatePool(trends.data);
+    } catch (e) { /* 候选池加载失败不影响主流程 */ }
+  }
+
+  function renderCandidatePool(stocks) {
+    var container = el('candidatePoolSection');
+    if (!container) return;
+    // 按综合分降序，取 A/B 池
+    var pool = stocks
+      .filter(function (s) { var p = s.priority_pool || ''; return p === 'A池' || p === 'B池'; })
+      .sort(function (a, b) { return (b.composite_priority_score || 0) - (a.composite_priority_score || 0); })
+      .slice(0, 20);
+
+    if (!pool.length) {
+      container.innerHTML = '<div class="panel" style="padding:20px;text-align:center"><span class="muted">暂无候选股票</span></div>';
+      return;
+    }
+
+    // 统计各池数量
+    var poolCounts = {};
+    stocks.forEach(function (s) {
+      var p = s.priority_pool || '未分池';
+      poolCounts[p] = (poolCounts[p] || 0) + 1;
+    });
+    var countHtml = Object.keys(poolCounts).sort().map(function (k) {
+      var color = k === 'A池' ? '#059669' : k === 'B池' ? '#3b82f6' : k === 'C池' ? '#f59e0b' : '#94a3b8';
+      return '<span style="display:inline-flex;align-items:center;gap:4px;font-size:12px"><span style="width:8px;height:8px;border-radius:50%;background:' + color + '"></span>' + esc(k) + ' ' + poolCounts[k] + '</span>';
+    }).join('<span style="margin:0 6px;color:#e2e8f0">|</span>');
+
+    var cardsHtml = pool.map(function (s) {
+      var composite = s.composite_priority_score != null ? Number(s.composite_priority_score).toFixed(1) : '-';
+      var poolTag = priorityPoolTag(s.priority_pool);
+      var archetype = s.stock_archetype || '';
+      var industry = s.setup_industry_name || s.sw_level3 || s.sw_level2 || s.sw_level1 || '';
+      var signal = s.setup_tag ? setupBadge(s.setup_tag, s.setup_priority, s.setup_confidence) : '';
+      var summary = stockCompositeSummary(s);
+      return '<div class="candidate-card" onclick="App.showStockDetail && App.showStockDetail(\'' + esc(s.stock_code) + '\')">' +
+        '<div class="candidate-card-header">' +
+          '<div class="candidate-card-name">' + esc(s.stock_name) + '</div>' +
+          '<div class="candidate-card-code">' + esc(s.stock_code) + '</div>' +
+        '</div>' +
+        '<div class="candidate-card-score">' +
+          poolTag + ' <span style="font-size:18px;font-weight:700;color:#0f172a">' + composite + '</span>' +
+        '</div>' +
+        '<div class="candidate-card-tags">' +
+          signal +
+          (archetype ? '<span class="tag tag-sm" style="background:#f1f5f9;color:#475569">' + esc(archetype) + '</span>' : '') +
+        '</div>' +
+        '<div class="candidate-card-meta">' +
+          '<span style="color:#64748b;font-size:11px">' + esc(industry) + '</span>' +
+          '<span style="color:#94a3b8;font-size:10px">' + esc(summary) + '</span>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    container.innerHTML =
+      '<div class="candidate-section">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">' +
+          '<div style="font-size:15px;font-weight:600;color:#0f172a">候选池 Top ' + pool.length + '</div>' +
+          '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' + countHtml + '</div>' +
+        '</div>' +
+        '<div class="candidate-grid">' + cardsHtml + '</div>' +
+      '</div>';
   }
 
   async function refreshDashboardStatus(includeConnectivity) {
@@ -255,12 +322,6 @@
   // Research — Cards & List
   // ============================================================
   async function loadResearch() {
-    // 骨架屏 - 先显示，API返回后替换
-    var c = el('instCardsContainer');
-    if (c) c.innerHTML = skeletonCards(6);
-    var lc = el('instListContainer');
-    if (lc) lc.innerHTML = skeletonTable(8, 6);
-
     var [profiles, inst] = await Promise.all([api('/api/inst/profiles'), api('/api/inst/institutions')]);
 
     var types = [...new Set((inst?.data || []).map(i => i.type).filter(Boolean))];
@@ -310,7 +371,7 @@
     vals.forEach(function (v, i) { if (v > vals[maxIdx]) maxIdx = i; if (v < vals[minIdx]) minIdx = i; });
 
     return '<svg viewBox="0 0 ' + width + ' ' + height + '" style="width:100%;height:' + height + 'px">' +
-      '<line x1="' + pad + '" y1="' + zeroY + '" x2="' + (width - pad) + '" y2="' + zeroY + '" stroke="rgba(255,255,255,0.08)" stroke-dasharray="3"/>' +
+      '<line x1="' + pad + '" y1="' + zeroY + '" x2="' + (width - pad) + '" y2="' + zeroY + '" stroke="#e2e8f0" stroke-dasharray="3"/>' +
       '<path d="' + pathD + '" fill="none" stroke="#3b82f6" stroke-width="1.5"/>' +
       '<circle cx="' + coords[maxIdx].x.toFixed(1) + '" cy="' + coords[maxIdx].y.toFixed(1) + '" r="3" fill="#10b981"/>' +
       '<text x="' + (coords[maxIdx].x + 4).toFixed(1) + '" y="' + (coords[maxIdx].y - 3).toFixed(1) + '" font-size="9" fill="#10b981">+' + vals[maxIdx].toFixed(1) + '%</text>' +
@@ -326,10 +387,10 @@
     c.innerHTML = d.map(p =>
       '<div class="inst-card"><div class="inst-card-head">' +
       '<span class="inst-card-name clickable-name" onclick="event.stopPropagation();App.toggleInstDetail(\'' + esc(p.institution_id) + '\',this)">' + esc(p.display_name || p.institution_name || '') + '</span>' +
-      (p.quality_score != null ? '<span style="font-size:11px;background:rgba(94,106,210,0.12);color:#828fff;padding:2px 8px;border-radius:10px;margin-left:6px;font-weight:510">实力 ' + Number(p.quality_score).toFixed(1) + '</span>' : '') +
-      (p.followability_score != null ? '<span style="font-size:11px;background:rgba(39,166,68,0.12);color:#34d399;padding:2px 8px;border-radius:10px;margin-left:6px;font-weight:510">可跟 ' + Number(p.followability_score).toFixed(1) + '</span>' : '') +
-      smartTag(p.inst_type) + '</div>' +
-      '<div class="inst-card-chart" id="chart-' + esc(p.institution_id) + '" style="height:64px;margin:6px 0;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:4px;background:rgba(255,255,255,0.02)"><div class="skeleton skeleton-block" style="height:56px"></div></div>' +
+      (p.quality_score != null ? '<span style="font-size:11px;background:#eef2ff;color:#4f46e5;padding:2px 8px;border-radius:10px;margin-left:6px;font-weight:600">实力 ' + Number(p.quality_score).toFixed(1) + '</span>' : '') +
+      (p.followability_score != null ? '<span style="font-size:11px;background:#ecfdf5;color:#059669;padding:2px 8px;border-radius:10px;margin-left:6px;font-weight:600">可跟 ' + Number(p.followability_score).toFixed(1) + '</span>' : '') +
+      typeTag(p.inst_type) + '</div>' +
+      '<div class="inst-card-chart" id="chart-' + esc(p.institution_id) + '" style="height:64px;margin:6px 0;border:1px solid #f1f5f9;border-radius:6px;padding:4px;background:#fafbfc"><div class="muted" style="font-size:11px;text-align:center;line-height:56px">加载中...</div></div>' +
       '<div class="inst-card-metrics">' +
       metric('历史胜率', pct(p.total_win_rate)) +
       metric('30日胜率', pct(p.win_rate_30d)) +
@@ -386,7 +447,7 @@
     } else if (instDim === 'returns') {
       head = '<tr><th>机构</th><th>买入事件</th><th>30日胜率</th><th>60日胜率</th><th>120日胜率</th><th>30日均收</th><th>60日均收</th><th>120日均收</th><th>依据</th></tr>';
       row = function (p) {
-        var basisTag = p.score_basis === 'buy' ? '<span style="color:#3b82f6;font-size:10px">买入</span>' : '<span style="color:#62666d;font-size:10px">全事件</span>';
+        var basisTag = p.score_basis === 'buy' ? '<span style="color:#3b82f6;font-size:10px">买入</span>' : '<span style="color:#94a3b8;font-size:10px">全事件</span>';
         return '<td><b class="clickable-name" onclick="App.toggleInstDetail(\'' + esc(p.institution_id) + '\',this)">' + esc(p.display_name || p.institution_name || '') + '</b></td><td>' + (p.buy_event_count || p.total_events || 0) + '</td><td>' + pct(p.buy_win_rate_30d || p.win_rate_30d) + '</td><td>' + pct(p.buy_win_rate_60d || p.win_rate_60d) + '</td><td>' + pct(p.buy_win_rate_120d || p.win_rate_90d) + '</td><td>' + fmtGain(p.buy_avg_gain_30d || p.avg_gain_30d) + '</td><td>' + fmtGain(p.buy_avg_gain_60d || p.avg_gain_60d) + '</td><td>' + fmtGain(p.buy_avg_gain_120d || p.avg_gain_120d) + '</td><td>' + basisTag + '</td>';
       };
     } else {
@@ -472,9 +533,6 @@
       renderStockList();
       return;
     }
-    // 骨架屏
-    var sc = el('stockTableWrap');
-    if (sc) sc.innerHTML = skeletonTable(12, 8);
     if (_stockListLoadingPromise) {
       await _stockListLoadingPromise;
       renderStockList();
@@ -617,12 +675,12 @@
 
   function trendStateMeta(state) {
     return {
-      bullish: { label: '看多', bg: 'rgba(52,211,153,0.12)', fg: '#34d399', border: '#bbf7d0' },
-      recovering: { label: '回升', bg: 'rgba(96,165,250,0.12)', fg: '#60a5fa', border: '#bfdbfe' },
-      consolidating: { label: '震荡', bg: 'rgba(255,255,255,0.03)', fg: '#8a8f98', border: 'rgba(255,255,255,0.08)' },
-      weakening: { label: '转弱', bg: 'rgba(251,191,36,0.12)', fg: '#fbbf24', border: '#fde68a' },
-      bearish: { label: '看空', bg: 'rgba(239,68,68,0.12)', fg: '#f87171', border: '#fecaca' }
-    }[state || ''] || { label: state || '未判定', bg: 'rgba(255,255,255,0.03)', fg: '#8a8f98', border: 'rgba(255,255,255,0.08)' };
+      bullish: { label: '看多', bg: '#dcfce7', fg: '#166534', border: '#bbf7d0' },
+      recovering: { label: '回升', bg: '#dbeafe', fg: '#1d4ed8', border: '#bfdbfe' },
+      consolidating: { label: '震荡', bg: '#f8fafc', fg: '#475569', border: '#e2e8f0' },
+      weakening: { label: '转弱', bg: '#fef3c7', fg: '#b45309', border: '#fde68a' },
+      bearish: { label: '看空', bg: '#fee2e2', fg: '#b91c1c', border: '#fecaca' }
+    }[state || ''] || { label: state || '未判定', bg: '#f8fafc', fg: '#64748b', border: '#e2e8f0' };
   }
 
   function trendStateTag(state, macdCross) {
@@ -633,10 +691,10 @@
 
   function industryRotationTag(bucket, score) {
     var meta = {
-      leader: { label: '轮动前排', bg: 'rgba(52,211,153,0.12)', fg: '#34d399', border: '#bbf7d0' },
-      neutral: { label: '中性观察', bg: 'rgba(96,165,250,0.12)', fg: '#60a5fa', border: '#bfdbfe' },
-      blacklist: { label: '回避名单', bg: 'rgba(239,68,68,0.12)', fg: '#f87171', border: '#fecaca' }
-    }[bucket || 'neutral'] || { label: bucket || '观察', bg: 'rgba(255,255,255,0.03)', fg: '#8a8f98', border: 'rgba(255,255,255,0.08)' };
+      leader: { label: '轮动前排', bg: '#dcfce7', fg: '#166534', border: '#bbf7d0' },
+      neutral: { label: '中性观察', bg: '#eff6ff', fg: '#1d4ed8', border: '#bfdbfe' },
+      blacklist: { label: '回避名单', bg: '#fee2e2', fg: '#b91c1c', border: '#fecaca' }
+    }[bucket || 'neutral'] || { label: bucket || '观察', bg: '#f8fafc', fg: '#475569', border: '#e2e8f0' };
     var scoreText = score != null ? ' · ' + scoreNum(score) : '';
     return '<span class="industry-trend-tag" style="background:' + meta.bg + ';color:' + meta.fg + ';border-color:' + meta.border + '">' + esc(meta.label + scoreText) + '</span>';
   }
@@ -651,11 +709,11 @@
 
   function industryPoolPill(label, value, tone) {
     var palette = {
-      a: { bg: 'rgba(52,211,153,0.12)', fg: '#34d399' },
-      b: { bg: 'rgba(96,165,250,0.12)', fg: '#60a5fa' },
-      c: { bg: 'rgba(251,191,36,0.12)', fg: '#fbbf24' },
-      d: { bg: 'rgba(239,68,68,0.12)', fg: '#f87171' }
-    }[tone || 'c'] || { bg: 'rgba(255,255,255,0.03)', fg: '#8a8f98' };
+      a: { bg: '#dcfce7', fg: '#166534' },
+      b: { bg: '#dbeafe', fg: '#1d4ed8' },
+      c: { bg: '#fef3c7', fg: '#b45309' },
+      d: { bg: '#fee2e2', fg: '#b91c1c' }
+    }[tone || 'c'] || { bg: '#f8fafc', fg: '#475569' };
     return '<span class="industry-pool-pill" style="background:' + palette.bg + ';color:' + palette.fg + '">' + esc(label) + ' ' + fmt(value || 0) + '</span>';
   }
 
@@ -1006,70 +1064,66 @@
     if (filterArea) { filterArea.innerHTML = renderStockFilters(); bindStockFilters(); }
 
     var c = el('stockListContainer');
-    var emptyCols = 10;
-    var colgroup = '<colgroup><col style="width:13%"><col style="width:10%"><col style="width:7%"><col style="width:14%"><col style="width:11%"><col style="width:11%"><col style="width:6%"><col style="width:9%"><col style="width:10%"><col style="width:8%"></colgroup>';
-    var head = '<tr><th>股票</th><th>信号</th><th title="股票级执行档：取持仓机构 follow_gate 的最高优先级（与上方筛选、机构页 follow_gate 共用同一口径）">执行档</th><th>来源 / 行业</th><th>报告期</th><th>公告</th><th>综合 / 四分</th><th title="当前持仓机构总数 (其中 follow_gate=可跟 的家数)，来自 mart_current_relationship">机构 (可跟)</th><th>选股</th><th>板块</th></tr>';
+    var emptyCols = 8;
+    var colgroup = '<colgroup><col style="width:130px"><col style="width:110px"><col style="width:140px"><col style="width:180px"><col style="width:100px"><col style="width:100px"><col style="width:70px"><col style="width:110px"></colgroup>';
+    var head = '<tr><th>股票</th><th>信号 / 执行</th><th>来源 / 行业</th><th>综合评分</th><th>报告期</th><th>公告</th><th title="当前持仓机构总数 (其中可跟家数)">机构</th><th>标签</th></tr>';
     var row = function (s, idx) {
-      // 执行档：用单一 resolver（与顶部筛选共用同一份 stockGateInfo）
+      // 信号 + 执行档合并
       var gateHtml = stockGateTag(s);
       var signalHtml = s.setup_tag
         ? setupBadge(s.setup_tag, s.setup_priority, s.setup_confidence)
         : '<span class="muted" style="font-size:11px">' + esc(s.path_state || '-') + '</span>';
+      var signalGateHtml = '<div style="line-height:1.5">' + signalHtml + '<div style="margin-top:3px">' + gateHtml + '</div></div>';
       var source = stockSourceName(s);
       var industry = s.setup_industry_name || s.sw_level3 || s.sw_level2 || s.sw_level1 || '';
-      var sourceIndustryHtml = '<div style="line-height:1.5"><div style="font-weight:510;font-size:12px">' + esc(source) + '</div>' +
-        (industry ? '<div style="font-size:11px;color:#62666d">' + esc(industry) + '</div>' : '') + '</div>';
+      var sourceIndustryHtml = '<div style="line-height:1.5"><div style="font-weight:600;font-size:12px">' + esc(source) + '</div>' +
+        (industry ? '<div style="font-size:11px;color:#94a3b8">' + esc(industry) + '</div>' : '') + '</div>';
       var reportHtml = fmtDate(s.latest_report_date) + ' ' + daysAgoPill(s.latest_report_date);
       var noticeHtml = fmtDate(s.latest_notice_date) + ' ' + daysAgoPill(s.latest_notice_date);
       var scoreHtml = stockCompositeCell(s);
-      // 选股信号标签
-      var screenHtml = '';
+      // 标签列：选股信号 + 板块动量 + 双重确认
+      var tagParts = [];
       if (s._screen) {
-        var badges = [];
-        if (s._screen.f1_hit) badges.push('<span class="tag tag-sm" style="background:#3b82f6;color:#fff" title="MA突破">F1</span>');
-        if (s._screen.f3_hit) badges.push('<span class="tag tag-sm" style="background:#8b5cf6;color:#fff" title="趋势跟踪">F3</span>');
-        if (s._screen.f5_hit) badges.push('<span class="tag tag-sm" style="background:#f59e0b;color:#fff" title="MACD金叉">F5</span>');
-        screenHtml = badges.length ? badges.join(' ') : '<span class="muted">-</span>';
-      } else { screenHtml = '<span class="muted">-</span>'; }
-      // 板块动量 + 双重确认
-      var sectorHtml = '';
+        if (s._screen.f1_hit) tagParts.push('<span class="tag tag-sm" style="background:#3b82f6;color:#fff" title="MA突破">F1</span>');
+        if (s._screen.f3_hit) tagParts.push('<span class="tag tag-sm" style="background:#8b5cf6;color:#fff" title="趋势跟踪">F3</span>');
+        if (s._screen.f5_hit) tagParts.push('<span class="tag tag-sm" style="background:#f59e0b;color:#fff" title="MACD金叉">F5</span>');
+      }
       if (s._dual_confirm) {
-        sectorHtml = '<span class="tag tag-sm" style="background:#10b981;color:#fff" title="机构+板块双重确认">双确</span>';
+        tagParts.push('<span class="tag tag-sm" style="background:#10b981;color:#fff" title="机构+板块双重确认">双确</span>');
       } else if (s._sector_trend) {
         var tc = s._sector_trend === 'bullish' ? '#10b981' : s._sector_trend === 'recovering' ? '#3b82f6' : s._sector_trend === 'weakening' ? '#f59e0b' : '#94a3b8';
         var trendLabel = { bullish: '\u770b\u591a', recovering: '\u56de\u5347', weakening: '\u8f6c\u5f31', bearish: '\u770b\u7a7a', consolidating: '\u9707\u8361' }[s._sector_trend] || s._sector_trend;
-        sectorHtml = '<span style="color:' + tc + ';font-size:11px">' + esc(trendLabel) + '</span>';
-      } else { sectorHtml = '<span class="muted">-</span>'; }
-      // 「机构 (可跟)」单元格：当前持仓家数 + 其中 follow_gate=follow 的家数
+        tagParts.push('<span style="color:' + tc + ';font-size:11px">' + esc(trendLabel) + '</span>');
+      }
+      var tagsHtml = tagParts.length ? '<div style="display:flex;flex-wrap:wrap;gap:3px">' + tagParts.join('') + '</div>' : '<span class="muted">-</span>';
+      // 机构
       var holderTotal = (s.holder_total != null) ? s.holder_total : (s.inst_count_t0 || 0);
       var holderFollow = s.holder_follow_count || 0;
-      var holderHtml = '<span style="font-size:12px;color:#f7f8f8">' + holderTotal + '</span>' +
+      var holderHtml = '<span style="font-size:12px;color:#0f172a">' + holderTotal + '</span>' +
         (holderFollow > 0
-          ? ' <span style="font-size:11px;color:#34d399;font-weight:510" title="该股票现有持仓机构中 follow_gate=follow 的家数">(' + holderFollow + ')</span>'
+          ? ' <span style="font-size:11px;color:#059669;font-weight:600" title="可跟机构数">(' + holderFollow + ')</span>'
           : '');
       return '<tr data-stock-idx="' + idx + '">' +
         '<td>' + stockCell(s.stock_code, s.stock_name) + '</td>' +
-        '<td>' + signalHtml + '</td>' +
-        '<td>' + gateHtml + '</td>' +
+        '<td>' + signalGateHtml + '</td>' +
         '<td>' + sourceIndustryHtml + '</td>' +
+        '<td>' + scoreHtml + '</td>' +
         '<td data-sort-value="' + esc(fmtDate(s.latest_report_date)) + '">' + reportHtml + '</td>' +
         '<td data-sort-value="' + esc(fmtDate(s.latest_notice_date)) + '">' + noticeHtml + '</td>' +
-        '<td>' + scoreHtml + '</td>' +
         '<td>' + holderHtml + '</td>' +
-        '<td>' + screenHtml + '</td>' +
-        '<td>' + sectorHtml + '</td>' +
+        '<td>' + tagsHtml + '</td>' +
         '</tr>';
     };
     var data = stockListState.getData() || [];
     if (!data.length) {
-      c.innerHTML = '<table class="data-table data-table-compact data-table-cards" style="table-layout:fixed">' + colgroup + '<thead>' + head + '</thead><tbody><tr><td class="empty-row" colspan="' + emptyCols + '">暂无数据</td></tr></tbody></table>';
+      c.innerHTML = '<div class="table-scroll-wrap"><table class="data-table data-table-compact data-table-cards">' + colgroup + '<thead>' + head + '</thead><tbody><tr><td class="empty-row" colspan="' + emptyCols + '">暂无数据</td></tr></tbody></table></div>';
       return;
     }
     var renderSeq = ++_stockListRenderSeq;
     c.innerHTML =
       '<div id="stockListRenderHint" class="muted" style="font-size:11px;margin-bottom:8px">正在渲染 0 / ' + data.length + ' ...</div>' +
-      '<table class="data-table data-table-compact data-table-cards" style="table-layout:fixed">' +
-      colgroup + '<thead>' + head + '</thead><tbody></tbody></table>';
+      '<div class="table-scroll-wrap"><table class="data-table data-table-compact data-table-cards">' +
+      colgroup + '<thead>' + head + '</thead><tbody></tbody></table></div>';
     var tbody = c.querySelector('tbody');
     var hint = el('stockListRenderHint');
     var chunkSize = 180;
@@ -1237,24 +1291,24 @@
     if (validationReport?.data) sections.push(renderSetupValidationPanel(validationReport.data));
     var candHead = '<table class="data-table"><thead><tr><th>股票</th><th>核心判断</th><th>执行</th><th>来源机构</th><th>报告期</th><th>池子 / 综合</th></tr></thead><tbody>';
     if (cands?.data?.length) {
-      sections.push('<div style="margin-bottom:18px"><div style="font-size:14px;font-weight:590;margin-bottom:8px">研究候选</div>' +
+      sections.push('<div style="margin-bottom:18px"><div style="font-size:14px;font-weight:700;margin-bottom:8px">研究候选</div>' +
         candHead + cands.data.map(function (s) {
           return '<tr><td>' + stockCell(s.stock_code, s.stock_name) + '</td><td>' + stockSignalCell(s) + '</td><td>' + stockExecutionCell(s) + '</td><td>' + sourceInstitutionCell(s) + '</td><td>' + stockReportCell(s) + '</td><td>' + stockCompositeCell(s) + '</td></tr>';
         }).join('') + '</tbody></table></div>');
     }
     var head = '<table class="data-table"><thead><tr><th>股票</th><th>入池日期</th><th>入池价</th><th>理由</th><th>当前Setup</th><th>来源</th><th>至今</th><th>最大涨</th><th>最大撤</th><th>状态</th></tr></thead><tbody>';
     if (r?.data?.length) {
-      sections.push('<div><div style="font-size:14px;font-weight:590;margin-bottom:8px">手工股票池</div>' +
+      sections.push('<div><div style="font-size:14px;font-weight:700;margin-bottom:8px">手工股票池</div>' +
         head + r.data.map(function (w) {
           return '<tr><td>' + stockCell(w.stock_code, w.stock_name) + '</td><td>' + fmtDate(w.added_date) + '</td><td>' + (w.added_price || '-') + '</td><td>' + esc(w.added_reason || '') + '</td><td>' + setupSummaryCell(w) + '</td><td>' + esc(w.source_institution || '') + '</td><td>' + fmtGain(w.gain_since_added) + '</td><td>' + fmtGain(w.max_gain) + '</td><td>' + (w.max_drawdown != null ? '-' + w.max_drawdown.toFixed(1) + '%' : '-') + '</td><td>' + esc(w.status || '') + '</td></tr>';
         }).join('') + '</tbody></table></div>');
     } else {
-      sections.push('<div><div style="font-size:14px;font-weight:590;margin-bottom:8px">手工股票池</div>' +
+      sections.push('<div><div style="font-size:14px;font-weight:700;margin-bottom:8px">手工股票池</div>' +
         head + '<tr><td class=”empty-row” colspan=”10”>暂无股票。</td></tr></tbody></table></div>');
     }
     var trackHead = '<table class="data-table"><thead><tr><th>快照日</th><th>股票</th><th>池子 / 综合</th><th>Setup</th><th>来源机构</th><th>10日</th><th>30日</th><th>60日</th><th>至今</th></tr></thead><tbody>';
     if (trackingSnapshots?.data?.length) {
-      sections.push('<div style="margin-top:18px"><div style="font-size:14px;font-weight:590;margin-bottom:8px">最近跟踪快照</div>' +
+      sections.push('<div style="margin-top:18px"><div style="font-size:14px;font-weight:700;margin-bottom:8px">最近跟踪快照</div>' +
         trackHead + trackingSnapshots.data.map(function (s) {
           var gain10 = s.matured_10d ? fmtGain(s.gain_10d) : '<span class="muted">待成熟</span>';
           var gain30 = s.matured_30d ? fmtGain(s.gain_30d) : '<span class="muted">待成熟</span>';
@@ -1282,9 +1336,9 @@
         return '<tr>' +
           '<td>' + stockCell(item.stock_code, item.stock_name) + '</td>' +
           '<td>' + priorityPoolTag(item.priority_pool) + '</td>' +
-          '<td><div style="font-size:12px;color:#f7f8f8;font-weight:510">综合 ' + scoreNum(item.composite_priority_score) + '</div><div class="muted" style="font-size:10px">Legacy ' + scoreNum(item.action_score) + '</div></td>' +
-          '<td><div style="font-size:12px;color:#f7f8f8">质 ' + scoreNum(item.company_quality_score) + ' · 阶 ' + scoreNum(item.stage_score) + ' · 测 ' + scoreNum(item.forecast_score) + '</div><div class="muted" style="font-size:10px">' + esc(item.stock_archetype || '待分类') + '</div></td>' +
-          '<td><div style="font-size:11px;color:#8a8f98;line-height:1.5">' + esc(reason) + '</div></td>' +
+          '<td><div style="font-size:12px;color:#0f172a;font-weight:600">综合 ' + scoreNum(item.composite_priority_score) + '</div><div class="muted" style="font-size:10px">Legacy ' + scoreNum(item.action_score) + '</div></td>' +
+          '<td><div style="font-size:12px;color:#0f172a">质 ' + scoreNum(item.company_quality_score) + ' · 阶 ' + scoreNum(item.stage_score) + ' · 测 ' + scoreNum(item.forecast_score) + '</div><div class="muted" style="font-size:10px">' + esc(item.stock_archetype || '待分类') + '</div></td>' +
+          '<td><div style="font-size:11px;color:#475569;line-height:1.5">' + esc(reason) + '</div></td>' +
           '</tr>';
       }).join('') +
       '</tbody></table>';
@@ -1301,8 +1355,8 @@
           '<td>' + stockCell(item.stock_code, item.stock_name) + '</td>' +
           '<td>#' + fmt(item.composite_rank) + '</td>' +
           '<td>#' + fmt(item.legacy_rank) + '</td>' +
-          '<td><span style="font-size:12px;font-weight:590;color:' + deltaColor + '">' + esc(deltaText) + '</span></td>' +
-          '<td><div style="font-size:12px;color:#f7f8f8">' + priorityPoolTag(item.priority_pool) + '</div><div class="muted" style="font-size:10px;margin-top:3px">综合 ' + scoreNum(item.composite_priority_score) + ' · Legacy ' + scoreNum(item.action_score) + '</div></td>' +
+          '<td><span style="font-size:12px;font-weight:700;color:' + deltaColor + '">' + esc(deltaText) + '</span></td>' +
+          '<td><div style="font-size:12px;color:#0f172a">' + priorityPoolTag(item.priority_pool) + '</div><div class="muted" style="font-size:10px;margin-top:3px">综合 ' + scoreNum(item.composite_priority_score) + ' · Legacy ' + scoreNum(item.action_score) + '</div></td>' +
           '</tr>';
       }).join('') +
       '</tbody></table>';
@@ -1609,7 +1663,7 @@
     pending: '#94a3b8',
     skipped: '#cbd5e1',
     stopped: '#f59e0b',
-    idle: 'rgba(255,255,255,0.08)'
+    idle: '#e2e8f0'
   };
   var _uiRunning = false;
   var _lastAuditSnapshot = null;
@@ -1752,9 +1806,9 @@
       if (typeof obj.before_missing === 'number' && typeof obj.after_missing === 'number') {
         text += ' · 缺口' + fmt(obj.before_missing) + '→' + fmt(obj.after_missing);
       }
-      lines.push('<div style="font-size:10px;color:#8a8f98;margin-top:2px">' + esc(text) + '</div>');
+      lines.push('<div style="font-size:10px;color:#64748b;margin-top:2px">' + esc(text) + '</div>');
       if (obj.reason) {
-        lines.push('<div style="font-size:10px;color:#fbbf24;margin-top:2px">' + esc(obj.reason) + '</div>');
+        lines.push('<div style="font-size:10px;color:#b45309;margin-top:2px">' + esc(obj.reason) + '</div>');
       }
       if (obj.gap_summary && obj.gap_summary.unresolved > 0) {
         lines.push(renderGapSummaryInline(obj.gap_summary, 2));
@@ -1787,10 +1841,10 @@
       text += ' · 未补齐' + fmt(obj.gap_summary.unresolved);
     }
     var lines = [
-      '<div style="font-size:10px;color:#8a8f98;margin-top:2px">' + esc(text) + '</div>'
+      '<div style="font-size:10px;color:#64748b;margin-top:2px">' + esc(text) + '</div>'
     ];
     if (obj.reason) {
-      lines.push('<div style="font-size:10px;color:#fbbf24;margin-top:2px">' + esc(obj.reason) + '</div>');
+      lines.push('<div style="font-size:10px;color:#b45309;margin-top:2px">' + esc(obj.reason) + '</div>');
     }
     if (obj.gap_summary && obj.gap_summary.unresolved > 0) {
       lines.push(renderGapSummaryInline(obj.gap_summary, 2));
@@ -2254,7 +2308,7 @@
     ['data', 'calc', 'mart'].forEach(function (gId) {
       var cardsHtml = grouped[gId].map(function (s) {
         var cardStatus = s.display_status || s.status || 'idle';
-        var color = STATUS_COLORS[cardStatus] || 'rgba(255,255,255,0.08)';
+        var color = STATUS_COLORS[cardStatus] || '#e2e8f0';
         var statusText = { completed: '完成', partial: '有缺口', failed: '失败', blocked: '阻断', running: '运行中', pending: '等待执行', skipped: '本轮跳过', stopped: '已停止', idle: '' }[cardStatus] || '';
         if (_stopRequestedUi && cardStatus === 'running') statusText = '停止中';
         var timeStr = fmtTime(s.finished_at || s.started_at);
@@ -2283,14 +2337,14 @@
         return '<div class="step-card ' + esc(cardStatus) + toneClass + (actionable ? ' actionable' : '') + '" style="border-top:3px solid ' + color + '"' +
           (actionable ? ' data-step-id="' + esc(s.step_id) + '" data-step-name="' + esc(s.step_name || s.step_id) + '" tabindex="0" role="button" title="' + esc(s.action_label || '单独补跑') + '"' : '') + '>' +
           '<div class="step-card-head"><div>' +
-          '<div style="font-size:12px;font-weight:510;min-width:0">' + esc(s.step_name || s.step_id) + '</div>' +
+          '<div style="font-size:12px;font-weight:600;min-width:0">' + esc(s.step_name || s.step_id) + '</div>' +
           '</div>' + actionHtml + '</div>' +
           '<div style="font-size:11px;color:' + color + '">' + statusText + '</div>' +
           (cardStatus === 'idle' && stepDesc ? '<div class="step-card-desc">' + esc(stepDesc) + '</div>' : '') +
-          (s.records ? '<div style="font-size:11px;color:#8a8f98">' + fmt(s.records) + '条</div>' : '') +
+          (s.records ? '<div style="font-size:11px;color:#64748b">' + fmt(s.records) + '条</div>' : '') +
           detailHtml +
           auditHtml +
-          (timeStr ? '<div style="font-size:10px;color:#62666d;margin-top:2px">' + timeStr + '</div>' : '') +
+          (timeStr ? '<div style="font-size:10px;color:#94a3b8;margin-top:2px">' + timeStr + '</div>' : '') +
           reasonStr + '</div>';
       }).join('');
 
@@ -2725,7 +2779,7 @@
     renderChunkedTable(el('searchResults'), {
       head: head,
       rows: r.data.map(function (item) {
-        var st = item.tracked ? '<span style="color:#10b981">已跟踪</span>' : '<span style="color:#62666d">未跟踪</span>';
+        var st = item.tracked ? '<span style="color:#10b981">已跟踪</span>' : '<span style="color:#94a3b8">未跟踪</span>';
         var disabled = item.tracked ? ' disabled' : '';
         return '<tr><td><input type="checkbox" class="search-check" data-name="' + esc(item.holder_name) + '"' + disabled + '></td>' +
           '<td>' + esc(item.holder_name) + '</td><td>' + esc(item.holder_type || '') + '</td><td>' + item.stock_count + '</td>' +
@@ -2796,7 +2850,7 @@
     if (!btn.classList.contains('pill-tab-btn')) {
       btn.style.borderColor = nextOpen ? '#93c5fd' : '';
       btn.style.color = nextOpen ? '#2563eb' : '';
-      btn.style.background = nextOpen ? 'rgba(96,165,250,0.12)' : '';
+      btn.style.background = nextOpen ? '#eff6ff' : '';
     }
   }
 
@@ -2929,7 +2983,7 @@
         metric('可跟性提示', esc(p.followability_hint || '-')) +
         '</div>' +
         '</div>' +
-        '<div style="flex:0 0 420px;border:1px solid rgba(255,255,255,0.05);border-radius:6px;padding:6px;background:rgba(255,255,255,0.03)">' + chartSvg + '</div>' +
+        '<div style="flex:0 0 420px;border:1px solid #f1f5f9;border-radius:6px;padding:6px;background:#fafbfc">' + chartSvg + '</div>' +
         '</div>';
 
       // Phase 4: 评分拆解入口
@@ -2946,8 +3000,8 @@
         indSummary.forEach(function (l1) {
           // 一级行业 = 分组行
           var barW = Math.min(l1.pct, 100);
-          html += '<tr style="background:rgba(255,255,255,0.03);cursor:pointer" onclick="var s=this.nextElementSibling;while(s&&!s.classList.contains(\'ind-l1\')){s.style.display=s.style.display===\'none\'?\'table-row\':\'none\';s=s.nextElementSibling;}">' +
-            '<td style="font-weight:510;padding-left:8px">' + esc(l1.level1) + ' <div style="background:rgba(255,255,255,0.08);height:4px;border-radius:2px;width:100px;display:inline-block;vertical-align:middle;margin-left:6px"><div style="background:#3b82f6;height:100%;border-radius:2px;width:' + barW + '%"></div></div></td>' +
+          html += '<tr style="background:#f8fafc;cursor:pointer" onclick="var s=this.nextElementSibling;while(s&&!s.classList.contains(\'ind-l1\')){s.style.display=s.style.display===\'none\'?\'table-row\':\'none\';s=s.nextElementSibling;}">' +
+            '<td style="font-weight:600;padding-left:8px">' + esc(l1.level1) + ' <div style="background:#e2e8f0;height:4px;border-radius:2px;width:100px;display:inline-block;vertical-align:middle;margin-left:6px"><div style="background:#3b82f6;height:100%;border-radius:2px;width:' + barW + '%"></div></div></td>' +
             '<td style="text-align:center">' + l1.stock_count + '只</td>' +
             '<td style="text-align:center">' + l1.pct + '%</td>' +
             '<td style="text-align:center">' + (l1.win_rate_30d != null ? ('<span style="color:' + (Number(l1.win_rate_30d) >= 60 ? '#10b981' : Number(l1.win_rate_30d) >= 50 ? '#f59e0b' : '#ef4444') + '">' + Number(l1.win_rate_30d).toFixed(0) + '%</span>') : '-') + '</td>' +
@@ -2958,14 +3012,14 @@
             if (l2.win_rate_30d != null) {
               var wr = Number(l2.win_rate_30d);
               var wrColor = wr >= 60 ? '#10b981' : wr >= 50 ? '#f59e0b' : '#ef4444';
-              wrHtml = '<span style="color:' + wrColor + ';font-weight:510">' + wr.toFixed(0) + '%</span>';
+              wrHtml = '<span style="color:' + wrColor + ';font-weight:600">' + wr.toFixed(0) + '%</span>';
             }
             if (l2.avg_gain_30d != null) gainHtml = fmtGain(l2.avg_gain_30d);
             // 三级子行业（紧凑展示）
             var l3Str = (l2.children || []).map(function (l3) { return l3.level3 + '(' + l3.stock_count + ')'; }).join(' ');
             html += '<tr style="display:none">' +
               '<td style="padding-left:24px">' + esc(l2.level2) +
-              (l3Str ? '<div style="font-size:10px;color:#62666d;margin-top:1px">' + esc(l3Str) + '</div>' : '') +
+              (l3Str ? '<div style="font-size:10px;color:#94a3b8;margin-top:1px">' + esc(l3Str) + '</div>' : '') +
               '</td>' +
               '<td style="text-align:center">' + l2.stock_count + '只</td><td></td>' +
               '<td style="text-align:center">' + wrHtml + '</td>' +
@@ -2976,7 +3030,7 @@
       }
 
       // 分隔线
-      html += '<hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:14px 0">';
+      html += '<hr style="border:none;border-top:1px solid #e2e8f0;margin:14px 0">';
 
       // 持仓明细表
       if (!holdings.length) { html += '<div class="muted">暂无持仓明细</div>'; panel.innerHTML = html; return; }
@@ -2986,7 +3040,7 @@
         var indFull = (h.sw_level1 || '') + (h.sw_level2 ? ' > ' + h.sw_level2 : '') + (h.sw_level3 ? ' > ' + h.sw_level3 : '') || '-';
         var cost = h.inst_ref_cost != null ? Number(h.inst_ref_cost).toFixed(2) + '<div class="muted" style="font-size:10px">' + esc(costMethodText(h.inst_cost_method)) + '</div>' : '-';
         var premium = h.premium_pct != null ? premiumText(h.premium_pct) + '<div class="muted" style="font-size:10px">' + esc(h.premium_bucket || '') + '</div>' : '-';
-        return '<tr><td>' + stockCell(h.stock_code, h.stock_name) + '</td><td style="font-size:11px;color:#8a8f98">' + esc(indFull) + '</td><td>' + fmtDate(h.report_date) + '</td><td>' + (h.event_type ? evTag(h.event_type) : '-') + '</td><td>' + cost + '</td><td>' + premium + '</td><td>' + followGateTag(h.follow_gate, h.follow_gate_reason) + '</td><td>' + compactNum(h.hold_market_cap) + '</td><td>' + others + '</td></tr>';
+        return '<tr><td>' + stockCell(h.stock_code, h.stock_name) + '</td><td style="font-size:11px;color:#64748b">' + esc(indFull) + '</td><td>' + fmtDate(h.report_date) + '</td><td>' + (h.event_type ? evTag(h.event_type) : '-') + '</td><td>' + cost + '</td><td>' + premium + '</td><td>' + followGateTag(h.follow_gate, h.follow_gate_reason) + '</td><td>' + compactNum(h.hold_market_cap) + '</td><td>' + others + '</td></tr>';
       }).join('');
       html += '</tbody></table>';
       panel.innerHTML = html;
@@ -3002,7 +3056,7 @@
     }
     var bd = await App._api('/api/inst/scoring/breakdown/institution/' + encodeURIComponent(instId));
     if (!bd || !bd.ok) return;
-    var h = '<div style="padding:10px;background:rgba(255,255,255,0.03);border-radius:6px;font-size:12px">';
+    var h = '<div style="padding:10px;background:#f8fafc;border-radius:6px;font-size:12px">';
     h += '<b>实力分公式</b>: ' + esc(bd.formula) + '<br>';
     h += '<b>实力分</b>: ' + (bd.quality_score != null ? Number(bd.quality_score).toFixed(1) : '-') + ' | ';
     h += '<b>可跟分</b>: ' + (bd.followability_score != null ? Number(bd.followability_score).toFixed(1) : '-') + '<br>';
@@ -3011,11 +3065,11 @@
     h += '<b>评分依据</b>: ' + (bd.score_basis === 'buy' ? '买入类事件' : '全事件回退') + '<br><br>';
     h += '<table style="width:100%;font-size:11px"><tr><th>因子</th><th>原始值</th><th>权重</th><th>来源</th></tr>';
     (bd.factors || []).forEach(function (f) {
-      h += '<tr><td>' + esc(f.label || '-') + '</td><td>' + (f.raw_value != null ? esc(String(f.raw_value)) : '-') + '</td><td>' + esc(String(f.weight || 0)) + '</td><td style="color:#8a8f98">' + esc(f.source || '-') + '</td></tr>';
+      h += '<tr><td>' + esc(f.label || '-') + '</td><td>' + (f.raw_value != null ? esc(String(f.raw_value)) : '-') + '</td><td>' + esc(String(f.weight || 0)) + '</td><td style="color:#64748b">' + esc(f.source || '-') + '</td></tr>';
     });
     h += '</table></div>';
     if (bd.followability) {
-      h += '<div style="margin-top:8px;padding:10px;background:#fff;border:1px solid rgba(255,255,255,0.08);border-radius:6px;font-size:12px">';
+      h += '<div style="margin-top:8px;padding:10px;background:#fff;border:1px solid #e2e8f0;border-radius:6px;font-size:12px">';
       h += '<b>可跟性画像</b>';
       h += '<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px">';
       h += '<span>平均溢价: ' + esc(premiumText(bd.followability.avg_premium_pct)) + '</span>';
@@ -3082,96 +3136,6 @@
   }
 
   // ============================================================
-  // 骨架屏 (Skeleton Loading)
-  // ============================================================
-  function skeletonStatCards(count) {
-    count = count || 5;
-    var cards = '';
-    for (var i = 0; i < count; i++) {
-      cards += '<div class="stat-card skeleton-card"><div class="skeleton skeleton-title"></div><div class="skeleton skeleton-metric"></div><div class="skeleton skeleton-line" style="width:70%"></div></div>';
-    }
-    return '<div class="stats-row">' + cards + '</div>';
-  }
-
-  function skeletonTable(rows, cols) {
-    rows = rows || 6; cols = cols || 5;
-    var widths = ['45%', '30%', '55%', '25%', '40%', '35%', '50%', '20%'];
-    var thead = '<tr>';
-    for (var c = 0; c < cols; c++) thead += '<th><div class="skeleton skeleton-cell" style="width:' + widths[c % widths.length] + '"></div></th>';
-    thead += '</tr>';
-    var tbody = '';
-    for (var r = 0; r < rows; r++) {
-      tbody += '<tr>';
-      for (var c2 = 0; c2 < cols; c2++) tbody += '<td><div class="skeleton skeleton-cell" style="width:' + widths[(r + c2) % widths.length] + '"></div></td>';
-      tbody += '</tr>';
-    }
-    return '<div class="table-skeleton"><table class="skeleton-table" style="width:100%;border-collapse:collapse">' +
-      '<thead>' + thead + '</thead><tbody>' + tbody + '</tbody></table></div>';
-  }
-
-  function skeletonCards(count) {
-    count = count || 4;
-    var cards = '';
-    for (var i = 0; i < count; i++) {
-      cards += '<div class="skeleton-card"><div class="skeleton skeleton-title"></div>' +
-        '<div class="skeleton skeleton-line"></div><div class="skeleton skeleton-line"></div>' +
-        '<div class="skeleton skeleton-block" style="margin-top:10px"></div></div>';
-    }
-    return '<div class="card-grid">' + cards + '</div>';
-  }
-
-  // ============================================================
-  // 评分雷达图 (Score Radar Chart)
-  // ============================================================
-  var _radarChartInstance = null;
-  function renderScoreRadar(containerId, dimensions) {
-    // dimensions: [{ label, value, max }]
-    if (!dimensions || dimensions.length < 3) return;
-    if (typeof Chart === 'undefined') return;
-    var container = el(containerId);
-    if (!container) return;
-    container.innerHTML = '<canvas id="' + containerId + '-canvas" width="280" height="280"></canvas>';
-    var canvas = document.getElementById(containerId + '-canvas');
-    if (!canvas) return;
-    if (_radarChartInstance) { _radarChartInstance.destroy(); _radarChartInstance = null; }
-    _radarChartInstance = new Chart(canvas.getContext('2d'), {
-      type: 'radar',
-      data: {
-        labels: dimensions.map(function(d) { return d.label; }),
-        datasets: [{
-          data: dimensions.map(function(d) { return d.value; }),
-          backgroundColor: 'rgba(94, 106, 210, 0.15)',
-          borderColor: '#7170ff',
-          borderWidth: 2,
-          pointBackgroundColor: '#7170ff',
-          pointBorderColor: '#7170ff',
-          pointRadius: 3,
-          pointHoverRadius: 5,
-        }]
-      },
-      options: {
-        responsive: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          r: {
-            beginAtZero: true,
-            grid: { color: 'rgba(255,255,255,0.06)' },
-            angleLines: { color: 'rgba(255,255,255,0.06)' },
-            pointLabels: {
-              color: '#d0d6e0',
-              font: { family: "'Inter Variable', 'Inter', sans-serif", size: 12, weight: 510 }
-            },
-            ticks: {
-              display: false,
-              stepSize: 20
-            }
-          }
-        }
-      }
-    });
-  }
-
-  // ============================================================
   // 自定义模态框（替代 prompt/confirm/alert）
   // ============================================================
   var INST_TYPES = ['QFII', '社保', '保险', '国家队', '北向', '牛散', '基金', '券商'];
@@ -3199,13 +3163,13 @@
     return val;
   }
   async function modalConfirm(msg) {
-    var ov = await showModal('确认', '<p style="font-size:13px;color:#8a8f98">' + msg + '</p>');
+    var ov = await showModal('确认', '<p style="font-size:13px;color:#475569">' + msg + '</p>');
     if (!ov) return false;
     closeModal(ov);
     return true;
   }
   async function modalAlert(msg) {
-    var ov = await showModal('提示', '<p style="font-size:13px;color:#8a8f98">' + msg + '</p>');
+    var ov = await showModal('提示', '<p style="font-size:13px;color:#475569">' + msg + '</p>');
     if (ov) closeModal(ov);
   }
   async function modalTypeSelect(title) {
@@ -3261,18 +3225,18 @@
   function metric(l, v) { return '<div class="metric"><div class="metric-value">' + v + '</div><div class="metric-label">' + l + '</div></div>' }
   function setupPriorityMeta(priority) {
     var p = Number(priority || 0);
-    if (p === 1) return { label: 'A1', bg: 'rgba(52,211,153,0.12)', fg: '#34d399' };
-    if (p === 2) return { label: 'A2', bg: 'rgba(96,165,250,0.12)', fg: '#60a5fa' };
-    if (p === 3) return { label: 'A3', bg: 'rgba(251,191,36,0.12)', fg: '#fbbf24' };
-    if (p === 4) return { label: 'A4', bg: 'rgba(255,255,255,0.03)', fg: '#8a8f98' };
-    if (p === 5) return { label: 'A5', bg: 'rgba(255,255,255,0.03)', fg: '#8a8f98' };
-    return { label: '-', bg: 'rgba(255,255,255,0.03)', fg: '#62666d' };
+    if (p === 1) return { label: 'A1', bg: '#dcfce7', fg: '#166534' };
+    if (p === 2) return { label: 'A2', bg: '#dbeafe', fg: '#1d4ed8' };
+    if (p === 3) return { label: 'A3', bg: '#fef3c7', fg: '#b45309' };
+    if (p === 4) return { label: 'A4', bg: '#f1f5f9', fg: '#475569' };
+    if (p === 5) return { label: 'A5', bg: '#f8fafc', fg: '#64748b' };
+    return { label: '-', bg: '#f8fafc', fg: '#94a3b8' };
   }
   function setupBadge(tag, priority, confidence) {
     if (!tag) return '<span class="muted">-</span>';
     var meta = setupPriorityMeta(priority);
-    var conf = confidence ? '<span style="font-size:10px;color:#62666d;margin-left:4px">' + esc(confidence) + '</span>' : '';
-    return '<span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;background:' + meta.bg + ';color:' + meta.fg + ';font-size:11px;font-weight:590">Setup ' + meta.label + '</span>' + conf;
+    var conf = confidence ? '<span style="font-size:10px;color:#94a3b8;margin-left:4px">' + esc(confidence) + '</span>' : '';
+    return '<span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;background:' + meta.bg + ';color:' + meta.fg + ';font-size:11px;font-weight:700">Setup ' + meta.label + '</span>' + conf;
   }
   function setupSummaryCell(s) {
     if (!s || !s.setup_tag) return '<span class="muted">-</span>';
@@ -3302,9 +3266,9 @@
     if (!setup || !setup.setup_tag) {
       return '<div class="stock-focus-card stock-focus-card--empty">' +
         scoreStrip +
-        '<div class="stock-focus-headline" style="color:#62666d;font-size:13px">暂无当前核心信号</div>' +
-        '<div style="color:#3a3f47;font-size:12px;margin-top:6px">未命中行业高手切入 Setup，可继续观察。</div>' +
-        (focusConstraint ? '<div style="color:#3a3f47;font-size:11px;margin-top:8px;line-height:1.6">' + esc(focusConstraint) + '</div>' : '') +
+        '<div class="stock-focus-headline" style="color:#94a3b8;font-size:13px">暂无当前核心信号</div>' +
+        '<div style="color:#cbd5e1;font-size:12px;margin-top:6px">未命中行业高手切入 Setup，可继续观察。</div>' +
+        (focusConstraint ? '<div style="color:#cbd5e1;font-size:11px;margin-top:8px;line-height:1.6">' + esc(focusConstraint) + '</div>' : '') +
         '</div>';
     }
     var meta = setupPriorityMeta(setup.setup_priority);
@@ -3317,7 +3281,7 @@
       gradeInline('溢价', setup.premium_grade),
       gradeInline('时效', setup.report_recency_grade),
       gradeInline('可靠', setup.reliability_grade)
-    ].filter(Boolean).join('<span style="color:rgba(255,255,255,0.08);margin:0 6px">|</span>');
+    ].filter(Boolean).join('<span style="color:#e2e8f0;margin:0 6px">|</span>');
     return '<div class="stock-focus-card">' +
       scoreStrip +
       '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">' +
@@ -3326,21 +3290,21 @@
       '</div>' +
       '<div class="stock-focus-narrative" title="' + esc(setup.setup_reason || '') + '">' + esc(stockSignalNarrative(setup)) + confText + '</div>' +
       '<div class="stock-focus-grade-bar">' + grades + '</div>' +
-      (focusConstraint ? '<div style="font-size:12px;color:#3a3f47;line-height:1.6;margin-top:10px">' + esc(focusConstraint) + '</div>' : '') +
+      (focusConstraint ? '<div style="font-size:12px;color:#cbd5e1;line-height:1.6;margin-top:10px">' + esc(focusConstraint) + '</div>' : '') +
       '</div>';
   }
   function gradeInline(label, value) {
     if (value == null) return '';
     var v = Number(value);
     var color = v <= 2 ? '#059669' : v <= 3 ? '#d97706' : '#94a3b8';
-    return '<span style="white-space:nowrap"><span style="color:#62666d">' + label + '</span> <span style="color:' + color + ';font-weight:510">' + v + '</span></span>';
+    return '<span style="white-space:nowrap"><span style="color:#94a3b8">' + label + '</span> <span style="color:' + color + ';font-weight:600">' + v + '</span></span>';
   }
   function followGateTag(gate, reason) {
     // 用于「机构-股票对」级 follow_gate（loose：基于 event_type + premium_pct 两输入）
     if (!gate) return '<span class="muted">-</span>';
     var color = gate === 'follow' ? '#059669' : gate === 'watch' ? '#10b981' : gate === 'observe' ? '#f59e0b' : '#ef4444';
     var label = gate === 'follow' ? '可跟' : gate === 'watch' ? '关注' : gate === 'observe' ? '观察' : gate === 'avoid' ? '回避' : gate;
-    return '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;background:' + color + '14;color:' + color + ';font-size:11px;font-weight:510" title="' + esc(reason || '') + '">' + label + '</span>';
+    return '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;background:' + color + '14;color:' + color + ';font-size:11px;font-weight:600" title="' + esc(reason || '') + '">' + label + '</span>';
   }
   // 单一真相源：股票级 gate 解析器
   // 优先用后端预算的 stock_gate（从 MCR holder follow_gate 聚合）
@@ -3372,7 +3336,7 @@
   function stockGateTag(s) {
     var info = stockGateInfo(s);
     if (!info.key) return '<span class="muted" title="' + esc(info.reason) + '">-</span>';
-    return '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;background:' + info.color + '14;color:' + info.color + ';font-size:11px;font-weight:510" title="' + esc(info.reason) + '">' + info.label + '</span>';
+    return '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;background:' + info.color + '14;color:' + info.color + ';font-size:11px;font-weight:600" title="' + esc(info.reason) + '">' + info.label + '</span>';
   }
   // 单一真相源：来源机构简称（后端解析后的 display_inst_name 优先；前端不再 fallback 到 leader_inst 全名）
   function stockSourceName(s) {
@@ -3399,13 +3363,13 @@
     var prefix = code.startsWith('1') || code.startsWith('0') || code.startsWith('3') ? 'SZ' : 'SH';
     var text = label || code;
     var clickAttr = stopPropagation ? ' onclick="event.stopPropagation()"' : '';
-    return '<a href="https://xueqiu.com/S/' + prefix + esc(code) + '" target="_blank" rel="noopener"' + clickAttr + ' style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;background:rgba(96,165,250,0.12);color:#60a5fa;font-size:11px;font-weight:590;border:1px solid rgba(96,165,250,0.2);text-decoration:none">' + esc(text) + '</a>';
+    return '<a href="https://xueqiu.com/S/' + prefix + esc(code) + '" target="_blank" rel="noopener"' + clickAttr + ' style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:700;border:1px solid #bfdbfe;text-decoration:none">' + esc(text) + '</a>';
   }
   function recommendedStrategySummary(item) {
     if (!item) {
       return {
         label: '未定',
-        tone: { bg: 'rgba(255,255,255,0.03)', fg: '#8a8f98' },
+        tone: { bg: '#f1f5f9', fg: '#475569' },
         recommendedReturn: null,
         recommendedLabel: null,
         comparisonLabel: null,
@@ -3446,9 +3410,9 @@
     var d = parseDateDigits(v);
     if (!d) return '';
     var days = Math.floor((new Date() - d) / 86400000);
-    var color = days <= 7 ? '#34d399' : days <= 30 ? '#fbbf24' : '#8a8f98';
-    var bg = days <= 7 ? 'rgba(52,211,153,0.12)' : days <= 30 ? 'rgba(251,191,36,0.12)' : 'rgba(255,255,255,0.05)';
-    return '<span style="display:inline-flex;padding:1px 6px;border-radius:999px;font-size:10px;font-weight:510;background:' + bg + ';color:' + color + ';border:1px solid ' + color + '33;margin-left:4px;white-space:nowrap">' + days + '天</span>';
+    var color = days <= 7 ? '#059669' : days <= 30 ? '#d97706' : '#94a3b8';
+    var bg = days <= 7 ? '#ecfdf5' : days <= 30 ? '#fffbeb' : '#f8fafc';
+    return '<span style="display:inline-flex;padding:1px 6px;border-radius:999px;font-size:10px;font-weight:600;background:' + bg + ';color:' + color + ';border:1px solid ' + color + '22;margin-left:4px;white-space:nowrap">' + days + '天</span>';
   }
   function daysBetweenDates(v1, v2) {
     var d1 = parseDateDigits(v1), d2 = parseDateDigits(v2);
@@ -3967,12 +3931,12 @@
   }
   function priorityPoolTag(pool) {
     var meta = {
-      'A池': { bg: 'rgba(52,211,153,0.12)', fg: '#34d399' },
-      'B池': { bg: 'rgba(96,165,250,0.12)', fg: '#60a5fa' },
-      'C池': { bg: 'rgba(251,191,36,0.12)', fg: '#fbbf24' },
-      'D池': { bg: 'rgba(239,68,68,0.12)', fg: '#f87171' }
-    }[pool || ''] || { bg: 'rgba(255,255,255,0.03)', fg: '#8a8f98' };
-    return '<span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;background:' + meta.bg + ';color:' + meta.fg + ';font-size:11px;font-weight:590">' + esc(pool || '未分池') + '</span>';
+      'A池': { bg: '#dcfce7', fg: '#166534' },
+      'B池': { bg: '#dbeafe', fg: '#1d4ed8' },
+      'C池': { bg: '#fef3c7', fg: '#b45309' },
+      'D池': { bg: '#fee2e2', fg: '#b91c1c' }
+    }[pool || ''] || { bg: '#f1f5f9', fg: '#64748b' };
+    return '<span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;background:' + meta.bg + ';color:' + meta.fg + ';font-size:11px;font-weight:700">' + esc(pool || '未分池') + '</span>';
   }
   function stockCompositeSummary(s) {
     return [
@@ -3987,24 +3951,10 @@
     var poolHtml = priorityPoolTag(s.priority_pool);
     var archetype = s.stock_archetype || '待分类';
     var summary = stockCompositeSummary(s);
-    var extra = [];
-    if (s.qlib_rank != null) extra.push('AI#' + s.qlib_rank);
-    if (s.forecast_score_effective != null) extra.push('有效测 ' + Number(s.forecast_score_effective).toFixed(1));
-    var stageStruct = stockStageStructText(s);
-    var forecastStruct = stockForecastStructText(s);
-    var structureLine = [stageStruct, forecastStruct].filter(Boolean).join(' · ');
-    var constraintLine = [];
-    if (s.raw_composite_priority_score != null && s.composite_priority_score != null && Number(s.raw_composite_priority_score) !== Number(s.composite_priority_score)) {
-      constraintLine.push('原始 ' + scoreNum(s.raw_composite_priority_score) + ' -> 封顶 ' + scoreNum(s.composite_priority_score));
-    }
-    if (s.priority_pool_reason) constraintLine.push(s.priority_pool_reason);
-    if (s.composite_cap_reason) constraintLine.push(s.composite_cap_reason);
     return '<div style="line-height:1.45">' +
-      '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">' + poolHtml + '<span style="font-size:13px;font-weight:590;color:#f7f8f8">综合 ' + composite + '</span></div>' +
-      '<div style="font-size:11px;color:#8a8f98;margin-top:3px">' + esc(summary) + '</div>' +
-      (structureLine ? '<div style="font-size:10px;color:#8a8f98;margin-top:2px">' + esc(structureLine) + '</div>' : '') +
-      '<div style="font-size:10px;color:#62666d;margin-top:2px">' + esc(archetype + (extra.length ? ' · ' + extra.join(' · ') : '')) + '</div>' +
-      (constraintLine.length ? '<div style="font-size:10px;color:#8a8f98;margin-top:2px">' + esc(constraintLine.join(' · ')) + '</div>' : '') +
+      '<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">' + poolHtml + '<span style="font-size:13px;font-weight:700;color:#0f172a">' + composite + '</span></div>' +
+      '<div style="font-size:11px;color:#475569;margin-top:2px">' + esc(summary) + '</div>' +
+      '<div style="font-size:10px;color:#94a3b8;margin-top:1px">' + esc(archetype) + '</div>' +
       '</div>';
   }
   function stockSignalCell(s) {
@@ -4045,26 +3995,9 @@
   function gradeChip(label, value) {
     return '<span class="stock-grade-chip">' + label + ' ' + (value != null ? String(value) + '级' : '-') + '</span>';
   }
-  function instLink(id, name, type) { return '<span class="smart-tag smart-tag--' + _smartTagClass(type) + ' clickable-name" onclick="App.toggleInstDetail(\'' + esc(id) + '\',this)" style="cursor:pointer;font-size:11px">' + _smartTagIcon(type) + esc(name || '') + '</span>' }
+  function instLink(id, name, type) { return '<span class="type-tag clickable-name" data-type="' + esc(type || 'other') + '" onclick="App.toggleInstDetail(\'' + esc(id) + '\',this)" style="cursor:pointer;font-size:11px">' + esc(name || '') + '</span>' }
   function typeTag(type, label) { return '<span class="type-tag" data-type="' + esc(type || 'other') + '">' + (label || esc(type || 'other')) + '</span>' }
-  function smartTag(type, label) { return '<span class="smart-tag smart-tag--' + _smartTagClass(type) + '">' + _smartTagIcon(type) + (label || esc(type || '')) + '</span>' }
   function evTag(type, label) { var cls = { new_entry: 'new', increase: 'up', decrease: 'down', exit: 'exit', unchanged: 'unchanged' }[type] || 'unchanged'; return '<span class="event-tag event-' + (cls) + '">' + esc(label || { new_entry: '新进', increase: '增持', decrease: '减持', exit: '退出', unchanged: '不变' }[type] || type) + '</span>' }
-
-  var _SMART_TAG_MAP = {
-    'QFII': { cls: 'qfii', icon: '🌐' },
-    '社保': { cls: 'social-security', icon: '🏛' },
-    '保险': { cls: 'insurance', icon: '🛡' },
-    '国家队': { cls: 'national', icon: '⭐' },
-    '国家大基金': { cls: 'state-fund', icon: '🏗' },
-    '北向': { cls: 'northbound', icon: '🧭' },
-    '牛散': { cls: 'star-investor', icon: '🔥' },
-    '基金': { cls: 'fund', icon: '📊' },
-    '券商': { cls: 'broker', icon: '🏦' },
-    '信托': { cls: 'trust', icon: '📋' },
-    '私募': { cls: 'private', icon: '🔒' },
-  };
-  function _smartTagClass(type) { return (_SMART_TAG_MAP[type] || {}).cls || 'default'; }
-  function _smartTagIcon(type) { var m = _SMART_TAG_MAP[type]; return m ? '<span class="smart-tag-icon">' + m.icon + '</span> ' : ''; }
 
   // ============================================================
   // Table Sorting
@@ -4524,8 +4457,8 @@
     var followCfg = rs[3]?.ok ? rs[3] : {};
 
     el('instScorecardFramework').innerHTML =
-      '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;margin-bottom:14px;font-size:12px;color:#8a8f98;line-height:1.7">' +
-      '<div style="font-size:14px;font-weight:590;color:#f7f8f8;margin-bottom:6px">机构评分双框架</div>' +
+      '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;margin-bottom:14px;font-size:12px;color:#475569;line-height:1.7">' +
+      '<div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:6px">机构评分双框架</div>' +
       '机构页当前同时维护“机构实力评分”和“可跟性评分”。前者回答机构信号本身好不好，后者回答普通跟随者是否容易复现。' +
       '</div>' +
       '<div class="score-framework-grid">' + (instFw.layers || []).map(renderStockFrameworkLayer).join('') + '</div>' +
@@ -4547,8 +4480,8 @@
     if (!fw?.ok) return;
     var framework = fw.data || {};
     el('stockScoreFramework').innerHTML =
-      '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 16px;margin-bottom:14px;font-size:12px;color:#8a8f98;line-height:1.7">' +
-      '<div style="font-size:14px;font-weight:590;color:#f7f8f8;margin-bottom:6px">' + esc(framework.title || '四层研究评分框架') + '</div>' +
+      '<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px 16px;margin-bottom:14px;font-size:12px;color:#475569;line-height:1.7">' +
+      '<div style="font-size:14px;font-weight:700;color:#0f172a;margin-bottom:6px">' + esc(framework.title || '四层研究评分框架') + '</div>' +
       esc(framework.summary || '-') +
       '</div>' +
       '<div class="score-framework-grid">' + (framework.layers || []).map(renderStockFrameworkLayer).join('') + '</div>';
@@ -4603,6 +4536,18 @@
     el('btnClearLog')?.addEventListener('click', () => el('updateLog').innerHTML = '');
     el('btnCopyLog')?.addEventListener('click', copyLogs);
     el('btnToggleSystemOps')?.addEventListener('click', () => togglePanel('btnToggleSystemOps', 'systemOpsPanel', '系统操作', '收起系统操作'));
+    // 管线折叠
+    el('pipelineToggle')?.addEventListener('click', function (e) {
+      if (e.target.closest('.panel-actions')) return; // 不要拦截内部按钮
+      var body = el('pipelineBody');
+      var arrow = el('pipelineArrow');
+      var netStatus = el('networkStatus');
+      if (!body) return;
+      var open = body.style.display !== 'none';
+      body.style.display = open ? 'none' : '';
+      if (netStatus) netStatus.style.display = open ? 'none' : '';
+      if (arrow) arrow.textContent = open ? '▶' : '▼';
+    });
     el('btnReset')?.addEventListener('click', resetDerivedData);
     el('btnSearchInst')?.addEventListener('click', searchInst);
     el('btnImportChecked')?.addEventListener('click', importChecked);
@@ -4647,16 +4592,16 @@
         })[d.stage] || d.stage;
         if (msgEl) {
           msgEl.innerHTML = '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">' +
-            '<span style="font-weight:510">' + esc(stageLabel) + '</span>' +
+            '<span style="font-weight:600">' + esc(stageLabel) + '</span>' +
             (progressTxt ? '<span class="muted">' + esc(progressTxt) + '</span>' : '') +
             '<span>' + esc(d.message || '') + '</span>' +
             '</div>' +
-            (d.total > 0 ? '<div style="margin-top:6px;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden">' +
+            (d.total > 0 ? '<div style="margin-top:6px;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden">' +
               '<div style="height:100%;width:' + pct + '%;background:' + (d.stage === 'error' ? '#ef4444' : '#3b82f6') + ';transition:width .3s"></div></div>' : '');
         }
         if (box && d.logs && d.logs.length) {
           box.innerHTML = d.logs.slice(-30).map(function (line) {
-            var color = line.level === 'error' ? '#ef4444' : (line.level === 'warning' ? '#f59e0b' : '#8a8f98');
+            var color = line.level === 'error' ? '#ef4444' : (line.level === 'warning' ? '#f59e0b' : '#475569');
             return '<div style="color:' + color + '">[' + (line.ts || '').slice(11, 19) + '] ' + esc(line.message) + '</div>';
           }).join('');
           box.scrollTop = box.scrollHeight;
@@ -4690,29 +4635,29 @@
     return '<span class="' + cls + '">' + sign + n.toFixed(2) + '%</span>';
   }
   function etfOverviewTone(state) {
-    if (state === 'panic') return { bg: 'rgba(96,165,250,0.12)', fg: '#60a5fa', label: '恐慌待托底' };
-    if (state === 'cooling') return { bg: 'rgba(251,146,60,0.12)', fg: '#fb923c', label: '降温观察期' };
-    if (state === 'heated') return { bg: 'rgba(239,68,68,0.12)', fg: '#f87171', label: '兑现降温期' };
-    return { bg: 'rgba(52,211,153,0.12)', fg: '#34d399', label: '趋势恢复期' };
+    if (state === 'panic') return { bg: '#eff6ff', fg: '#2563eb', label: '恐慌待托底' };
+    if (state === 'cooling') return { bg: '#fff7ed', fg: '#c2410c', label: '降温观察期' };
+    if (state === 'heated') return { bg: '#fef2f2', fg: '#dc2626', label: '兑现降温期' };
+    return { bg: '#f0fdf4', fg: '#166534', label: '趋势恢复期' };
   }
   function etfStrategyTone(kind) {
-    if (kind === '买入持有' || kind === '趋势持有') return { bg: 'rgba(52,211,153,0.12)', fg: '#34d399' };
-    if (kind === '网格交易' || kind === '网格候选') return { bg: 'rgba(96,165,250,0.12)', fg: '#60a5fa' };
-    if (kind === '防守停泊') return { bg: 'rgba(255,255,255,0.03)', fg: '#8a8f98' };
-    if (kind === '暂不参与') return { bg: 'rgba(239,68,68,0.12)', fg: '#f87171' };
-    return { bg: 'rgba(251,191,36,0.12)', fg: '#fbbf24' };
+    if (kind === '买入持有' || kind === '趋势持有') return { bg: '#dcfce7', fg: '#166534' };
+    if (kind === '网格交易' || kind === '网格候选') return { bg: '#dbeafe', fg: '#1d4ed8' };
+    if (kind === '防守停泊') return { bg: '#f8fafc', fg: '#475569' };
+    if (kind === '暂不参与') return { bg: '#fee2e2', fg: '#b91c1c' };
+    return { bg: '#fef3c7', fg: '#b45309' };
   }
   function etfSetupTone(state) {
-    if (state === '收敛待发') return { bg: 'rgba(52,211,153,0.12)', fg: '#34d399' };
-    if (state === '趋势跟随') return { bg: 'rgba(96,165,250,0.12)', fg: '#60a5fa' };
-    if (state === '低波防守') return { bg: 'rgba(255,255,255,0.03)', fg: '#8a8f98' };
-    if (state === '结构松散') return { bg: 'rgba(239,68,68,0.12)', fg: '#f87171' };
-    return { bg: 'rgba(251,191,36,0.12)', fg: '#fbbf24' };
+    if (state === '收敛待发') return { bg: '#dcfce7', fg: '#166534' };
+    if (state === '趋势跟随') return { bg: '#dbeafe', fg: '#1d4ed8' };
+    if (state === '低波防守') return { bg: '#f8fafc', fg: '#475569' };
+    if (state === '结构松散') return { bg: '#fee2e2', fg: '#b91c1c' };
+    return { bg: '#fef3c7', fg: '#b45309' };
   }
   function etfWatchTags(list, tone, actionMode) {
     if (!list || !list.length) return '<span class="muted">-</span>';
     return list.map(function (item) {
-      var meta = tone || { bg: 'rgba(96,165,250,0.12)', fg: '#60a5fa' };
+      var meta = tone || { bg: '#eff6ff', fg: '#1d4ed8' };
       var extra = [];
       if (item.rotation_score != null) extra.push('轮动 ' + etfNum(item.rotation_score, 1));
       if (item.setup_state) extra.push(item.setup_state);
@@ -4720,20 +4665,20 @@
       if (item.grid_step_pct != null) extra.push('步长 ' + etfNum(item.grid_step_pct, 1) + '%');
       var clickable = actionMode === 'analyze' && !!item.code;
       var attr = clickable ? ' data-etf-analyze="' + esc(item.code) + '"' : '';
-      return '<span' + attr + ' style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:' + meta.bg + ';color:' + meta.fg + ';font-size:11px;font-weight:510;margin:4px 6px 0 0' + (clickable ? ';cursor:pointer' : '') + '">' +
+      return '<span' + attr + ' style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:' + meta.bg + ';color:' + meta.fg + ';font-size:11px;font-weight:600;margin:4px 6px 0 0' + (clickable ? ';cursor:pointer' : '') + '">' +
         esc((item.name || item.code || '-') + (extra.length ? ' · ' + extra.join(' · ') : '')) +
         '</span>';
     }).join('');
   }
   function etfCatColor(cat) {
     var map = {
-      '宽基': '#60a5fa', '跨境': '#a78bfa', '商品': '#fbbf24', '债券': '#8a8f98', '货币': '#62666d',
-      '医疗健康': '#34d399', '半导体': '#22d3ee', '新能源': '#4ade80', '消费': '#fbbf24',
-      '金融': '#f87171', '军工': '#8a8f98', '地产建筑': '#a8a29e', '周期资源': '#fbbf24',
-      '数字科技': '#818cf8', '交通物流': '#2dd4bf', '电力公用': '#828fff', '汽车': '#fb923c',
-      '高端制造': '#38bdf8', '红利策略': '#f472b6'
+      '宽基': '#2563eb', '跨境': '#7c3aed', '商品': '#b45309', '债券': '#64748b', '货币': '#94a3b8',
+      '医疗健康': '#059669', '半导体': '#0891b2', '新能源': '#16a34a', '消费': '#d97706',
+      '金融': '#dc2626', '军工': '#475569', '地产建筑': '#78716c', '周期资源': '#a16207',
+      '数字科技': '#6366f1', '交通物流': '#0d9488', '电力公用': '#4f46e5', '汽车': '#ea580c',
+      '高端制造': '#0284c7', '红利策略': '#be185d'
     };
-    return map[cat] || '#2dd4bf';
+    return map[cat] || '#0f766e';
   }
 
   function bindEtfActionLinks(root, deepPanelId) {
@@ -4805,12 +4750,12 @@
     var overview = d.overview || {};
     var syncState = d.sync_state || {};
     var connectivity = source.connectivity || {};
-    var syncTone = syncState.running ? { bg: 'rgba(96,165,250,0.12)', fg: '#60a5fa', label: '同步进行中' } : { bg: 'rgba(52,211,153,0.12)', fg: '#34d399', label: '快照已就绪' };
+    var syncTone = syncState.running ? { bg: '#dbeafe', fg: '#1d4ed8', label: '同步进行中' } : { bg: '#dcfce7', fg: '#166534', label: '快照已就绪' };
     var staleNote = snapshot.is_stale
       ? '当前展示的是最近一次缓存结果，快照早于最近一次行情同步。'
       : '页面默认直接展示最近一次快照，不会因为刷新页面再次全量回测。';
     var sourceBreakdown = (source.source_breakdown || []).map(function (item) {
-      return '<span style="padding:3px 8px;border-radius:999px;background:rgba(96,165,250,0.12);color:#60a5fa;font-size:11px;font-weight:510">' + esc((item.source || '未知') + ' · ' + fmt(item.count || 0)) + '</span>';
+      return '<span style="padding:3px 8px;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:600">' + esc((item.source || '未知') + ' · ' + fmt(item.count || 0)) + '</span>';
     }).join('') || '<span class="muted">暂无来源明细</span>';
     var missingExamples = (source.no_kline_examples || []).length
       ? esc((source.no_kline_examples || []).join('、'))
@@ -4819,25 +4764,25 @@
 
     function statusPill(label, ok, detail) {
       var unknown = ok == null;
-      var bg = unknown ? 'rgba(255,255,255,0.08)' : (ok ? 'rgba(52,211,153,0.12)' : 'rgba(239,68,68,0.12)');
-      var fg = unknown ? '#8a8f98' : (ok ? '#34d399' : '#f87171');
+      var bg = unknown ? '#e2e8f0' : (ok ? '#dcfce7' : '#fee2e2');
+      var fg = unknown ? '#475569' : (ok ? '#166534' : '#991b1b');
       var text = label + ' · ' + (unknown ? '未检测' : (ok ? '在线' : '离线'));
       if (detail) text += ' · ' + detail;
-      return '<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:' + bg + ';color:' + fg + ';font-size:11px;font-weight:590">' + esc(text) + '</span>';
+      return '<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:' + bg + ';color:' + fg + ';font-size:11px;font-weight:700">' + esc(text) + '</span>';
     }
 
     function workbenchLinkCard(title, desc, tag, tabName) {
-      return '<div data-etf-tab="' + esc(tabName) + '" style="flex:1;min-width:220px;padding:14px;border:1px solid rgba(255,255,255,0.08);border-radius:12px;background:rgba(255,255,255,0.03);cursor:pointer">' +
+      return '<div data-etf-tab="' + esc(tabName) + '" style="flex:1;min-width:220px;padding:14px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;cursor:pointer">' +
         '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px">' +
-        '<span style="font-weight:590;color:#f7f8f8">' + esc(title) + '</span>' +
-        '<span style="padding:3px 8px;border-radius:999px;background:rgba(255,255,255,0.08);color:#d0d6e0;font-size:11px;font-weight:590">' + esc(tag) + '</span>' +
+        '<span style="font-weight:700;color:#0f172a">' + esc(title) + '</span>' +
+        '<span style="padding:3px 8px;border-radius:999px;background:#e2e8f0;color:#334155;font-size:11px;font-weight:700">' + esc(tag) + '</span>' +
         '</div>' +
-        '<div style="font-size:12px;line-height:1.6;color:#8a8f98">' + esc(desc) + '</div>' +
+        '<div style="font-size:12px;line-height:1.6;color:#475569">' + esc(desc) + '</div>' +
         '</div>';
     }
 
     function strategyShortcut(label, count, strategyType, tone) {
-      return '<span data-etf-strategy="' + esc(strategyType) + '" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:' + tone.bg + ';color:' + tone.fg + ';font-size:11px;font-weight:590;margin:4px 8px 0 0;cursor:pointer">' +
+      return '<span data-etf-strategy="' + esc(strategyType) + '" style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:' + tone.bg + ';color:' + tone.fg + ';font-size:11px;font-weight:700;margin:4px 8px 0 0;cursor:pointer">' +
         esc(label + ' ' + fmt(count || 0)) +
         '</span>';
     }
@@ -4847,14 +4792,14 @@
       '<div class="panel-head" style="align-items:flex-start;gap:12px;flex-wrap:wrap">' +
       '<div style="min-width:280px;flex:1">' +
       '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">' +
-      '<span style="font-weight:590;font-size:15px">ETF 工作台</span>' +
-      '<span style="padding:4px 10px;border-radius:999px;background:' + syncTone.bg + ';color:' + syncTone.fg + ';font-size:12px;font-weight:590">' + esc(syncTone.label) + '</span>' +
-      '<span style="padding:4px 10px;border-radius:999px;background:' + (snapshot.is_stale ? 'rgba(251,191,36,0.12)' : 'rgba(255,255,255,0.08)') + ';color:' + (snapshot.is_stale ? '#fbbf24' : '#d0d6e0') + ';font-size:12px;font-weight:590">' + esc(snapshot.is_stale ? '缓存偏旧' : '缓存最新') + '</span>' +
+      '<span style="font-weight:700;font-size:15px">ETF 工作台</span>' +
+      '<span style="padding:4px 10px;border-radius:999px;background:' + syncTone.bg + ';color:' + syncTone.fg + ';font-size:12px;font-weight:700">' + esc(syncTone.label) + '</span>' +
+      '<span style="padding:4px 10px;border-radius:999px;background:' + (snapshot.is_stale ? '#fef3c7' : '#e2e8f0') + ';color:' + (snapshot.is_stale ? '#b45309' : '#334155') + ';font-size:12px;font-weight:700">' + esc(snapshot.is_stale ? '缓存偏旧' : '缓存最新') + '</span>' +
       '</div>' +
-      '<div style="font-size:13px;line-height:1.7;color:#d0d6e0">' + esc(staleNote) + '</div>' +
-      '<div style="margin-top:8px;font-size:12px;color:#f7f8f8"><strong>快照：</strong>' + esc(snapshot.snapshot_id || '-') + '</div>' +
-      '<div style="margin-top:4px;font-size:12px;color:#8a8f98"><strong>计算时间：</strong>' + esc(fmtDateTime(snapshot.computed_at)) + ' · <strong>覆盖ETF：</strong>' + esc(fmt(snapshot.etf_count)) + '</div>' +
-      (syncState.message ? '<div style="margin-top:8px;font-size:12px;color:#8a8f98"><strong>最近任务：</strong>' + esc(syncState.message) + '</div>' : '') +
+      '<div style="font-size:13px;line-height:1.7;color:#334155">' + esc(staleNote) + '</div>' +
+      '<div style="margin-top:8px;font-size:12px;color:#0f172a"><strong>快照：</strong>' + esc(snapshot.snapshot_id || '-') + '</div>' +
+      '<div style="margin-top:4px;font-size:12px;color:#64748b"><strong>计算时间：</strong>' + esc(fmtDateTime(snapshot.computed_at)) + ' · <strong>覆盖ETF：</strong>' + esc(fmt(snapshot.etf_count)) + '</div>' +
+      (syncState.message ? '<div style="margin-top:8px;font-size:12px;color:#64748b"><strong>最近任务：</strong>' + esc(syncState.message) + '</div>' : '') +
       '</div>' +
       '<div style="min-width:280px;flex:1">' +
       '<div class="stats-row" style="grid-template-columns:repeat(5,minmax(0,1fr));margin-bottom:0">' +
@@ -4869,22 +4814,22 @@
       '</div>' +
 
       '<div class="panel" style="margin-bottom:14px">' +
-      '<div class="panel-head"><span style="font-weight:510">数据源与覆盖范围</span></div>' +
+      '<div class="panel-head"><span style="font-weight:600">数据源与覆盖范围</span></div>' +
       '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">' +
       statusPill('股东源', !!connectivity.holdings_source, connectivity.holdings_source_detail) +
       statusPill('K线源', !!connectivity.kline_source, connectivity.kline_source_detail) +
       statusPill('行业源', !!connectivity.industry_source, connectivity.industry_source_detail) +
       '</div>' +
-      '<div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;line-height:1.8;color:#d0d6e0">' +
+      '<div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;line-height:1.8;color:#334155">' +
       '<div style="min-width:260px;flex:1"><strong>全局历史区间：</strong>' + esc((source.history_start || '-') + ' ~ ' + (source.history_end || '-')) + '<br><strong>日线覆盖率：</strong>' + esc(source.kline_coverage_ratio != null ? Number(source.kline_coverage_ratio).toFixed(2) + '%' : '-') + '<br><strong>最近成功：</strong>' + esc(fmtDateTime(source.latest_kline_success_at)) + '</div>' +
       '<div style="min-width:260px;flex:1"><strong>ETF池更新时间：</strong>' + esc(fmtDateTime(source.universe_updated_at)) + '<br><strong>最近尝试：</strong>' + esc(fmtDateTime(source.latest_kline_attempt_at)) + '<br><strong>快照滞后：</strong>' + esc(source.snapshot_lag_minutes != null ? source.snapshot_lag_minutes + ' 分钟' : '-') + '</div>' +
       '</div>' +
-      '<div style="margin-top:10px;font-size:12px;color:#f7f8f8"><strong>来源分布：</strong> ' + sourceBreakdown + '</div>' +
-      '<div style="margin-top:8px;font-size:12px;color:#8a8f98"><strong>当前无日线样例：</strong>' + missingExamples + '</div>' +
+      '<div style="margin-top:10px;font-size:12px;color:#0f172a"><strong>来源分布：</strong> ' + sourceBreakdown + '</div>' +
+      '<div style="margin-top:8px;font-size:12px;color:#64748b"><strong>当前无日线样例：</strong>' + missingExamples + '</div>' +
       '</div>' +
 
       '<div class="panel" style="margin-bottom:14px">' +
-      '<div class="panel-head"><span style="font-weight:510">当前 ETF 结构</span></div>' +
+      '<div class="panel-head"><span style="font-weight:600">当前 ETF 结构</span></div>' +
       '<div class="stats-row" style="grid-template-columns:repeat(5,minmax(0,1fr));margin-bottom:10px">' +
       '<div class="stat-card"><div class="stat-value">' + esc(etfNum(overview.temperature_score, 1)) + '</div><div class="stat-label">市场温度</div></div>' +
       '<div class="stat-card"><div class="stat-value">' + esc(etfNum(overview.positive_20d_ratio, 0)) + '%</div><div class="stat-label">宽基上涨占比</div></div>' +
@@ -4892,17 +4837,17 @@
       '<div class="stat-card"><div class="stat-value">' + esc(etfNum(overview.avg_volatility_20d, 1)) + '%</div><div class="stat-label">平均20日波动</div></div>' +
       '<div class="stat-card"><div class="stat-value">' + esc(etfNum(overview.avg_drawdown_60d, 1)) + '%</div><div class="stat-label">平均60日回撤</div></div>' +
       '</div>' +
-      '<div style="font-size:12px;line-height:1.8;color:#d0d6e0"><strong>' + esc(overview.regime_label || '整体判断') + '：</strong>' + esc(overview.regime_reason || '-') + '</div>' +
-      '<div style="margin-top:8px;font-size:12px;color:#f7f8f8"><strong>策略分布：</strong>' +
-      strategyShortcut('买入持有', strategyCounts.trend, '买入持有', { bg: 'rgba(52,211,153,0.12)', fg: '#34d399' }) +
-      strategyShortcut('网格交易', strategyCounts.grid, '网格交易', { bg: 'rgba(96,165,250,0.12)', fg: '#60a5fa' }) +
-      strategyShortcut('防守停泊', strategyCounts.defensive, '防守停泊', { bg: 'rgba(251,191,36,0.12)', fg: '#fbbf24' }) +
-      strategyShortcut('暂不参与', strategyCounts.avoid, '暂不参与', { bg: 'rgba(239,68,68,0.12)', fg: '#f87171' }) +
+      '<div style="font-size:12px;line-height:1.8;color:#334155"><strong>' + esc(overview.regime_label || '整体判断') + '：</strong>' + esc(overview.regime_reason || '-') + '</div>' +
+      '<div style="margin-top:8px;font-size:12px;color:#0f172a"><strong>策略分布：</strong>' +
+      strategyShortcut('买入持有', strategyCounts.trend, '买入持有', { bg: '#dcfce7', fg: '#166534' }) +
+      strategyShortcut('网格交易', strategyCounts.grid, '网格交易', { bg: '#dbeafe', fg: '#1d4ed8' }) +
+      strategyShortcut('防守停泊', strategyCounts.defensive, '防守停泊', { bg: '#fef3c7', fg: '#b45309' }) +
+      strategyShortcut('暂不参与', strategyCounts.avoid, '暂不参与', { bg: '#fee2e2', fg: '#991b1b' }) +
       '</div>' +
       '</div>' +
 
       '<div class="panel" style="margin-bottom:14px">' +
-      '<div class="panel-head"><span style="font-weight:510">功能入口</span></div>' +
+      '<div class="panel-head"><span style="font-weight:600">功能入口</span></div>' +
       '<div style="display:flex;gap:12px;flex-wrap:wrap">' +
       workbenchLinkCard('机会发现', '查看市场判断、网格候选、买入持有和下一轮动观察。', '判断', 'opportunity') +
       workbenchLinkCard('全量筛选', '按分类、策略、动量与回测结果筛选 ETF，并进入单只深度分析。', '筛选', 'list') +
@@ -4920,8 +4865,8 @@
     if (!opportunityBox) return;
     var ov = r.overview || {};
     var tone = etfOverviewTone(ov.market_state);
-    var leadersHtml = etfWatchTags(ov.rotation_leaders, { bg: 'rgba(52,211,153,0.12)', fg: '#34d399' }, 'analyze');
-    var laggardsHtml = etfWatchTags(ov.rotation_laggards, { bg: 'rgba(239,68,68,0.12)', fg: '#f87171' }, 'analyze');
+    var leadersHtml = etfWatchTags(ov.rotation_leaders, { bg: '#dcfce7', fg: '#166534' }, 'analyze');
+    var laggardsHtml = etfWatchTags(ov.rotation_laggards, { bg: '#fee2e2', fg: '#b91c1c' }, 'analyze');
 
     // 策略计数卡 — 可点击跳转到 ETF 列表并过滤
     function stratBtn(label, count, stratType, color) {
@@ -4935,16 +4880,16 @@
       '<div class="panel-head" style="align-items:flex-start;gap:14px;flex-wrap:wrap">' +
       '<div style="min-width:280px;flex:1">' +
       '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">' +
-      '<span style="font-weight:590;font-size:15px">ETF 机会发现</span>' +
-      '<span style="padding:4px 10px;border-radius:999px;background:' + tone.bg + ';color:' + tone.fg + ';font-size:12px;font-weight:590">' + esc(ov.regime_label || tone.label) + '</span>' +
+      '<span style="font-weight:700;font-size:15px">ETF 机会发现</span>' +
+      '<span style="padding:4px 10px;border-radius:999px;background:' + tone.bg + ';color:' + tone.fg + ';font-size:12px;font-weight:700">' + esc(ov.regime_label || tone.label) + '</span>' +
       '<span class="muted">温度 ' + esc(etfNum(ov.temperature_score, 1)) + '</span>' +
       '</div>' +
-      '<div style="font-size:13px;line-height:1.7;color:#d0d6e0">' + esc(ov.regime_reason || '暂无整体判断。') + '</div>' +
-      '<div style="margin-top:8px;font-size:12px;color:#f7f8f8"><strong>当前动作：</strong>' + esc(ov.action_hint || '-') + '</div>' +
-      '<div style="margin-top:6px;font-size:12px;color:#8a8f98"><strong>低频情景：</strong>' + esc(ov.macro_scenario || '-') + '。' + esc(ov.macro_note || '') + '</div>' +
-      '<div style="margin-top:10px;font-size:12px;color:#f7f8f8"><strong>轮动规则：</strong>' + esc(ov.rotation_rule || '-') + '</div>' +
-      '<div style="margin-top:10px;font-size:12px;color:#f7f8f8"><strong>关注名单：</strong>' + leadersHtml + '</div>' +
-      '<div style="margin-top:6px;font-size:12px;color:#f7f8f8"><strong>回避名单：</strong>' + laggardsHtml + '</div>' +
+      '<div style="font-size:13px;line-height:1.7;color:#334155">' + esc(ov.regime_reason || '暂无整体判断。') + '</div>' +
+      '<div style="margin-top:8px;font-size:12px;color:#0f172a"><strong>当前动作：</strong>' + esc(ov.action_hint || '-') + '</div>' +
+      '<div style="margin-top:6px;font-size:12px;color:#64748b"><strong>低频情景：</strong>' + esc(ov.macro_scenario || '-') + '。' + esc(ov.macro_note || '') + '</div>' +
+      '<div style="margin-top:10px;font-size:12px;color:#0f172a"><strong>轮动规则：</strong>' + esc(ov.rotation_rule || '-') + '</div>' +
+      '<div style="margin-top:10px;font-size:12px;color:#0f172a"><strong>关注名单：</strong>' + leadersHtml + '</div>' +
+      '<div style="margin-top:6px;font-size:12px;color:#0f172a"><strong>回避名单：</strong>' + laggardsHtml + '</div>' +
       '</div>' +
       '<div style="min-width:240px;flex:1">' +
       '<div class="stats-row" style="grid-template-columns:repeat(5,minmax(0,1fr));margin-bottom:10px">' +
@@ -4991,7 +4936,7 @@
     // --- 网格交易 + 买入持有 ---
     function miningRow(title, sub, palette, extra) {
       return '<div style="padding:8px 10px;border-radius:10px;background:' + palette.bg + ';color:' + palette.fg + ';margin-bottom:6px;' + (extra?.cursor ? 'cursor:pointer' : '') + '"' + (extra?.attr || '') + '>' +
-        '<div style="font-weight:590;font-size:12px">' + esc(title) + '</div>' +
+        '<div style="font-weight:700;font-size:12px">' + esc(title) + '</div>' +
         (sub ? '<div style="font-size:11px;line-height:1.6;margin-top:3px">' + sub + '</div>' : '') +
         '</div>';
     }
@@ -5001,7 +4946,7 @@
         (item.name || item.code) + ' · 步长 ' + scoreNum(item.best_step_pct) + '%',
         esc('收益 ' + signedPct(item.backtest_return_pct) + ' · 超额 ' + signedPct(item.backtest_excess_pct) + ' · DD ' + pct(item.backtest_max_drawdown_pct)) +
         ' <span style="opacity:0.6;font-size:10px">▶ 深度分析</span>',
-        { bg: 'rgba(96,165,250,0.12)', fg: '#60a5fa' },
+        { bg: '#dbeafe', fg: '#1d4ed8' },
         { cursor: true, attr: ' data-etf-analyze="' + esc(item.code) + '"' }
       );
     }).join('');
@@ -5011,7 +4956,7 @@
         (item.name || item.code) + ' · ' + (item.action || '观察'),
         esc('4w ' + signedPct(item.relative_strength_4w) + ' / 12w ' + signedPct(item.relative_strength_12w) + ' · 因子 ' + etfNum(item.factor_score, 1)) +
         ' <span style="opacity:0.6;font-size:10px">▶ 深度分析</span>',
-        { bg: 'rgba(52,211,153,0.12)', fg: '#34d399' },
+        { bg: '#dcfce7', fg: '#166534' },
         { cursor: true, attr: ' data-etf-analyze="' + esc(item.code) + '"' }
       );
     }).join('');
@@ -5019,11 +4964,11 @@
     miningBox.innerHTML =
       '<div class="finance-module-grid">' +
       '<div class="finance-module-card">' +
-      '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px"><div style="font-weight:590;font-size:13px">🔷 网格交易 Top 5</div><span class="finance-note">仅保留自动寻优后跑赢持有的可执行网格</span></div>' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px"><div style="font-weight:700;font-size:13px">🔷 网格交易 Top 5</div><span class="finance-note">仅保留自动寻优后跑赢持有的可执行网格</span></div>' +
       (gridCards || '<div class="muted" style="font-size:12px">暂无</div>') +
       '</div>' +
       '<div class="finance-module-card">' +
-      '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px"><div style="font-weight:590;font-size:13px">🟢 买入持有 Top 5</div><span class="finance-note">趋势占优时直接展示持有结论，不再暗示网格应当取胜</span></div>' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px"><div style="font-weight:700;font-size:13px">🟢 买入持有 Top 5</div><span class="finance-note">趋势占优时直接展示持有结论，不再暗示网格应当取胜</span></div>' +
       (trendCards || '<div class="muted" style="font-size:12px">暂无</div>') +
       '</div>' +
       '</div>';
@@ -5039,7 +4984,7 @@
     if (!rotationBox) return;
     var list = d.next_rotation_watchlist || [];
     if (!list.length) {
-      rotationBox.innerHTML = '<div class="panel" style="padding:14px"><div style="font-weight:590;font-size:13px;margin-bottom:8px">行业轮动预测</div><div class="muted" style="font-size:12px">暂无可用的 ETF 原生因子轮动结果</div></div>';
+      rotationBox.innerHTML = '<div class="panel" style="padding:14px"><div style="font-weight:700;font-size:13px;margin-bottom:8px">行业轮动预测</div><div class="muted" style="font-size:12px">暂无可用的 ETF 原生因子轮动结果</div></div>';
       return;
     }
     var top5 = list.slice(0, 5);
@@ -5055,9 +5000,9 @@
       var y = gap + i * (barH + gap);
       var bucket = item.avg_rotation_score != null && item.avg_rotation_score >= 70 ? '前排' : item.avg_rotation_score != null && item.avg_rotation_score <= 30 ? '回避' : '观察';
       return '<g>' +
-        '<text x="' + (padL - 6) + '" y="' + (y + barH / 2 + 4) + '" text-anchor="end" font-size="11" font-weight="600" fill="#f7f8f8">' + esc(item.sector_name || '-') + '</text>' +
+        '<text x="' + (padL - 6) + '" y="' + (y + barH / 2 + 4) + '" text-anchor="end" font-size="11" font-weight="600" fill="#0f172a">' + esc(item.sector_name || '-') + '</text>' +
         '<rect x="' + padL + '" y="' + y + '" width="' + barW + '" height="' + barH + '" rx="5" fill="' + (barColors[i] || '#86efac') + '"/>' +
-        '<text x="' + (padL + barW + 5) + '" y="' + (y + barH / 2 + 4) + '" font-size="10" font-weight="700" fill="#d0d6e0">' + etfNum(score, 1) + '</text>' +
+        '<text x="' + (padL + barW + 5) + '" y="' + (y + barH / 2 + 4) + '" font-size="10" font-weight="700" fill="#334155">' + etfNum(score, 1) + '</text>' +
         '<text x="' + (padL + 6) + '" y="' + (y + barH / 2 + 4) + '" font-size="9" fill="#fff" font-weight="600">' +
         '因子 ' + etfNum(item.avg_factor_score, 1) + ' · 前排ETF ' + fmt(item.leader_etf_count || 0) + ' · ' + esc(bucket) +
         '</text>' +
@@ -5066,19 +5011,19 @@
 
     var detailCards = top5.map(function (item) {
       var evidenceChips = [
-        '<span style="padding:3px 8px;border-radius:999px;background:rgba(52,211,153,0.12);color:#34d399;font-size:11px;font-weight:590">因子 ' + etfNum(item.avg_factor_score, 1) + '</span>',
-        '<span style="padding:3px 8px;border-radius:999px;background:rgba(96,165,250,0.12);color:#60a5fa;font-size:11px;font-weight:590">轮动 ' + etfNum(item.avg_rotation_score, 1) + '</span>',
-        '<span style="padding:3px 8px;border-radius:999px;background:rgba(251,191,36,0.12);color:#fbbf24;font-size:11px;font-weight:590">4周相强 ' + signedPct(item.avg_relative_strength_4w || 0) + '</span>',
-        '<span style="padding:3px 8px;border-radius:999px;background:rgba(255,255,255,0.03);color:#d0d6e0;font-size:11px;font-weight:590">12周相强 ' + signedPct(item.avg_relative_strength_12w || 0) + '</span>',
-        '<span style="padding:3px 8px;border-radius:999px;background:rgba(167,139,250,0.12);color:#a78bfa;font-size:11px;font-weight:590">前排ETF ' + fmt(item.leader_etf_count || 0) + '</span>',
-        '<span style="padding:3px 8px;border-radius:999px;background:rgba(251,146,60,0.12);color:#fb923c;font-size:11px;font-weight:590">持有 ' + fmt(item.buy_hold_count || 0) + ' / 网格 ' + fmt(item.grid_count || 0) + '</span>'
+        '<span style="padding:3px 8px;border-radius:999px;background:#dcfce7;color:#166534;font-size:11px;font-weight:700">因子 ' + etfNum(item.avg_factor_score, 1) + '</span>',
+        '<span style="padding:3px 8px;border-radius:999px;background:#dbeafe;color:#1d4ed8;font-size:11px;font-weight:700">轮动 ' + etfNum(item.avg_rotation_score, 1) + '</span>',
+        '<span style="padding:3px 8px;border-radius:999px;background:#fef3c7;color:#92400e;font-size:11px;font-weight:700">4周相强 ' + signedPct(item.avg_relative_strength_4w || 0) + '</span>',
+        '<span style="padding:3px 8px;border-radius:999px;background:#f1f5f9;color:#334155;font-size:11px;font-weight:700">12周相强 ' + signedPct(item.avg_relative_strength_12w || 0) + '</span>',
+        '<span style="padding:3px 8px;border-radius:999px;background:#ede9fe;color:#6d28d9;font-size:11px;font-weight:700">前排ETF ' + fmt(item.leader_etf_count || 0) + '</span>',
+        '<span style="padding:3px 8px;border-radius:999px;background:#fff7ed;color:#c2410c;font-size:11px;font-weight:700">持有 ' + fmt(item.buy_hold_count || 0) + ' / 网格 ' + fmt(item.grid_count || 0) + '</span>'
       ].join('');
       var topReturnRows = (item.top_return_etfs || []).map(function (etf, index) {
         var strategyMeta = recommendedStrategySummary(etf);
         return '<tr>' +
           '<td>#' + (index + 1) + '</td>' +
-          '<td><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span data-etf-analyze="' + esc(etf.code || '') + '" style="cursor:pointer;font-weight:590;color:#f7f8f8">' + esc(etf.name || etf.code || '-') + '</span>' + xueqiuPillLink(etf.code, etf.code, true) + '</div></td>' +
-          '<td><span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;background:' + strategyMeta.tone.bg + ';color:' + strategyMeta.tone.fg + ';font-size:10px;font-weight:590">' + esc(strategyMeta.label) + '</span></td>' +
+          '<td><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span data-etf-analyze="' + esc(etf.code || '') + '" style="cursor:pointer;font-weight:700;color:#0f172a">' + esc(etf.name || etf.code || '-') + '</span>' + xueqiuPillLink(etf.code, etf.code, true) + '</div></td>' +
+          '<td><span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;background:' + strategyMeta.tone.bg + ';color:' + strategyMeta.tone.fg + ';font-size:10px;font-weight:700">' + esc(strategyMeta.label) + '</span></td>' +
           '<td>' + (strategyMeta.recommendedReturn != null ? signedPct(strategyMeta.recommendedReturn) : '<span class="muted">-</span>') + '</td>' +
           '<td>' + (strategyMeta.comparisonReturn != null ? ('<span title="' + esc(strategyMeta.comparisonLabel || '对照') + '">' + signedPct(strategyMeta.comparisonReturn) + '</span>') : '<span class="muted">-</span>') + '</td>' +
           '<td>' + (strategyMeta.edge != null ? signedPct(strategyMeta.edge) : '<span class="muted">-</span>') + '</td>' +
@@ -5086,11 +5031,11 @@
       }).join('') || '<tr><td colspan="6" class="muted">暂无收益率样本</td></tr>';
       return '<div class="finance-rotation-card">' +
         '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px">' +
-        '<div><div style="font-weight:590;font-size:14px;color:#f7f8f8">' + esc(item.sector_name || '-') + '</div><div class="muted" style="font-size:11px;margin-top:4px">预轮动分 ' + etfNum(item.next_rotation_score, 1) + '</div></div>' +
+        '<div><div style="font-weight:700;font-size:14px;color:#0f172a">' + esc(item.sector_name || '-') + '</div><div class="muted" style="font-size:11px;margin-top:4px">预轮动分 ' + etfNum(item.next_rotation_score, 1) + '</div></div>' +
         '<div style="display:flex;gap:6px;flex-wrap:wrap">' + evidenceChips + '</div>' +
         '</div>' +
-        '<div style="font-size:12px;line-height:1.7;color:#d0d6e0;margin-bottom:10px">' + esc(item.rotation_reason || '暂无轮动证据说明。') + '</div>' +
-        '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px"><div style="font-size:12px;font-weight:590;color:#f7f8f8">该行业收益率 Top 5 ETF</div><span class="finance-note">按当前推荐策略收益排序，右侧展示对照策略</span></div>' +
+        '<div style="font-size:12px;line-height:1.7;color:#334155;margin-bottom:10px">' + esc(item.rotation_reason || '暂无轮动证据说明。') + '</div>' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:8px"><div style="font-size:12px;font-weight:700;color:#0f172a">该行业收益率 Top 5 ETF</div><span class="finance-note">按当前推荐策略收益排序，右侧展示对照策略</span></div>' +
         '<div style="overflow-x:auto"><table class="data-table finance-compare-table" style="font-size:11px;margin-bottom:0"><thead><tr><th>排名</th><th>ETF</th><th>推荐策略</th><th>策略收益</th><th>对照收益</th><th>优势</th></tr></thead><tbody>' + topReturnRows + '</tbody></table></div>' +
         '</div>';
     }).join('');
@@ -5101,7 +5046,7 @@
 
     rotationBox.innerHTML =
       '<div class="panel finance-surface-panel" style="padding:14px">' +
-      '<div style="font-weight:590;font-size:13px;margin-bottom:10px">行业轮动预测 Top 5' + modelNote + '</div>' +
+      '<div style="font-weight:700;font-size:13px;margin-bottom:10px">行业轮动预测 Top 5' + modelNote + '</div>' +
       '<div style="overflow-x:auto"><svg viewBox="0 0 ' + svgW + ' ' + svgH + '" style="width:100%;max-width:680px;height:auto">' + svgBars + '</svg></div>' +
       '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;margin-top:14px">' + detailCards + '</div>' +
       '</div>';
@@ -5175,24 +5120,24 @@
       var setupTone = etfSetupTone(e.setup_state);
       var rotationText = e.rotation_score != null ? etfNum(e.rotation_score, 1) + (e.rotation_bucket === 'leader' ? ' · 前排' : e.rotation_bucket === 'blacklist' ? ' · 回避' : '') : '—';
       var excessColor = e.backtest_excess_pct == null ? '#64748b' : (e.backtest_excess_pct >= 0 ? '#166534' : '#991b1b');
-      var qlibTone = e.qlib_consensus_score == null ? { bg: 'rgba(255,255,255,0.03)', fg: '#8a8f98' } : Number(e.qlib_consensus_score) >= 70 ? { bg: 'rgba(52,211,153,0.12)', fg: '#34d399' } : Number(e.qlib_consensus_score) >= 55 ? { bg: 'rgba(96,165,250,0.12)', fg: '#60a5fa' } : { bg: 'rgba(251,191,36,0.12)', fg: '#fbbf24' };
+      var qlibTone = e.qlib_consensus_score == null ? { bg: '#f8fafc', fg: '#64748b' } : Number(e.qlib_consensus_score) >= 70 ? { bg: '#dcfce7', fg: '#166534' } : Number(e.qlib_consensus_score) >= 55 ? { bg: '#dbeafe', fg: '#1d4ed8' } : { bg: '#fef3c7', fg: '#b45309' };
       var qlibText = e.qlib_consensus_score != null ? etfNum(e.qlib_consensus_score, 1) + (e.qlib_consensus_factor_group ? ' · ' + e.qlib_consensus_factor_group : '') : '暂无';
       var qlibTitle = e.qlib_consensus_score != null
         ? '模型状态 ' + (e.qlib_model_status || '-') + '；高置信 ' + fmt(e.qlib_high_conviction_count || 0)
         : '当前分类暂无可用 Qlib 共识';
       return '<tr style="cursor:pointer" data-etf-code="' + esc(e.code) + '">' +
-        '<td style="font-weight:510">' + esc(e.name) + '</td>' +
+        '<td style="font-weight:600">' + esc(e.name) + '</td>' +
         '<td>' + xueqiuPillLink(e.code, e.code, true) + '</td>' +
-        '<td><span style="padding:2px 8px;border-radius:999px;background:' + catColor + '14;color:' + catColor + ';font-size:11px;font-weight:510">' + esc(e.category) + '</span></td>' +
+        '<td><span style="padding:2px 8px;border-radius:999px;background:' + catColor + '14;color:' + catColor + ';font-size:11px;font-weight:600">' + esc(e.category) + '</span></td>' +
         '<td>' + etfPctCell(e.relative_strength_4w, false) + '</td>' +
         '<td>' + etfPctCell(e.relative_strength_12w, false) + '</td>' +
         '<td>' + esc(rotationText) + '</td>' +
         '<td>' + (e.backtest_return_pct != null ? signedPct(e.backtest_return_pct) : '<span class="muted">-</span>') + '</td>' +
         '<td>' + (e.buy_hold_return_pct != null ? signedPct(e.buy_hold_return_pct) : '<span class="muted">-</span>') + '</td>' +
-        '<td style="color:' + excessColor + ';font-weight:590">' + (e.backtest_excess_pct != null ? signedPct(e.backtest_excess_pct) : '<span class="muted">-</span>') + '</td>' +
-        '<td><span title="' + esc(qlibTitle) + '" style="padding:2px 8px;border-radius:999px;background:' + qlibTone.bg + ';color:' + qlibTone.fg + ';font-size:11px;font-weight:590">' + esc(qlibText) + '</span></td>' +
-        '<td><span style="padding:2px 8px;border-radius:999px;background:' + setupTone.bg + ';color:' + setupTone.fg + ';font-size:11px;font-weight:510">' + esc(e.setup_state || '-') + '</span></td>' +
-        '<td><span style="padding:2px 8px;border-radius:999px;background:' + strategyTone.bg + ';color:' + strategyTone.fg + ';font-size:11px;font-weight:510" title="' + esc(e.strategy_reason || '') + '">' + esc(e.strategy_type || '-') + '</span></td>' +
+        '<td style="color:' + excessColor + ';font-weight:700">' + (e.backtest_excess_pct != null ? signedPct(e.backtest_excess_pct) : '<span class="muted">-</span>') + '</td>' +
+        '<td><span title="' + esc(qlibTitle) + '" style="padding:2px 8px;border-radius:999px;background:' + qlibTone.bg + ';color:' + qlibTone.fg + ';font-size:11px;font-weight:700">' + esc(qlibText) + '</span></td>' +
+        '<td><span style="padding:2px 8px;border-radius:999px;background:' + setupTone.bg + ';color:' + setupTone.fg + ';font-size:11px;font-weight:600">' + esc(e.setup_state || '-') + '</span></td>' +
+        '<td><span style="padding:2px 8px;border-radius:999px;background:' + strategyTone.bg + ';color:' + strategyTone.fg + ';font-size:11px;font-weight:600" title="' + esc(e.strategy_reason || '') + '">' + esc(e.strategy_type || '-') + '</span></td>' +
         '<td>' + (e.grid_step_pct != null ? esc(etfNum(e.grid_step_pct, 1) + '%') : '<span class="muted">-</span>') + '</td>' +
         '<td style="color:' + trendColor + '">' + esc(e.trend_status) + '</td>' +
         '</tr>';
@@ -5245,37 +5190,37 @@
     var tradeabilityOk = !info.tradeability_status || info.tradeability_status === 'ok';
     var issueHtml = '';
     if (!tradeabilityOk) {
-      issueHtml = '<div style="margin-bottom:14px;padding:14px;border:1px solid rgba(248,113,113,0.2);border-radius:14px;background:rgba(239,68,68,0.08);color:#f87171;font-size:12px;line-height:1.8">' +
-        '<div style="font-weight:590;margin-bottom:6px">该产品已从 ETF 可交易池中剔除</div>' +
+      issueHtml = '<div style="margin-bottom:14px;padding:14px;border:1px solid #fecaca;border-radius:14px;background:#fff7f7;color:#991b1b;font-size:12px;line-height:1.8">' +
+        '<div style="font-weight:700;margin-bottom:6px">该产品已从 ETF 可交易池中剔除</div>' +
         '<div>' + esc(info.tradeability_reason || '该产品未通过 ETF 基础交易性检查。') + '</div>' +
         '</div>';
     }
 
     // --- 1. 头部信息卡 ---
-    var ratingColors = { '强烈推荐': { bg: 'rgba(52,211,153,0.12)', fg: '#34d399' }, '推荐': { bg: 'rgba(96,165,250,0.12)', fg: '#60a5fa' }, '中性': { bg: 'rgba(251,191,36,0.12)', fg: '#fbbf24' }, '谨慎': { bg: 'rgba(239,68,68,0.12)', fg: '#f87171' } };
+    var ratingColors = { '强烈推荐': { bg: '#dcfce7', fg: '#166534' }, '推荐': { bg: '#dbeafe', fg: '#1d4ed8' }, '中性': { bg: '#fef3c7', fg: '#b45309' }, '谨慎': { bg: '#fee2e2', fg: '#991b1b' } };
     var rc = ratingColors[verdict.rating] || ratingColors['中性'];
     var recStrategy = d.recommended_strategy || '';
     var recStrategyTone = etfStrategyTone(recStrategy);
     var headerHtml =
       '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px">' +
-      '<div style="font-weight:590;font-size:16px">' + esc(info.name || code) + ' <span class="muted" style="font-size:12px;font-weight:400">' + esc(code) + '</span></div>' +
+      '<div style="font-weight:700;font-size:16px">' + esc(info.name || code) + ' <span class="muted" style="font-size:12px;font-weight:400">' + esc(code) + '</span></div>' +
       xueqiuPillLink(code, code, true) +
-      '<span style="padding:3px 12px;border-radius:var(--radius-pill);background:' + rc.bg + ';color:' + rc.fg + ';font-size:12px;font-weight:590">' + esc(verdict.rating || '分析中') + '</span>' +
-      (recStrategy ? '<span style="padding:3px 10px;border-radius:var(--radius-pill);background:' + recStrategyTone.bg + ';color:' + recStrategyTone.fg + ';font-size:11px;font-weight:590">推荐: ' + esc(recStrategy) + '</span>' : '') +
-      (info.strategy_type ? '<span style="padding:2px 8px;border-radius:var(--radius-pill);background:var(--primary-light);color:var(--primary);font-size:11px;font-weight:510">' + esc(info.strategy_type) + '</span>' : '') +
-      (info.setup_state ? '<span style="padding:2px 8px;border-radius:var(--radius-pill);background:var(--line-light);color:var(--text-2);font-size:11px;font-weight:510">' + esc(info.setup_state) + '</span>' : '') +
+      '<span style="padding:3px 12px;border-radius:var(--radius-pill);background:' + rc.bg + ';color:' + rc.fg + ';font-size:12px;font-weight:700">' + esc(verdict.rating || '分析中') + '</span>' +
+      (recStrategy ? '<span style="padding:3px 10px;border-radius:var(--radius-pill);background:' + recStrategyTone.bg + ';color:' + recStrategyTone.fg + ';font-size:11px;font-weight:700">推荐: ' + esc(recStrategy) + '</span>' : '') +
+      (info.strategy_type ? '<span style="padding:2px 8px;border-radius:var(--radius-pill);background:var(--primary-light);color:var(--primary);font-size:11px;font-weight:600">' + esc(info.strategy_type) + '</span>' : '') +
+      (info.setup_state ? '<span style="padding:2px 8px;border-radius:var(--radius-pill);background:var(--line-light);color:var(--text-2);font-size:11px;font-weight:600">' + esc(info.setup_state) + '</span>' : '') +
       '</div>';
 
     var qlibHtml = '';
     if (info.qlib_model_status || info.qlib_consensus_score != null) {
-      var qlibTone = info.qlib_consensus_score == null ? { bg: 'rgba(255,255,255,0.03)', fg: '#8a8f98' } : Number(info.qlib_consensus_score) >= 70 ? { bg: 'rgba(52,211,153,0.12)', fg: '#34d399' } : Number(info.qlib_consensus_score) >= 55 ? { bg: 'rgba(96,165,250,0.12)', fg: '#60a5fa' } : { bg: 'rgba(251,191,36,0.12)', fg: '#fbbf24' };
-      qlibHtml = '<div style="margin-bottom:14px;padding:12px;border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(135deg,rgba(255,255,255,0.03) 0%,rgba(167,139,250,0.08) 100%)">' +
+      var qlibTone = info.qlib_consensus_score == null ? { bg: '#f8fafc', fg: '#64748b' } : Number(info.qlib_consensus_score) >= 70 ? { bg: '#dcfce7', fg: '#166534' } : Number(info.qlib_consensus_score) >= 55 ? { bg: '#dbeafe', fg: '#1d4ed8' } : { bg: '#fef3c7', fg: '#b45309' };
+      qlibHtml = '<div style="margin-bottom:14px;padding:12px;border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(135deg,#f8fafc 0%,#f5f3ff 100%)">' +
         '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px">' +
-        '<div><div style="font-weight:590;font-size:13px">ETF-only Qlib 策略预测</div><div class="muted" style="font-size:11px;margin-top:3px">仅基于 ETF 自身特征预测持有收益、网格收益和最优步长，不再使用股票侧映射。</div></div>' +
+        '<div><div style="font-weight:700;font-size:13px">ETF-only Qlib 策略预测</div><div class="muted" style="font-size:11px;margin-top:3px">仅基于 ETF 自身特征预测持有收益、网格收益和最优步长，不再使用股票侧映射。</div></div>' +
         '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
-        '<span style="padding:2px 8px;border-radius:999px;background:' + qlibTone.bg + ';color:' + qlibTone.fg + ';font-size:11px;font-weight:590">' + esc(info.qlib_consensus_score != null ? ('共识 ' + etfNum(info.qlib_consensus_score, 1)) : '暂无共识') + '</span>' +
-        '<span style="padding:2px 8px;border-radius:999px;background:rgba(255,255,255,0.08);color:#d0d6e0;font-size:11px;font-weight:590">模型 ' + esc(info.qlib_model_status || 'none') + '</span>' +
-        (info.qlib_consensus_factor_group ? '<span style="padding:2px 8px;border-radius:999px;background:rgba(167,139,250,0.12);color:#a78bfa;font-size:11px;font-weight:590">因子组 ' + esc(info.qlib_consensus_factor_group) + '</span>' : '') +
+        '<span style="padding:2px 8px;border-radius:999px;background:' + qlibTone.bg + ';color:' + qlibTone.fg + ';font-size:11px;font-weight:700">' + esc(info.qlib_consensus_score != null ? ('共识 ' + etfNum(info.qlib_consensus_score, 1)) : '暂无共识') + '</span>' +
+        '<span style="padding:2px 8px;border-radius:999px;background:#e2e8f0;color:#334155;font-size:11px;font-weight:700">模型 ' + esc(info.qlib_model_status || 'none') + '</span>' +
+        (info.qlib_consensus_factor_group ? '<span style="padding:2px 8px;border-radius:999px;background:#ede9fe;color:#6d28d9;font-size:11px;font-weight:700">因子组 ' + esc(info.qlib_consensus_factor_group) + '</span>' : '') +
         '</div>' +
         '</div>' +
         '<div style="display:flex;gap:12px;flex-wrap:wrap">' +
@@ -5305,21 +5250,21 @@
       }
       return '<div style="text-align:center;min-width:100px">' +
         '<div class="muted" style="font-size:10px;margin-bottom:4px">' + esc(label) + '</div>' +
-        '<div style="font-size:14px;font-weight:590;color:' + gColor + '">' + gv + (unit || '') + '</div>' +
+        '<div style="font-size:14px;font-weight:700;color:' + gColor + '">' + gv + (unit || '') + '</div>' +
         '<div style="font-size:11px;color:' + bColor + '">' + bv + (unit || '') + '</div>' +
         '</div>';
     }
 
     function statusPill(label, passed, title) {
-      var bg = passed ? 'rgba(52,211,153,0.12)' : 'rgba(239,68,68,0.12)';
+      var bg = passed ? '#dcfce7' : '#fee2e2';
       var fg = passed ? '#166534' : '#991b1b';
-      return '<span title="' + esc(title || '') + '" style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;background:' + bg + ';color:' + fg + ';font-size:11px;font-weight:590">' + esc(label) + '</span>';
+      return '<span title="' + esc(title || '') + '" style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;background:' + bg + ';color:' + fg + ';font-size:11px;font-weight:700">' + esc(label) + '</span>';
     }
 
     function ledgerMetric(label, value, note) {
       return '<div style="min-width:110px;flex:1 1 110px">' +
         '<div class="muted" style="font-size:10px;margin-bottom:4px">' + esc(label) + '</div>' +
-        '<div style="font-size:13px;font-weight:590;color:var(--text)">' + value + '</div>' +
+        '<div style="font-size:13px;font-weight:700;color:var(--text)">' + value + '</div>' +
         (note ? '<div class="muted" style="font-size:10px;margin-top:3px">' + esc(note) + '</div>' : '') +
         '</div>';
     }
@@ -5338,7 +5283,7 @@
       if (target.tranche_count != null) subtitle.push('分仓 ' + fmt(target.tranche_count));
       return '<div style="flex:1 1 320px;padding:12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--bg-subtle)">' +
         '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px">' +
-        '<div><div style="font-size:13px;font-weight:590">' + esc(title) + '</div>' +
+        '<div><div style="font-size:13px;font-weight:700">' + esc(title) + '</div>' +
         (subtitle.length ? '<div class="muted" style="font-size:11px;margin-top:3px">' + esc(subtitle.join(' · ')) + '</div>' : '') +
         '</div>' +
         '<div style="display:flex;gap:6px;flex-wrap:wrap">' + gate + auditPill + '</div>' +
@@ -5362,9 +5307,9 @@
       comparisonHtml =
         '<div style="margin-bottom:14px">' +
         '<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">' +
-        '<span style="font-weight:510;font-size:13px">核心指标对比</span>' +
-        '<span style="padding:2px 8px;border-radius:var(--radius-pill);background:rgba(96,165,250,0.12);color:#60a5fa;font-size:10px;font-weight:510">网格 ' + (best.step_pct || '-') + '%</span>' +
-        '<span style="padding:2px 8px;border-radius:var(--radius-pill);background:var(--line-light);color:var(--text-2);font-size:10px;font-weight:510">买入持有</span>' +
+        '<span style="font-weight:600;font-size:13px">核心指标对比</span>' +
+        '<span style="padding:2px 8px;border-radius:var(--radius-pill);background:#dbeafe;color:#1d4ed8;font-size:10px;font-weight:600">网格 ' + (best.step_pct || '-') + '%</span>' +
+        '<span style="padding:2px 8px;border-radius:var(--radius-pill);background:var(--line-light);color:var(--text-2);font-size:10px;font-weight:600">买入持有</span>' +
         '</div>' +
         '<div style="display:flex;gap:4px;flex-wrap:wrap;padding:12px;background:var(--bg-subtle);border-radius:var(--radius);border:1px solid var(--line)">' +
         metricCard('总收益', best.return_pct, bh.return_pct, '%', 'higher') +
@@ -5380,13 +5325,13 @@
 
     var optimizerHtml = '';
     if (optimizerSummary.candidate_step_count != null) {
-      optimizerHtml = '<div style="margin-bottom:14px;padding:12px;border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(135deg,rgba(255,255,255,0.03) 0%,rgba(96,165,250,0.08) 100%)">' +
-        '<div style="font-weight:590;font-size:13px;margin-bottom:8px">寻优模型约束</div>' +
+      optimizerHtml = '<div style="margin-bottom:14px;padding:12px;border:1px solid var(--line);border-radius:var(--radius);background:linear-gradient(135deg,#f8fafc 0%,#eef6ff 100%)">' +
+        '<div style="font-weight:700;font-size:13px;margin-bottom:8px">寻优模型约束</div>' +
         '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">' +
-        '<span style="padding:2px 8px;border-radius:999px;background:rgba(96,165,250,0.12);color:#60a5fa;font-size:11px;font-weight:590">候选步长 ' + fmt(optimizerSummary.candidate_step_count || 0) + '</span>' +
-        '<span style="padding:2px 8px;border-radius:999px;background:rgba(52,211,153,0.12);color:#34d399;font-size:11px;font-weight:590">通过硬约束 ' + fmt(optimizerSummary.valid_step_count || 0) + '</span>' +
-        '<span style="padding:2px 8px;border-radius:999px;background:rgba(239,68,68,0.12);color:#f87171;font-size:11px;font-weight:590">淘汰 ' + fmt(optimizerSummary.rejected_step_count || 0) + '</span>' +
-        '<span style="padding:2px 8px;border-radius:999px;background:' + (optimizerSummary.grid_available ? 'rgba(52,211,153,0.12)' : 'rgba(251,191,36,0.12)') + ';color:' + (optimizerSummary.grid_available ? '#34d399' : '#fbbf24') + ';font-size:11px;font-weight:590">' + (optimizerSummary.grid_available ? '存在可执行网格' : '无可执行网格') + '</span>' +
+        '<span style="padding:2px 8px;border-radius:999px;background:#e0f2fe;color:#075985;font-size:11px;font-weight:700">候选步长 ' + fmt(optimizerSummary.candidate_step_count || 0) + '</span>' +
+        '<span style="padding:2px 8px;border-radius:999px;background:#dcfce7;color:#166534;font-size:11px;font-weight:700">通过硬约束 ' + fmt(optimizerSummary.valid_step_count || 0) + '</span>' +
+        '<span style="padding:2px 8px;border-radius:999px;background:#fee2e2;color:#991b1b;font-size:11px;font-weight:700">淘汰 ' + fmt(optimizerSummary.rejected_step_count || 0) + '</span>' +
+        '<span style="padding:2px 8px;border-radius:999px;background:' + (optimizerSummary.grid_available ? '#dcfce7' : '#fef3c7') + ';color:' + (optimizerSummary.grid_available ? '#166534' : '#92400e') + ';font-size:11px;font-weight:700">' + (optimizerSummary.grid_available ? '存在可执行网格' : '无可执行网格') + '</span>' +
         '</div>' +
         '<div class="muted" style="font-size:11px;line-height:1.7">' + (optimizerSummary.model_rules || []).map(function (rule) { return '· ' + esc(rule); }).join('<br>') + '</div>' +
         '</div>';
@@ -5395,7 +5340,7 @@
     var ledgerHtml = '';
     if (tradeabilityOk && (Object.keys(best).length || Object.keys(bh).length)) {
       ledgerHtml = '<div style="margin-bottom:14px">' +
-        '<div style="font-weight:510;font-size:13px;margin-bottom:8px">实盘账本检验</div>' +
+        '<div style="font-weight:600;font-size:13px;margin-bottom:8px">实盘账本检验</div>' +
         '<div style="display:flex;gap:12px;flex-wrap:wrap">' +
         ledgerCard('网格策略账本', best, true) +
         ledgerCard('买入持有账本', bh, false) +
@@ -5407,13 +5352,13 @@
     if (tradeabilityOk && d.all_steps && d.all_steps.length) {
       var bestStep = best.step_pct;
       stepsHtml = '<div style="margin-bottom:14px">' +
-        '<div style="font-weight:510;font-size:13px;margin-bottom:8px">全步长回测对比</div>' +
+        '<div style="font-weight:600;font-size:13px;margin-bottom:8px">全步长回测对比</div>' +
         '<div style="overflow-x:auto"><table class="data-table" style="font-size:11px"><thead><tr>' +
         '<th>步长</th><th>可执行</th><th>总收益</th><th>年化</th><th>最大回撤</th><th>Sharpe</th><th>Calmar</th><th>胜率</th><th>买卖次数</th><th>淘汰/说明</th>' +
         '</tr></thead><tbody>';
       d.all_steps.forEach(function (s) {
         var isBest = s.step_pct === bestStep;
-        var rowStyle = isBest ? 'background:var(--primary-light);font-weight:510' : (!s.hard_gate_passed ? 'background:rgba(239,68,68,0.08)' : '');
+        var rowStyle = isBest ? 'background:var(--primary-light);font-weight:600' : (!s.hard_gate_passed ? 'background:#fff7f7' : '');
         var gateHtml = statusPill(s.hard_gate_passed ? '通过' : '淘汰', !!s.hard_gate_passed, s.hard_gate_reason || '');
         stepsHtml += '<tr style="' + rowStyle + '">' +
           '<td>' + s.step_pct + '%' + (isBest ? ' ★' : '') + '</td>' +
@@ -5435,7 +5380,7 @@
     var curveHtml = '';
     if (tradeabilityOk && best.curve && best.curve.length > 2 && bh.curve && bh.curve.length > 2) {
       curveHtml = '<div style="margin-bottom:14px">' +
-        '<div style="font-weight:510;font-size:13px;margin-bottom:8px">净值走势对比</div>' +
+        '<div style="font-weight:600;font-size:13px;margin-bottom:8px">净值走势对比</div>' +
         _buildNavCurveSvg(best.curve, bh.curve, best.step_pct) +
         '</div>';
     }
@@ -5448,7 +5393,7 @@
     var periodHtml = '';
     if (tradeabilityOk && d.multi_period && d.multi_period.length) {
       periodHtml = '<div style="margin-bottom:14px">' +
-        '<div style="font-weight:510;font-size:13px;margin-bottom:8px">多周期稳定性检验</div>' +
+        '<div style="font-weight:600;font-size:13px;margin-bottom:8px">多周期稳定性检验</div>' +
         '<div style="overflow-x:auto"><table class="data-table" style="font-size:11px"><thead><tr>' +
         '<th>窗口</th><th>天数</th><th>网格收益</th><th>持有收益</th><th>超额</th><th>网格DD</th><th>持有DD</th><th>最优步长</th>' +
         '</tr></thead><tbody>';
@@ -5460,11 +5405,11 @@
         var excess = (gridR != null && bhR != null) ? (gridR - bhR).toFixed(2) : '-';
         var excessColor = excess !== '-' ? (parseFloat(excess) >= 0 ? 'var(--danger)' : 'var(--success)') : 'var(--muted)';
         periodHtml += '<tr>' +
-          '<td style="font-weight:510">' + esc(p.window) + '</td>' +
+          '<td style="font-weight:600">' + esc(p.window) + '</td>' +
           '<td>' + p.days + '</td>' +
           '<td style="color:' + ((gridR || 0) >= 0 ? 'var(--danger)' : 'var(--success)') + '">' + (gridR != null ? signedPct(gridR) : '-') + '</td>' +
           '<td style="color:' + ((bhR || 0) >= 0 ? 'var(--danger)' : 'var(--success)') + '">' + (bhR != null ? signedPct(bhR) : '-') + '</td>' +
-          '<td style="color:' + excessColor + ';font-weight:510">' + (excess !== '-' ? (parseFloat(excess) >= 0 ? '+' : '') + excess + '%' : '-') + '</td>' +
+          '<td style="color:' + excessColor + ';font-weight:600">' + (excess !== '-' ? (parseFloat(excess) >= 0 ? '+' : '') + excess + '%' : '-') + '</td>' +
           '<td>' + (gb ? (gb.max_drawdown_pct != null ? gb.max_drawdown_pct.toFixed(2) + '%' : '-') : '-') + '</td>' +
           '<td>' + (pbh ? (pbh.max_drawdown_pct != null ? pbh.max_drawdown_pct.toFixed(2) + '%' : '-') : '-') + '</td>' +
           '<td>' + (gb ? gb.step_pct + '%' : '-') + '</td>' +
@@ -5477,7 +5422,7 @@
     var verdictHtml = '';
     if (verdict.lines && verdict.lines.length) {
       verdictHtml = '<div style="padding:12px 14px;background:' + rc.bg + ';border-radius:var(--radius);border:1px solid ' + rc.fg + '22">' +
-        '<div style="font-weight:590;font-size:13px;margin-bottom:6px;color:' + rc.fg + '">量化基金经理结论 · ' + esc(verdict.rating) + '</div>' +
+        '<div style="font-weight:700;font-size:13px;margin-bottom:6px;color:' + rc.fg + '">量化基金经理结论 · ' + esc(verdict.rating) + '</div>' +
         verdict.lines.map(function (line) {
           return '<div style="font-size:12px;line-height:1.7;color:' + rc.fg + '">· ' + esc(line) + '</div>';
         }).join('') +
@@ -5486,7 +5431,7 @@
 
     panel.innerHTML = '<div class="panel" style="margin-top:14px">' +
       '<div class="panel-head" style="justify-content:space-between">' +
-      '<span style="font-weight:510">深度量化分析</span>' +
+      '<span style="font-weight:600">深度量化分析</span>' +
       '<button class="btn-text" onclick="document.getElementById(\'' + panelId + '\').innerHTML=\'\'">关闭</button>' +
       '</div>' +
       headerHtml + issueHtml + qlibHtml + optimizerHtml + comparisonHtml + ledgerHtml + curveHtml + tradeTimelineHtml + stepsHtml + periodHtml + verdictHtml +
@@ -5577,10 +5522,10 @@
     var sellCount = (trades || []).filter(function (trade) { return trade.side === 'sell'; }).length;
 
     var tradeRows = (trades || []).slice().reverse().map(function (trade) {
-      var tone = trade.side === 'buy' ? { bg: 'rgba(239,68,68,0.12)', fg: '#f87171', label: '买入' } : { bg: 'rgba(52,211,153,0.12)', fg: '#34d399', label: '卖出' };
+      var tone = trade.side === 'buy' ? { bg: '#fee2e2', fg: '#991b1b', label: '买入' } : { bg: '#dcfce7', fg: '#166534', label: '卖出' };
       return '<tr>' +
         '<td>' + esc((trade.date || '').slice(0, 10)) + '</td>' +
-        '<td><span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;background:' + tone.bg + ';color:' + tone.fg + ';font-size:11px;font-weight:590">' + tone.label + '</span></td>' +
+        '<td><span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;background:' + tone.bg + ';color:' + tone.fg + ';font-size:11px;font-weight:700">' + tone.label + '</span></td>' +
         '<td>' + etfNum(trade.price, 2) + '</td>' +
         '<td>' + fmt(trade.units || 0) + '</td>' +
         '<td>' + fmtCurrency(trade.notional) + '</td>' +
@@ -5593,11 +5538,11 @@
 
     return '<div style="margin-bottom:14px">' +
       '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px">' +
-      '<div style="font-weight:510;font-size:13px">日线买卖点时间轴 <span class="muted" style="font-size:11px">红买绿卖 · 步长 ' + esc(stepPct != null ? etfNum(stepPct, 1) + '%' : '-') + '</span></div>' +
+      '<div style="font-weight:600;font-size:13px">日线买卖点时间轴 <span class="muted" style="font-size:11px">红买绿卖 · 步长 ' + esc(stepPct != null ? etfNum(stepPct, 1) + '%' : '-') + '</span></div>' +
       '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
-      '<span style="padding:3px 8px;border-radius:999px;background:rgba(239,68,68,0.12);color:#f87171;font-size:11px;font-weight:590">买入 ' + fmt(buyCount) + '</span>' +
-      '<span style="padding:3px 8px;border-radius:999px;background:rgba(52,211,153,0.12);color:#34d399;font-size:11px;font-weight:590">卖出 ' + fmt(sellCount) + '</span>' +
-      '<span style="padding:3px 8px;border-radius:999px;background:rgba(96,165,250,0.12);color:#60a5fa;font-size:11px;font-weight:590">已实现盈亏 ' + fmtCurrency(realizedTotal) + '</span>' +
+      '<span style="padding:3px 8px;border-radius:999px;background:#fee2e2;color:#991b1b;font-size:11px;font-weight:700">买入 ' + fmt(buyCount) + '</span>' +
+      '<span style="padding:3px 8px;border-radius:999px;background:#dcfce7;color:#166534;font-size:11px;font-weight:700">卖出 ' + fmt(sellCount) + '</span>' +
+      '<span style="padding:3px 8px;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:700">已实现盈亏 ' + fmtCurrency(realizedTotal) + '</span>' +
       '</div>' +
       '</div>' +
       '<div style="padding:12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--bg-subtle)">' +
@@ -5607,7 +5552,7 @@
       '<path d="' + pricePath + '" fill="none" stroke="#64748b" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"></path>' +
       tradeDots +
       xLabelHtml +
-      '<text x="' + (padL + 8) + '" y="' + (padT + 14) + '" font-size="11" fill="#8a8f98" font-weight="700">灰线=日线收盘价</text>' +
+      '<text x="' + (padL + 8) + '" y="' + (padT + 14) + '" font-size="11" fill="#64748b" font-weight="700">灰线=日线收盘价</text>' +
       '<text x="' + (padL + 120) + '" y="' + (padT + 14) + '" font-size="11" fill="#dc2626" font-weight="700">红点=买点</text>' +
       '<text x="' + (padL + 210) + '" y="' + (padT + 14) + '" font-size="11" fill="#16a34a" font-weight="700">绿点=卖点</text>' +
       '</svg></div>' +
@@ -5708,7 +5653,7 @@
     }
     modelHtml =
       '<div class="panel" style="margin-bottom:14px">' +
-      '<div class="panel-head"><span style="font-weight:510">ETF 因子验证面板</span></div>' +
+      '<div class="panel-head"><span style="font-weight:600">ETF 因子验证面板</span></div>' +
       '<div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px">' +
       '<div>快照: <strong>' + esc(model.snapshot_id) + '</strong></div>' +
       '<div>覆盖ETF: <strong>' + fmt(model.etf_count) + '</strong></div>' +
@@ -5724,13 +5669,13 @@
     if (consensus.isolation_mode === 'etf_only') {
       var capabilityRows = (consensus.capability_matrix || []).map(function (item) {
         var tone = item.status === 'ready'
-          ? { bg: 'rgba(52,211,153,0.12)', fg: '#34d399' }
+          ? { bg: '#dcfce7', fg: '#166534' }
           : item.status === 'partial'
-            ? { bg: 'rgba(96,165,250,0.12)', fg: '#60a5fa' }
-            : { bg: 'rgba(251,191,36,0.12)', fg: '#fbbf24' };
+            ? { bg: '#dbeafe', fg: '#1d4ed8' }
+            : { bg: '#fef3c7', fg: '#92400e' };
         return '<tr>' +
-          '<td style="font-weight:510">' + esc(item.label || '-') + '</td>' +
-          '<td><span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;background:' + tone.bg + ';color:' + tone.fg + ';font-size:10px;font-weight:590">' + esc(item.status_label || item.status || '-') + '</span></td>' +
+          '<td style="font-weight:600">' + esc(item.label || '-') + '</td>' +
+          '<td><span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;background:' + tone.bg + ';color:' + tone.fg + ';font-size:10px;font-weight:700">' + esc(item.status_label || item.status || '-') + '</span></td>' +
           '<td>' + esc(item.detail || '-') + '</td>' +
           '</tr>';
       }).join('') || '<tr><td colspan="3" class="muted">暂无状态明细</td></tr>';
@@ -5755,8 +5700,8 @@
         '<div>模型覆盖ETF: <strong>' + fmt(consensus.model_etf_count || 0) + '</strong></div>' +
         '</div>';
       statusCardHtml = '<div class="panel" style="margin-bottom:14px">' +
-        '<div class="panel-head"><span style="font-weight:510">ETF-only Qlib 迁移状态</span> <span class="muted" style="font-size:11px">已停止股票侧映射</span></div>' +
-        '<div style="font-size:12px;line-height:1.8;margin-bottom:10px;color:#f7f8f8">' + esc(consensus.message || '') + '</div>' +
+        '<div class="panel-head"><span style="font-weight:600">ETF-only Qlib 迁移状态</span> <span class="muted" style="font-size:11px">已停止股票侧映射</span></div>' +
+        '<div style="font-size:12px;line-height:1.8;margin-bottom:10px;color:#0f172a">' + esc(consensus.message || '') + '</div>' +
         '<div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;line-height:1.8;margin-bottom:10px">' +
         '<div>隔离模式: <strong>ETF-only</strong></div>' +
         '<div>状态: <strong>' + esc(consensus.pipeline_status_label || consensus.pipeline_status || '-') + '</strong></div>' +
@@ -5764,10 +5709,10 @@
         '<div>已建表: <strong>' + fmt(consensus.existing_table_count || 0) + '/' + fmt(consensus.required_table_count || 0) + '</strong></div>' +
         '</div>' +
         runtimeStatusHtml +
-        '<div style="margin-bottom:10px;font-size:12px;color:#f7f8f8"><strong>缺失表：</strong> ' + esc((consensus.missing_tables || []).join('，') || '无') + '</div>' +
+        '<div style="margin-bottom:10px;font-size:12px;color:#0f172a"><strong>缺失表：</strong> ' + esc((consensus.missing_tables || []).join('，') || '无') + '</div>' +
         '<div style="overflow-x:auto;margin-bottom:12px"><table class="data-table" style="font-size:12px"><thead><tr><th>能力</th><th>状态</th><th>说明</th></tr></thead><tbody>' + capabilityRows + '</tbody></table></div>' +
-        '<div style="font-size:12px;color:#f7f8f8;margin-bottom:6px"><strong>后续阶段</strong></div>' +
-        '<ol style="margin:0 0 12px 18px;padding:0;font-size:12px;line-height:1.7;color:#d0d6e0">' + roadmapHtml + '</ol>' +
+        '<div style="font-size:12px;color:#0f172a;margin-bottom:6px"><strong>后续阶段</strong></div>' +
+        '<ol style="margin:0 0 12px 18px;padding:0;font-size:12px;line-height:1.7;color:#334155">' + roadmapHtml + '</ol>' +
         warningHtml +
         '</div>';
     }
@@ -5778,12 +5723,12 @@
           var stratTone = etfStrategyTone(item.preferred_strategy || '买入持有');
           return '<tr style="cursor:pointer" data-etf-analyze="' + esc(item.code || '') + '">' +
             '<td>#' + (index + 1) + '</td>' +
-            '<td><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="font-weight:510">' + esc(item.name || item.code || '-') + '</span>' + xueqiuPillLink(item.code, item.code, true) + '</div></td>' +
+            '<td><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="font-weight:600">' + esc(item.name || item.code || '-') + '</span>' + xueqiuPillLink(item.code, item.code, true) + '</div></td>' +
             '<td>' + (item.predicted_buy_hold_return_pct != null ? signedPct(Number(item.predicted_buy_hold_return_pct)) : '<span class="muted">-</span>') + '</td>' +
             '<td>' + (item.predicted_grid_return_pct != null ? signedPct(Number(item.predicted_grid_return_pct)) : '<span class="muted">-</span>') + '</td>' +
             '<td>' + (item.predicted_grid_excess_pct != null ? signedPct(Number(item.predicted_grid_excess_pct)) : '<span class="muted">-</span>') + '</td>' +
             '<td>' + (item.predicted_best_step_pct != null ? Number(item.predicted_best_step_pct).toFixed(2) + '%' : '-') + '</td>' +
-            '<td><span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;background:' + stratTone.bg + ';color:' + stratTone.fg + ';font-size:10px;font-weight:590">' + esc(item.preferred_strategy || '-') + '</span></td>' +
+            '<td><span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;background:' + stratTone.bg + ';color:' + stratTone.fg + ';font-size:10px;font-weight:700">' + esc(item.preferred_strategy || '-') + '</span></td>' +
             '<td>' + (item.strategy_edge_pct != null ? signedPct(Number(item.strategy_edge_pct)) : '<span class="muted">-</span>') + '</td>' +
             '</tr>';
         }).join('') || '<tr><td colspan="8" class="muted">暂无预测样本</td></tr>';
@@ -5795,7 +5740,7 @@
           return (etf.name || etf.code || '-') + ' · ' + (etf.preferred_strategy || '-') + stepText;
         }).join('，') || '-';
         return '<tr>' +
-          '<td style="font-weight:510">' + esc(item.category || '-') + '</td>' +
+          '<td style="font-weight:600">' + esc(item.category || '-') + '</td>' +
           '<td>' + etfNum(item.avg_consensus_score, 2) + '</td>' +
           '<td>' + (item.avg_hold_return_pct != null ? signedPct(Number(item.avg_hold_return_pct)) : '<span class="muted">-</span>') + '</td>' +
           '<td>' + (item.avg_grid_return_pct != null ? signedPct(Number(item.avg_grid_return_pct)) : '<span class="muted">-</span>') + '</td>' +
@@ -5808,7 +5753,7 @@
 
       predictionHtml =
         '<div class="panel" style="margin-bottom:14px">' +
-        '<div class="panel-head"><span style="font-weight:510">ETF-only Qlib 预测验证</span> <span class="muted" style="font-size:11px">仅使用 ETF 自身数据</span></div>' +
+        '<div class="panel-head"><span style="font-weight:600">ETF-only Qlib 预测验证</span> <span class="muted" style="font-size:11px">仅使用 ETF 自身数据</span></div>' +
         '<div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;line-height:1.8;margin-bottom:10px">' +
         '<div>模型: <strong>' + esc(consensus.model_id || '-') + '</strong></div>' +
         '<div>状态: <strong>' + esc(consensus.model_status || '-') + '</strong></div>' +
@@ -5818,17 +5763,17 @@
         '<div>特征数: <strong>' + fmt(consensus.feature_count || 0) + '</strong></div>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px">' +
-        '<div class="stat-card" style="padding:12px 14px;margin-bottom:0"><div class="muted" style="font-size:11px">持有 IC</div><div style="font-size:18px;font-weight:590;margin-top:6px">' + etfNum(consensus.hold_ic_mean, 4) + '</div></div>' +
-        '<div class="stat-card" style="padding:12px 14px;margin-bottom:0"><div class="muted" style="font-size:11px">网格 IC</div><div style="font-size:18px;font-weight:590;margin-top:6px">' + etfNum(consensus.grid_ic_mean, 4) + '</div></div>' +
-        '<div class="stat-card" style="padding:12px 14px;margin-bottom:0"><div class="muted" style="font-size:11px">超额 IC</div><div style="font-size:18px;font-weight:590;margin-top:6px">' + etfNum(consensus.excess_ic_mean, 4) + '</div></div>' +
-        '<div class="stat-card" style="padding:12px 14px;margin-bottom:0"><div class="muted" style="font-size:11px">步长 MAE</div><div style="font-size:18px;font-weight:590;margin-top:6px">' + etfNum(consensus.step_mae, 4) + '</div></div>' +
-        '<div class="stat-card" style="padding:12px 14px;margin-bottom:0"><div class="muted" style="font-size:11px">策略准确率</div><div style="font-size:18px;font-weight:590;margin-top:6px">' + pct(consensus.strategy_accuracy != null ? Number(consensus.strategy_accuracy) * 100 : null) + '</div></div>' +
-        '<div class="stat-card" style="padding:12px 14px;margin-bottom:0"><div class="muted" style="font-size:11px">Top20策略收益</div><div style="font-size:18px;font-weight:590;margin-top:6px">' + (consensus.test_top20_strategy_return != null ? signedPct(Number(consensus.test_top20_strategy_return)) : '-') + '</div></div>' +
+        '<div class="stat-card" style="padding:12px 14px;margin-bottom:0"><div class="muted" style="font-size:11px">持有 IC</div><div style="font-size:18px;font-weight:700;margin-top:6px">' + etfNum(consensus.hold_ic_mean, 4) + '</div></div>' +
+        '<div class="stat-card" style="padding:12px 14px;margin-bottom:0"><div class="muted" style="font-size:11px">网格 IC</div><div style="font-size:18px;font-weight:700;margin-top:6px">' + etfNum(consensus.grid_ic_mean, 4) + '</div></div>' +
+        '<div class="stat-card" style="padding:12px 14px;margin-bottom:0"><div class="muted" style="font-size:11px">超额 IC</div><div style="font-size:18px;font-weight:700;margin-top:6px">' + etfNum(consensus.excess_ic_mean, 4) + '</div></div>' +
+        '<div class="stat-card" style="padding:12px 14px;margin-bottom:0"><div class="muted" style="font-size:11px">步长 MAE</div><div style="font-size:18px;font-weight:700;margin-top:6px">' + etfNum(consensus.step_mae, 4) + '</div></div>' +
+        '<div class="stat-card" style="padding:12px 14px;margin-bottom:0"><div class="muted" style="font-size:11px">策略准确率</div><div style="font-size:18px;font-weight:700;margin-top:6px">' + pct(consensus.strategy_accuracy != null ? Number(consensus.strategy_accuracy) * 100 : null) + '</div></div>' +
+        '<div class="stat-card" style="padding:12px 14px;margin-bottom:0"><div class="muted" style="font-size:11px">Top20策略收益</div><div style="font-size:18px;font-weight:700;margin-top:6px">' + (consensus.test_top20_strategy_return != null ? signedPct(Number(consensus.test_top20_strategy_return)) : '-') + '</div></div>' +
         '</div>' +
         '<div style="overflow-x:auto;margin-bottom:12px"><table class="data-table" style="font-size:12px"><thead><tr><th>排名</th><th>ETF</th><th>持有预测</th><th>网格预测</th><th>网格超额</th><th>预测步长</th><th>推荐策略</th><th>优势</th></tr></thead><tbody>' + qlibPredictionRows(topStrategyPredictions) + '</tbody></table></div>' +
         '<div class="finance-module-grid" style="margin-bottom:12px">' +
-        '<div class="finance-module-card"><div style="font-weight:590;font-size:12px;margin-bottom:8px">持有收益 Top 8</div><div style="overflow-x:auto"><table class="data-table" style="font-size:11px;margin-bottom:0"><thead><tr><th>排名</th><th>ETF</th><th>持有预测</th><th>网格预测</th><th>策略</th></tr></thead><tbody>' + topHoldPredictions.slice(0, 8).map(function (item, index) { return '<tr style="cursor:pointer" data-etf-analyze="' + esc(item.code || '') + '"><td>#' + (index + 1) + '</td><td>' + esc(item.name || item.code || '-') + '</td><td>' + (item.predicted_buy_hold_return_pct != null ? signedPct(Number(item.predicted_buy_hold_return_pct)) : '<span class="muted">-</span>') + '</td><td>' + (item.predicted_grid_return_pct != null ? signedPct(Number(item.predicted_grid_return_pct)) : '<span class="muted">-</span>') + '</td><td>' + esc(item.preferred_strategy || '-') + '</td></tr>'; }).join('') + '</tbody></table></div></div>' +
-        '<div class="finance-module-card"><div style="font-weight:590;font-size:12px;margin-bottom:8px">网格收益 Top 8</div><div style="overflow-x:auto"><table class="data-table" style="font-size:11px;margin-bottom:0"><thead><tr><th>排名</th><th>ETF</th><th>网格预测</th><th>步长</th><th>策略优势</th></tr></thead><tbody>' + topGridPredictions.slice(0, 8).map(function (item, index) { return '<tr style="cursor:pointer" data-etf-analyze="' + esc(item.code || '') + '"><td>#' + (index + 1) + '</td><td>' + esc(item.name || item.code || '-') + '</td><td>' + (item.predicted_grid_return_pct != null ? signedPct(Number(item.predicted_grid_return_pct)) : '<span class="muted">-</span>') + '</td><td>' + (item.predicted_best_step_pct != null ? Number(item.predicted_best_step_pct).toFixed(2) + '%' : '-') + '</td><td>' + (item.strategy_edge_pct != null ? signedPct(Number(item.strategy_edge_pct)) : '<span class="muted">-</span>') + '</td></tr>'; }).join('') + '</tbody></table></div></div>' +
+        '<div class="finance-module-card"><div style="font-weight:700;font-size:12px;margin-bottom:8px">持有收益 Top 8</div><div style="overflow-x:auto"><table class="data-table" style="font-size:11px;margin-bottom:0"><thead><tr><th>排名</th><th>ETF</th><th>持有预测</th><th>网格预测</th><th>策略</th></tr></thead><tbody>' + topHoldPredictions.slice(0, 8).map(function (item, index) { return '<tr style="cursor:pointer" data-etf-analyze="' + esc(item.code || '') + '"><td>#' + (index + 1) + '</td><td>' + esc(item.name || item.code || '-') + '</td><td>' + (item.predicted_buy_hold_return_pct != null ? signedPct(Number(item.predicted_buy_hold_return_pct)) : '<span class="muted">-</span>') + '</td><td>' + (item.predicted_grid_return_pct != null ? signedPct(Number(item.predicted_grid_return_pct)) : '<span class="muted">-</span>') + '</td><td>' + esc(item.preferred_strategy || '-') + '</td></tr>'; }).join('') + '</tbody></table></div></div>' +
+        '<div class="finance-module-card"><div style="font-weight:700;font-size:12px;margin-bottom:8px">网格收益 Top 8</div><div style="overflow-x:auto"><table class="data-table" style="font-size:11px;margin-bottom:0"><thead><tr><th>排名</th><th>ETF</th><th>网格预测</th><th>步长</th><th>策略优势</th></tr></thead><tbody>' + topGridPredictions.slice(0, 8).map(function (item, index) { return '<tr style="cursor:pointer" data-etf-analyze="' + esc(item.code || '') + '"><td>#' + (index + 1) + '</td><td>' + esc(item.name || item.code || '-') + '</td><td>' + (item.predicted_grid_return_pct != null ? signedPct(Number(item.predicted_grid_return_pct)) : '<span class="muted">-</span>') + '</td><td>' + (item.predicted_best_step_pct != null ? Number(item.predicted_best_step_pct).toFixed(2) + '%' : '-') + '</td><td>' + (item.strategy_edge_pct != null ? signedPct(Number(item.strategy_edge_pct)) : '<span class="muted">-</span>') + '</td></tr>'; }).join('') + '</tbody></table></div></div>' +
         '</div>' +
         '<div style="overflow-x:auto"><table class="data-table" style="font-size:12px"><thead><tr><th>分类</th><th>平均共识</th><th>平均持有预测</th><th>平均网格预测</th><th>平均优势</th><th>持有数</th><th>网格数</th><th>代表 ETF</th></tr></thead><tbody>' + qlibCategoryRows + '</tbody></table></div>' +
         '</div>';
@@ -5837,25 +5782,25 @@
     var leaderHtml = '';
     if (leaders.length) {
       leaderHtml = '<div class="panel" style="margin-bottom:14px">' +
-        '<div class="panel-head"><span style="font-weight:510">ETF 因子领先名单</span> <span class="muted" style="font-size:11px">按因子分降序</span></div>' +
+        '<div class="panel-head"><span style="font-weight:600">ETF 因子领先名单</span> <span class="muted" style="font-size:11px">按因子分降序</span></div>' +
         '<div style="overflow-x:auto"><table class="data-table" style="font-size:12px"><thead><tr>' +
         '<th>排名</th><th>ETF</th><th>分类</th><th>因子分</th><th>4周相强</th><th>12周相强</th><th>轮动分</th><th>策略</th><th>网格超额</th>' +
         '</tr></thead><tbody>';
       leaders.forEach(function (item) {
         var prefix = item.code && item.code.startsWith('1') ? 'SZ' : 'SH';
         var nameHtml = item.code
-          ? '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="font-weight:510">' + esc(item.name || item.code) + '</span>' + xueqiuPillLink(item.code, item.code, true) + '</div>'
+          ? '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="font-weight:600">' + esc(item.name || item.code) + '</span>' + xueqiuPillLink(item.code, item.code, true) + '</div>'
           : esc(item.name || '-');
         var stratTone = etfStrategyTone(item.strategy_type);
         leaderHtml += '<tr style="cursor:pointer" data-etf-analyze="' + esc(item.code || '') + '">' +
           '<td>#' + esc(fmt(item.factor_rank || '-')) + '</td>' +
           '<td>' + nameHtml + '</td>' +
           '<td>' + esc(item.category || '-') + '</td>' +
-          '<td style="font-weight:590">' + etfNum(item.factor_score, 1) + '</td>' +
+          '<td style="font-weight:700">' + etfNum(item.factor_score, 1) + '</td>' +
           '<td>' + etfPctCell(item.relative_strength_4w, false) + '</td>' +
           '<td>' + etfPctCell(item.relative_strength_12w, false) + '</td>' +
           '<td>' + (item.rotation_score != null ? item.rotation_score.toFixed(1) : '-') + '</td>' +
-          '<td><span style="padding:2px 8px;border-radius:999px;background:' + stratTone.bg + ';color:' + stratTone.fg + ';font-size:10px;font-weight:510" title="' + esc(item.strategy_reason || '') + '">' + esc(item.strategy_type || '-') + '</span></td>' +
+          '<td><span style="padding:2px 8px;border-radius:999px;background:' + stratTone.bg + ';color:' + stratTone.fg + ';font-size:10px;font-weight:600" title="' + esc(item.strategy_reason || '') + '">' + esc(item.strategy_type || '-') + '</span></td>' +
           '<td>' + (item.backtest_excess_pct != null ? signedPct(item.backtest_excess_pct) : '<span class="muted">-</span>') + '</td>' +
           '</tr>';
       });
@@ -5865,7 +5810,7 @@
     var categoryHtml = '';
     if (factorCategories.length) {
       categoryHtml = '<div class="panel">' +
-        '<div class="panel-head"><span style="font-weight:510">类别轮动与因子概览</span> <span class="muted" style="font-size:11px">按预轮动分降序</span></div>' +
+        '<div class="panel-head"><span style="font-weight:600">类别轮动与因子概览</span> <span class="muted" style="font-size:11px">按预轮动分降序</span></div>' +
         '<div style="overflow-x:auto"><table class="data-table" style="font-size:12px"><thead><tr>' +
         '<th>类别</th><th>预轮动分</th><th>平均因子分</th><th>平均轮动分</th><th>前排ETF数</th><th>买入持有</th><th>网格交易</th><th>代表ETF</th>' +
         '</tr></thead><tbody>';
@@ -5874,7 +5819,7 @@
           return esc((etf.name || etf.code || '-') + ' ' + etfNum(etf.factor_score, 1));
         }).join('，') || '-';
         categoryHtml += '<tr style="cursor:pointer" data-etf-category="' + esc(item.category || '') + '">' +
-          '<td style="font-weight:510">' + esc(item.category || '-') + '</td>' +
+          '<td style="font-weight:600">' + esc(item.category || '-') + '</td>' +
           '<td>' + etfNum(item.next_rotation_score, 1) + '</td>' +
           '<td>' + etfNum(item.avg_factor_score, 1) + '</td>' +
           '<td>' + (item.avg_rotation_score != null ? item.avg_rotation_score.toFixed(1) : '-') + '</td>' +
@@ -6081,7 +6026,7 @@
         '<text x="' + (pad + barW + 4) + '" y="' + (y + barH - 4) + '" font-size="9" fill="#94a3b8">' + Number(f.importance).toFixed(0) + '</text>';
     }).join('');
     el('qlibFactorChart').innerHTML =
-      '<div style="margin-bottom:6px"><span style="display:inline-block;width:10px;height:10px;background:#3b82f6;border-radius:2px;margin-right:4px"></span><span style="font-size:11px;color:#8a8f98">Alpha158</span> <span style="display:inline-block;width:10px;height:10px;background:#f59e0b;border-radius:2px;margin-left:12px;margin-right:4px"></span><span style="font-size:11px;color:#8a8f98">财务因子</span> <span style="display:inline-block;width:10px;height:10px;background:#10b981;border-radius:2px;margin-left:12px;margin-right:4px"></span><span style="font-size:11px;color:#8a8f98">机构因子</span></div>' +
+      '<div style="margin-bottom:6px"><span style="display:inline-block;width:10px;height:10px;background:#3b82f6;border-radius:2px;margin-right:4px"></span><span style="font-size:11px;color:#64748b">Alpha158</span> <span style="display:inline-block;width:10px;height:10px;background:#f59e0b;border-radius:2px;margin-left:12px;margin-right:4px"></span><span style="font-size:11px;color:#64748b">财务因子</span> <span style="display:inline-block;width:10px;height:10px;background:#10b981;border-radius:2px;margin-left:12px;margin-right:4px"></span><span style="font-size:11px;color:#64748b">机构因子</span></div>' +
       '<svg viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;height:' + h + 'px">' + bars + '</svg>';
   }
 
@@ -6110,7 +6055,7 @@
         btn.disabled = false;
         btn.textContent = '救生艇';
         if (s.result?.ok) {
-          showModal('救生艇', '报告已生成！<br><br><a href="/api/inst/lifeboat/report" target="_blank" style="color:#3b82f6;font-weight:510">点击查看报告</a><br><br><span style="font-size:12px;color:#62666d">也可双击 lifeboat/run.command 独立运行</span>');
+          showModal('救生艇', '报告已生成！<br><br><a href="/api/inst/lifeboat/report" target="_blank" style="color:#3b82f6;font-weight:600">点击查看报告</a><br><br><span style="font-size:12px;color:#94a3b8">也可双击 lifeboat/run.command 独立运行</span>');
         } else {
           showModal('救生艇', '运行失败：' + (s.result?.message || '未知错误'));
         }
@@ -6118,6 +6063,6 @@
       if (polls > 120) { clearInterval(timer); btn.disabled = false; btn.textContent = '救生艇'; }
     }, 3000);
   }
-  window.App = { saveModuleSettings, showView, setAlias, setType, toggleBlack, deleteInst, restoreInst, calcInstScore, resetInstScore, toggleInstDetail, toggleInstBreakdown, toggleStockDetail, switchInstDim, switchStockDim, runSingleStep, openSectorValidation, clearStockValidationFilter, renderScoreRadar, _api: api };
+  window.App = { saveModuleSettings, showView, setAlias, setType, toggleBlack, deleteInst, restoreInst, calcInstScore, resetInstScore, toggleInstDetail, toggleInstBreakdown, toggleStockDetail, switchInstDim, switchStockDim, runSingleStep, openSectorValidation, clearStockValidationFilter, _api: api };
   document.addEventListener('DOMContentLoaded', init);
 })();

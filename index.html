@@ -4,12 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="color-scheme" content="dark">
   <title>Chunky Monkey v2</title>
-  <link rel="preconnect" href="https://rsms.me/">
-  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
-  <link rel="stylesheet" href="assets/css/main.css?v=3.0.0">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <link rel="stylesheet" href="assets/css/main.css?v=2.2.0">
 </head>
 
 <body>
@@ -71,18 +67,16 @@
         </div>
       </div>
 
-      <!-- 数据更新 -->
-      <div class="panel" style="margin-top:14px">
-        <div class="panel-head">
-          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-            <div id="networkStatus" class="network-status">
-              <span id="sourcePillHoldings" class="source-pill offline"><span class="source-pill-dot"></span><span
-                  class="source-pill-text">股东源 · 离线</span></span>
-              <span id="sourcePillKline" class="source-pill offline"><span class="source-pill-dot"></span><span
-                  class="source-pill-text">K线源 · 离线</span></span>
-              <span id="sourcePillIndustry" class="source-pill offline"><span class="source-pill-dot"></span><span
-                  class="source-pill-text">行业源 · 离线</span></span>
-            </div>
+      <!-- 候选池 -->
+      <div id="candidatePoolSection" style="margin-top:14px"></div>
+
+      <!-- 数据更新（可折叠） -->
+      <div class="panel pipeline-section" style="margin-top:14px">
+        <div class="panel-head pipeline-toggle" id="pipelineToggle" style="cursor:pointer">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="pipeline-arrow" id="pipelineArrow">▶</span>
+            <span style="font-weight:600">数据管线</span>
+            <span class="muted" style="font-size:11px" id="pipelineSummary"></span>
           </div>
           <div class="panel-actions" style="display:flex;align-items:center;gap:8px;">
             <button class="btn-primary" id="btnUpdateAll" style="padding:6px 16px;font-size:13px">一键智能更新</button>
@@ -91,11 +85,12 @@
             <button class="btn-outline" id="btnToggleSystemOps" style="padding:6px 12px;font-size:12px">系统</button>
           </div>
         </div>
+        <div class="pipeline-body" id="pipelineBody" style="display:none">
         <div id="systemOpsPanel"
-          style="display:none;margin-bottom:14px;padding:12px 14px;border:1px solid rgba(255,255,255,0.08);border-radius:10px;background:rgba(255,255,255,0.03)">
+          style="display:none;margin-bottom:14px;padding:12px 14px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
             <div>
-              <div style="font-size:13px;font-weight:590;color:#f7f8f8;margin-bottom:4px">系统操作</div>
+              <div style="font-size:13px;font-weight:600;color:#0f172a;margin-bottom:4px">系统操作</div>
               <div class="muted" style="font-size:11px;margin-bottom:12px;">清空事件、收益、画像和趋势派生层，从原始数据重新计算。</div>
               <div class="module-toggles" style="display:flex;gap:12px;font-size:12px;">
                 <label><input type="checkbox" id="chkModuleQlib"> 启用 Qlib (需后端支持)</label>
@@ -127,6 +122,15 @@
             </div>
             <div id="updateLog" class="log-box update-log-box"></div>
           </aside>
+        </div>
+        </div><!-- /pipeline-body -->
+        <div id="networkStatus" class="network-status" style="padding:8px 16px;display:none">
+          <span id="sourcePillHoldings" class="source-pill offline"><span class="source-pill-dot"></span><span
+              class="source-pill-text">股东源 · 离线</span></span>
+          <span id="sourcePillKline" class="source-pill offline"><span class="source-pill-dot"></span><span
+              class="source-pill-text">K线源 · 离线</span></span>
+          <span id="sourcePillIndustry" class="source-pill offline"><span class="source-pill-dot"></span><span
+              class="source-pill-text">行业源 · 离线</span></span>
         </div>
       </div>
     </section>
@@ -284,7 +288,7 @@
         </div>
         <div id="etfMsg" class="muted" style="font-size:12px">数据可能非最新，请先点击同步。</div>
         <div id="etfLogBox"
-          style="margin-top:8px;max-height:160px;overflow:auto;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:8px;font-family:'Berkeley Mono',ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5;color:#d0d6e0">>
+          style="margin-top:8px;max-height:160px;overflow:auto;background:#0f172a08;border:1px solid #e2e8f0;border-radius:6px;padding:8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5">
         </div>
       </div>
 
@@ -431,10 +435,10 @@
 
   <!-- 自定义模态框 -->
   <div id="modalOverlay"
-    style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;align-items:center;justify-content:center">
+    style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:1000;align-items:center;justify-content:center">
     <div
-      style="background:#191a1b;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:24px 28px;max-width:420px;width:90%;box-shadow:0 8px 30px rgba(0,0,0,0.5)">
-      <div id="modalBody" style="font-size:14px;line-height:1.6;margin-bottom:18px;color:#d0d6e0"></div>
+      style="background:#fff;border-radius:12px;padding:24px 28px;max-width:420px;width:90%;box-shadow:0 8px 30px rgba(0,0,0,0.15)">
+      <div id="modalBody" style="font-size:14px;line-height:1.6;margin-bottom:18px"></div>
       <div style="display:flex;gap:8px;justify-content:flex-end">
         <button id="modalCancel" class="btn-outline" style="display:none;padding:6px 16px;border-radius:6px">取消</button>
         <button id="modalOk" class="btn-primary" style="padding:6px 16px;border-radius:6px">确定</button>
@@ -442,10 +446,10 @@
     </div>
   </div>
 
-  <script src="assets/js/app-cache.js?v=3.0.0"></script>
-  <script src="assets/js/app-nav.js?v=3.0.0"></script>
-  <script src="assets/js/app-list-state.js?v=3.0.0"></script>
-  <script src="assets/js/app.js?v=3.0.0"></script>
+  <script src="assets/js/app-cache.js?v=2.2.0"></script>
+  <script src="assets/js/app-nav.js?v=2.2.0"></script>
+  <script src="assets/js/app-list-state.js?v=2.2.0"></script>
+  <script src="assets/js/app.js?v=2.2.0"></script>
 </body>
 
 </html>
