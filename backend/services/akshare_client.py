@@ -21,13 +21,22 @@ import pandas as pd
 logger = logging.getLogger("cm-api")
 
 _TDX_SERVER_CANDIDATES = (
-    "119.147.212.81:7709",
-    "113.105.73.88:7709",
-    "113.105.73.88:7711",
-    "114.80.80.222:7711",
-    "123.125.108.24:7709",
+    ("110.41.147.114", 7709),
+    ("124.70.199.56", 7709),
+    ("121.36.225.169", 7709),
+    ("123.60.70.228", 7709),
+    ("123.60.73.44", 7709),
+    ("124.70.133.119", 7709),
+    ("124.71.187.72", 7709),
+    ("124.71.187.122", 7709),
+    ("119.97.185.59", 7709),
+    ("124.71.9.153", 7709),
+    ("123.60.84.66", 7709),
+    ("116.205.163.254", 7709),
+    ("116.205.171.132", 7709),
+    ("116.205.183.150", 7709),
 )
-_MOOTDX_TIMEOUT_SECONDS = 3
+_MOOTDX_TIMEOUT_SECONDS = 5
 _MOOTDX_CIRCUIT_BREAKER_SECONDS = 300
 _MOOTDX_UNAVAILABLE_STATE = {
     "until": 0.0,
@@ -66,8 +75,21 @@ def _market_symbol(code: str) -> str:
     return f"sh{text}" if text.startswith("6") else f"sz{text}"
 
 
+def _parse_server_string(s: str) -> Optional[tuple]:
+    """Parse 'ip:port' string to (ip, port) tuple."""
+    parts = s.strip().split(":")
+    if len(parts) == 2:
+        try:
+            return (parts[0], int(parts[1]))
+        except ValueError:
+            pass
+    return None
+
+
 def _iter_tdx_servers():
-    custom = [item.strip() for item in os.environ.get("CM_TDX_SERVERS", "").split(",") if item.strip()]
+    custom_raw = [item.strip() for item in os.environ.get("CM_TDX_SERVERS", "").split(",") if item.strip()]
+    custom = [_parse_server_string(s) for s in custom_raw]
+    custom = [s for s in custom if s is not None]
     ordered = []
     seen = set()
     for server in custom + list(_TDX_SERVER_CANDIDATES):

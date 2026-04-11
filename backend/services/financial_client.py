@@ -441,34 +441,53 @@ def _cleanup_snapshot_stub(conn, stock_code: str, notice_date: Optional[str], re
     )
 
 
+_FINANCIAL_TDX_SERVERS = (
+    ("110.41.147.114", 7709),
+    ("124.70.199.56", 7709),
+    ("121.36.225.169", 7709),
+    ("123.60.70.228", 7709),
+    ("116.205.163.254", 7709),
+    ("116.205.171.132", 7709),
+    ("116.205.183.150", 7709),
+)
+
+
 def _fetch_latest_snapshot_batch(codes):
     try:
         from mootdx.quotes import Quotes
-        client = Quotes.factory(
-            market="std",
-            multithread=False,
-            heartbeat=False,
-            server="119.147.212.81:7709",
-        )
-        results = {}
-        for code in codes:
-            try:
-                fin = client.finance(symbol=code)
-                if fin is not None and not fin.empty:
-                    results[code] = fin.iloc[0].to_dict()
-            except Exception:
-                continue
-        try:
-            client.close()
-        except Exception:
-            pass
-        return results
     except ImportError:
         logger.warning("[财务] mootdx 未安装，跳过最新快照同步")
         return {}
-    except Exception as exc:
-        logger.error(f"[财务] mootdx 连接失败: {exc}")
-        return {}
+
+    for server in _FINANCIAL_TDX_SERVERS:
+        try:
+            client = Quotes.factory(
+                market="std",
+                multithread=False,
+                heartbeat=False,
+                server=server,
+                timeout=5,
+            )
+            results = {}
+            for code in codes:
+                try:
+                    fin = client.finance(symbol=code)
+                    if fin is not None and not fin.empty:
+                        results[code] = fin.iloc[0].to_dict()
+                except Exception:
+                    continue
+            try:
+                client.close()
+            except Exception:
+                pass
+            if results:
+                return results
+        except Exception as exc:
+            logger.debug(f"[财务] mootdx {server} 连接失败: {exc}")
+            continue
+
+    logger.error("[财务] mootdx 所有服务器均连接失败")
+    return {}
 
 
 # ============================================================
