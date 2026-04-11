@@ -8,7 +8,8 @@ numpy
 pydantic>=2.0
 
 # 数据源（必需：mootdx 是 K 线/财务数据的主数据源）
-mootdx
+# 使用自维护 fork，修复服务器列表和 server 参数 bug
+mootdx @ git+https://github.com/dare2live/mootdx.git@master
 
 # AI 模型（可选：缺失时 Qlib 功能降级但系统可用）
 lightgbm
