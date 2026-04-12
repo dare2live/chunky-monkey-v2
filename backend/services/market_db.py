@@ -5,7 +5,6 @@ market_db.py — 独立行情数据库 (market_data.db)
 与业务库 smartmoney.db 完全解耦，业务层只通过本模块读写行情数据。
 """
 
-import os
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
