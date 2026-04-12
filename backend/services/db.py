@@ -10,7 +10,6 @@
 """
 
 import sqlite3
-import os
 import logging
 from datetime import datetime
 from pathlib import Path
@@ -454,6 +453,19 @@ def init_db():
                 stock_archetype    TEXT,
                 priority_pool      TEXT,
                 priority_pool_reason TEXT,
+                attention_comment_trade_date TEXT,
+                attention_focus_index REAL,
+                attention_composite_score REAL,
+                attention_institution_participation REAL,
+                attention_turnover_rate REAL,
+                attention_rank_change REAL,
+                attention_survey_count_30d INTEGER,
+                attention_survey_count_90d INTEGER,
+                attention_survey_org_total_30d INTEGER,
+                attention_survey_org_total_90d INTEGER,
+                external_attention_score REAL,
+                external_crowding_penalty REAL,
+                external_attention_signal TEXT,
                 score_highlights   TEXT,
                 score_risks        TEXT,
                 updated_at         TEXT
