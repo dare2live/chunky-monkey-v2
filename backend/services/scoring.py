@@ -1238,6 +1238,332 @@ def _external_attention_signal(
 
 
 # ============================================================
+# 可独立测试的评分子函数
+# ============================================================
+
+def compute_composite_priority(
+    discovery: float, quality: float, stage: float, forecast_effective: float,
+    attention_boost: float = 0.0, crowding_penalty: float = 0.0,
+) -> Tuple[float, float]:
+    """
+    计算原始/最终复合优先分。
+
+    返回 (raw_score, final_score)。
+    权重：发现 35% + 质量 30% + 阶段 20% + 预测 15%。
+    """
+    raw = discovery * 0.35 + quality * 0.30 + stage * 0.20 + forecast_effective * 0.15
+    raw = round(max(0.0, min(100.0, raw)), 2)
+    final = round(max(0.0, min(100.0, raw + attention_boost - crowding_penalty)), 2)
+    return raw, final
+
+
+def apply_composite_ceiling(
+    composite: float, stage: float, quality: float,
+    stock_archetype: Optional[str],
+    crowding_penalty: float,
+) -> Tuple[float, Optional[float], Optional[str]]:
+    """
+    对综合分施加封顶规则。
+
+    返回 (capped_score, cap_value_or_none, cap_reason_or_none)。
+    """
+    ceiling = None
+    reasons = []
+    if stage < 40:
+        ceiling = 69.0 if ceiling is None else min(ceiling, 69.0)
+        reasons.append("阶段分低于40，综合分封顶69")
+    if quality < 45 and stock_archetype != "周期/事件驱动型":
+        ceiling = 64.0 if ceiling is None else min(ceiling, 64.0)
+        reasons.append("质量分低于45，非周期/事件型综合分封顶64")
+    if crowding_penalty >= 8:
+        ceiling = 69.0 if ceiling is None else min(ceiling, 69.0)
+        reasons.append("外部热度拥挤，综合分封顶69")
+    elif crowding_penalty >= 6 and stage < 60:
+        ceiling = 74.0 if ceiling is None else min(ceiling, 74.0)
+        reasons.append("外部热度偏拥挤且阶段分不足60，综合分封顶74")
+    if ceiling is not None and composite > ceiling:
+        capped = min(composite, ceiling)
+        reason_text = "；".join(reasons[:2]) if reasons else None
+        return capped, ceiling, reason_text
+    return composite, None, None
+
+
+def assign_priority_pool(
+    composite: float, raw_composite: float,
+    discovery: float, quality: float, stage: float,
+    external_attention_score: Optional[float],
+    external_crowding_penalty: float,
+    promoted_by_external: bool,
+    demoted_by_crowding: bool,
+) -> Tuple[str, Optional[str]]:
+    """
+    根据综合分与子分门槛分配优先池。
+
+    返回 (pool, reason)。
+    """
+    if stage < 40 or composite < 45:
+        pool = "D池"
+        reason = "阶段分低于40，进入D池" if stage < 40 else "综合优先分低于45，进入D池"
+    elif (
+        composite >= 75
+        and stage >= 50
+        and quality >= 55
+        and discovery >= 50
+    ):
+        pool = "A池"
+        if promoted_by_external:
+            reason = "内部分接近A池，外部确认增强后进入A池"
+        else:
+            reason = "综合分达75且通过发现/质量/阶段门槛，进入A池"
+    elif composite >= 60:
+        pool = "B池"
+        blockers = []
+        if composite >= 75 and discovery < 50:
+            blockers.append("发现分不足50")
+        if composite >= 75 and quality < 55:
+            blockers.append("质量分不足55")
+        if composite >= 75 and stage < 50:
+            blockers.append("阶段分不足50")
+        if blockers:
+            reason = "综合分虽高，但未满足A池门槛：" + "、".join(blockers[:2])
+        elif demoted_by_crowding:
+            reason = "内部分已达A池，但外部热度拥挤导致降至B池"
+        elif raw_composite < 60 <= composite and (external_attention_score or 0) >= 70:
+            reason = "外部确认增强后进入B池"
+        else:
+            reason = "综合优先分介于60-75，进入B池"
+    else:
+        pool = "C池"
+        reason = "综合优先分介于45-60，进入C池"
+
+    if reason and external_crowding_penalty >= 6 and not demoted_by_crowding:
+        reason += "；外部热度拥挤"
+    elif reason and (external_attention_score or 0) >= 72 and not promoted_by_external:
+        reason += "；外部确认增强"
+
+    return pool, reason
+
+
+def _score_discovery(
+    holders: list,
+    leader_inst: Optional[str],
+    inst_profiles: dict,
+    stock_ind: dict,
+    industry_stats: dict,
+    notice_age_days: int,
+    latest_notice_date,
+    latest_report_date,
+    hold_ratio_quantiles: Tuple,
+    hold_cap_quantiles: Tuple,
+) -> Tuple[float, float, float, float]:
+    """
+    计算发现层评分 (discovery_score)。
+
+    返回 (discovery_score, discovery_skill, discovery_fresh, discovery_strength)。
+    """
+    stock_sw1 = stock_ind.get("sw_level1")
+    stock_sw2 = stock_ind.get("sw_level2")
+    hold_ratio_q40, hold_ratio_q60, hold_ratio_q80 = hold_ratio_quantiles
+    hold_cap_q40, hold_cap_q60, hold_cap_q80 = hold_cap_quantiles
+
+    # --- 机构行业能力 ---
+    industry_profile = None
+    if leader_inst and stock_sw2:
+        industry_profile = industry_stats.get((leader_inst, "level2", stock_sw2))
+    if not industry_profile and leader_inst and stock_sw1:
+        industry_profile = industry_stats.get((leader_inst, "level1", stock_sw1))
+    profile = inst_profiles.get(leader_inst) if leader_inst else None
+    ref_sample = int((industry_profile or {}).get("sample_events") or (profile or {}).get("buy_event_count") or 0)
+    ref_win = _safe_float((industry_profile or {}).get("win_rate_30d"))
+    if ref_win is None:
+        ref_win = _safe_float((profile or {}).get("buy_win_rate_30d"))
+    ref_gain = _safe_float((industry_profile or {}).get("avg_gain_30d"))
+    if ref_gain is None:
+        ref_gain = _safe_float((profile or {}).get("buy_avg_gain_30d"))
+    discovery_skill = (
+        _score_ge(ref_win, ((60.0, 20), (50.0, 16), (40.0, 10)), 4)
+        + _score_ge(ref_gain, ((15.0, 10), (10.0, 8), (5.0, 6), (0.0, 3)), 1)
+        + _score_ge(ref_sample, ((20, 10), (10, 7), (5, 4)), 1)
+    )
+    if ref_sample < 5:
+        discovery_skill = min(discovery_skill, 24)
+
+    # --- 时效性 ---
+    discovery_fresh = (
+        20 if notice_age_days <= 15 else
+        16 if notice_age_days <= 30 else
+        12 if notice_age_days <= 45 else
+        8 if notice_age_days <= 60 else
+        4
+    )
+    if latest_notice_date in (None, "", "-") and latest_report_date:
+        discovery_fresh = round(discovery_fresh * 0.85, 2)
+
+    # --- 持仓强度 ---
+    max_hold_ratio = max((_safe_float(h.get("hold_ratio")) for h in holders), default=None)
+    max_hold_cap = max((_safe_float(h.get("hold_market_cap")) for h in holders), default=None)
+    best_rank = min((int(h.get("holder_rank")) for h in holders if h.get("holder_rank") not in (None, "")), default=None)
+    hold_ratio_score = (
+        8 if hold_ratio_q80 is not None and max_hold_ratio is not None and max_hold_ratio >= hold_ratio_q80 else
+        6 if hold_ratio_q60 is not None and max_hold_ratio is not None and max_hold_ratio >= hold_ratio_q60 else
+        4 if hold_ratio_q40 is not None and max_hold_ratio is not None and max_hold_ratio >= hold_ratio_q40 else
+        2 if max_hold_ratio is not None else 0
+    )
+    hold_cap_score = (
+        6 if hold_cap_q80 is not None and max_hold_cap is not None and max_hold_cap >= hold_cap_q80 else
+        4 if hold_cap_q60 is not None and max_hold_cap is not None and max_hold_cap >= hold_cap_q60 else
+        2 if hold_cap_q40 is not None and max_hold_cap is not None and max_hold_cap >= hold_cap_q40 else
+        1 if max_hold_cap is not None else 0
+    )
+    holder_rank_score = 0
+    if best_rank is not None:
+        if best_rank <= 3:
+            holder_rank_score = 6
+        elif best_rank <= 6:
+            holder_rank_score = 4
+        elif best_rank <= 10:
+            holder_rank_score = 2
+    discovery_strength = hold_ratio_score + hold_cap_score + holder_rank_score
+
+    # --- 方向性 ---
+    positive_change = max((_safe_float(h.get("change_pct")) for h in holders if _safe_float(h.get("change_pct")) is not None), default=None)
+    event_types = {h.get("event_type") for h in holders}
+    if "new_entry" in event_types or (positive_change is not None and positive_change >= 10):
+        discovery_direction = 20
+    elif "increase" in event_types or (positive_change is not None and positive_change >= 3):
+        discovery_direction = 14
+    elif "unchanged" in event_types:
+        discovery_direction = 8
+    elif "decrease" in event_types:
+        discovery_direction = 4
+    else:
+        discovery_direction = 0
+
+    score = _clamp_score(discovery_skill + discovery_fresh + discovery_strength + discovery_direction)
+    return score, discovery_skill, discovery_fresh, discovery_strength
+
+
+def _build_highlight_risk_reasons(
+    discovery_score: float, discovery_skill: float,
+    company_quality_score: float, stage_score: float,
+    composite_priority_score: float, composite_cap_reason: Optional[str],
+    stock_archetype: str, archetype_row: dict, stage_row: dict,
+    forecast_row: dict, industry_ctx: dict, attention_row: dict,
+    external_attention_score: Optional[float], external_crowding_penalty: float,
+    external_attention_signal: Optional[str],
+    attention_survey_count_30d: int, attention_survey_count_90d: int,
+    path_state: str, stock_gate: Optional[str], has_conflict: bool,
+    qlib_percentile: Optional[float],
+    quality_capital: float, quality_efficiency: float,
+    price_20d: Optional[float], price_1m: Optional[float],
+    unlock_ratio_180d: Optional[float],
+    dividend_financing_ratio: Optional[float], financing_count: Optional[float],
+    net_profit_growth_yoy_ak: Optional[float],
+) -> Tuple[str, str]:
+    """
+    根据各维度子分构建 highlights / risks 文案。
+
+    返回 (highlights_text, risks_text)。
+    """
+    highlight_reasons = []
+    risk_reasons = []
+
+    if discovery_skill >= 28:
+        highlight_reasons.append("机构行业能力较强")
+    if stage_row.get("stage_type_adjust_raw") is not None and _safe_float(stage_row.get("stage_type_adjust_raw")) is not None:
+        pass  # checked below
+    if company_quality_score >= 70:
+        highlight_reasons.append("公司质量稳健")
+    elif company_quality_score >= 55:
+        highlight_reasons.append("财务体质中上")
+    if (_safe_float(archetype_row.get("archetype_confidence")) or 0) >= 70:
+        highlight_reasons.append(f"{stock_archetype}特征清晰")
+    if (_safe_float(stage_row.get("stage_type_adjust_raw")) or 0) >= 5:
+        highlight_reasons.append("阶段结构较优")
+    if quality_capital >= 4:
+        highlight_reasons.append("资本纪律较好")
+    if quality_efficiency >= 10:
+        highlight_reasons.append("经营效率较强")
+    if (_safe_float(industry_ctx.get("industry_tailwind_score")) or 0) >= 75:
+        highlight_reasons.append("行业背景顺风")
+    elif (_safe_float(industry_ctx.get("sector_excess_3m")) or 0) >= 8:
+        highlight_reasons.append("行业近3月相对走强")
+    elif (_safe_float(industry_ctx.get("dual_confirm_recent_180d")) or 0) >= 2:
+        highlight_reasons.append("行业双重确认活跃")
+    if external_attention_signal == "外部确认增强":
+        highlight_reasons.append("外部确认增强")
+    elif external_attention_signal == "关注度抬升":
+        highlight_reasons.append("市场关注度抬升")
+    elif external_attention_signal == "调研活跃":
+        highlight_reasons.append("近期机构调研活跃")
+    if attention_survey_count_30d >= 2:
+        highlight_reasons.append("近30天机构调研活跃")
+    elif attention_survey_count_90d >= 4:
+        highlight_reasons.append("近90天持续有机构调研")
+    if stage_score >= 65:
+        highlight_reasons.append("阶段位置友好")
+    if (_safe_float(forecast_row.get("forecast_20d_score")) or 0) >= 75:
+        highlight_reasons.append("Qlib 20日预测较强")
+    elif (_safe_float(forecast_row.get("forecast_60d_excess_score")) or 0) >= 70:
+        highlight_reasons.append("行业相对预测较强")
+    elif (_safe_float(forecast_row.get("forecast_risk_adjusted_score")) or 0) >= 70:
+        highlight_reasons.append("波动收益性价比较好")
+    elif qlib_percentile is not None and qlib_percentile >= 75:
+        highlight_reasons.append("Qlib 排名靠前")
+
+    if company_quality_score < 45:
+        risk_reasons.append("公司质量偏弱")
+    elif company_quality_score < 55 and composite_priority_score >= 75:
+        risk_reasons.append("质量分未达A池门槛")
+    if path_state == "已充分演绎":
+        risk_reasons.append("价格已充分演绎")
+    elif path_state == "失效破坏":
+        risk_reasons.append("价格路径转坏")
+    if stage_score < 40:
+        risk_reasons.append("阶段分低于D池阈值")
+    elif stage_score < 50 and composite_priority_score >= 75:
+        risk_reasons.append("阶段分未达A池门槛")
+    if external_crowding_penalty >= 7:
+        risk_reasons.append("外部热度拥挤")
+    elif external_crowding_penalty >= 4.5:
+        risk_reasons.append("短期外部热度偏高")
+    if composite_priority_score >= 75 and external_attention_score is not None and external_attention_score < 45:
+        risk_reasons.append("外部确认偏弱")
+    if stock_gate == "avoid":
+        risk_reasons.append("持仓机构给出回避")
+    if has_conflict:
+        risk_reasons.append("同股存在方向冲突")
+    if not forecast_row and qlib_percentile is None:
+        risk_reasons.append("Qlib 结果未覆盖")
+    elif (_safe_float(forecast_row.get("forecast_risk_adjusted_score")) or 100) <= 35:
+        risk_reasons.append("预测性价比偏弱")
+    if unlock_ratio_180d is not None and unlock_ratio_180d > 0.05:
+        risk_reasons.append("近180天解禁压力偏大")
+    if dividend_financing_ratio is not None and dividend_financing_ratio < 0.2 and (financing_count or 0) >= 2:
+        risk_reasons.append("融资约束偏强")
+    if net_profit_growth_yoy_ak is not None and net_profit_growth_yoy_ak < 0:
+        risk_reasons.append("利润增速偏弱")
+    if (_safe_float(industry_ctx.get("industry_tailwind_score")) or 0) <= 30 and industry_ctx:
+        risk_reasons.append("行业背景偏弱")
+    elif (_safe_float(industry_ctx.get("sector_excess_3m")) or 0) <= -8 and industry_ctx:
+        risk_reasons.append("行业近3月相对偏弱")
+    if archetype_row and (_safe_float(archetype_row.get("archetype_confidence")) or 0) < 40:
+        risk_reasons.append("股票类型置信偏低")
+    if (_safe_float(stage_row.get("stage_type_adjust_raw")) or 0) <= -6:
+        risk_reasons.append("阶段惩罚项偏重")
+    if discovery_score < 50:
+        risk_reasons.append("发现分不足A池门槛")
+    if composite_cap_reason:
+        risk_reasons.append(composite_cap_reason)
+    if stock_archetype == "成长兑现型" and (
+        (price_20d is not None and price_20d > 20) or (price_1m is not None and price_1m > 25)
+    ):
+        risk_reasons.append("短期走势偏热")
+
+    return _top_reasons(highlight_reasons), _top_reasons(risk_reasons)
+
+
+# ============================================================
 # 股票评分
 # ============================================================
 
@@ -1738,79 +2064,12 @@ def calculate_stock_scores(conn) -> int:
         # ============================================================
 
         # 1) Discovery Score
-        industry_profile = None
-        if leader_inst and stock_sw2:
-            industry_profile = industry_stats.get((leader_inst, "level2", stock_sw2))
-        if not industry_profile and leader_inst and stock_sw1:
-            industry_profile = industry_stats.get((leader_inst, "level1", stock_sw1))
-
-        profile = inst_profiles.get(leader_inst) if leader_inst else None
-        ref_sample = int((industry_profile or {}).get("sample_events") or (profile or {}).get("buy_event_count") or 0)
-        ref_win = _safe_float((industry_profile or {}).get("win_rate_30d"))
-        if ref_win is None:
-            ref_win = _safe_float((profile or {}).get("buy_win_rate_30d"))
-        ref_gain = _safe_float((industry_profile or {}).get("avg_gain_30d"))
-        if ref_gain is None:
-            ref_gain = _safe_float((profile or {}).get("buy_avg_gain_30d"))
-
-        discovery_skill = (
-            _score_ge(ref_win, ((60.0, 20), (50.0, 16), (40.0, 10)), 4)
-            + _score_ge(ref_gain, ((15.0, 10), (10.0, 8), (5.0, 6), (0.0, 3)), 1)
-            + _score_ge(ref_sample, ((20, 10), (10, 7), (5, 4)), 1)
-        )
-        if ref_sample < 5:
-            discovery_skill = min(discovery_skill, 24)
-
-        discovery_fresh = (
-            20 if notice_age_days <= 15 else
-            16 if notice_age_days <= 30 else
-            12 if notice_age_days <= 45 else
-            8 if notice_age_days <= 60 else
-            4
-        )
-        if stock["latest_notice_date"] in (None, "", "-") and stock["latest_report_date"]:
-            discovery_fresh = round(discovery_fresh * 0.85, 2)
-
-        max_hold_ratio = max((_safe_float(h.get("hold_ratio")) for h in holders), default=None)
-        max_hold_cap = max((_safe_float(h.get("hold_market_cap")) for h in holders), default=None)
-        best_rank = min((int(h.get("holder_rank")) for h in holders if h.get("holder_rank") not in (None, "")), default=None)
-        hold_ratio_score = (
-            8 if hold_ratio_q80 is not None and max_hold_ratio is not None and max_hold_ratio >= hold_ratio_q80 else
-            6 if hold_ratio_q60 is not None and max_hold_ratio is not None and max_hold_ratio >= hold_ratio_q60 else
-            4 if hold_ratio_q40 is not None and max_hold_ratio is not None and max_hold_ratio >= hold_ratio_q40 else
-            2 if max_hold_ratio is not None else 0
-        )
-        hold_cap_score = (
-            6 if hold_cap_q80 is not None and max_hold_cap is not None and max_hold_cap >= hold_cap_q80 else
-            4 if hold_cap_q60 is not None and max_hold_cap is not None and max_hold_cap >= hold_cap_q60 else
-            2 if hold_cap_q40 is not None and max_hold_cap is not None and max_hold_cap >= hold_cap_q40 else
-            1 if max_hold_cap is not None else 0
-        )
-        holder_rank_score = 0
-        if best_rank is not None:
-            if best_rank <= 3:
-                holder_rank_score = 6
-            elif best_rank <= 6:
-                holder_rank_score = 4
-            elif best_rank <= 10:
-                holder_rank_score = 2
-        discovery_strength = hold_ratio_score + hold_cap_score + holder_rank_score
-
-        positive_change = max((_safe_float(h.get("change_pct")) for h in holders if _safe_float(h.get("change_pct")) is not None), default=None)
-        event_types = {h.get("event_type") for h in holders}
-        if "new_entry" in event_types or (positive_change is not None and positive_change >= 10):
-            discovery_direction = 20
-        elif "increase" in event_types or (positive_change is not None and positive_change >= 3):
-            discovery_direction = 14
-        elif "unchanged" in event_types:
-            discovery_direction = 8
-        elif "decrease" in event_types:
-            discovery_direction = 4
-        else:
-            discovery_direction = 0
-
-        discovery_score = _clamp_score(
-            discovery_skill + discovery_fresh + discovery_strength + discovery_direction
+        discovery_score, discovery_skill, discovery_fresh, discovery_strength = _score_discovery(
+            holders, leader_inst, inst_profiles, stock_ind, industry_stats,
+            notice_age_days,
+            stock["latest_notice_date"], stock["latest_report_date"],
+            (hold_ratio_q40, hold_ratio_q60, hold_ratio_q80),
+            (hold_cap_q40, hold_cap_q60, hold_cap_q80),
         )
 
         # 2) Quality Score
@@ -2112,88 +2371,26 @@ def calculate_stock_scores(conn) -> int:
             attention_survey_count_90d,
         )
 
-        raw_composite_priority_score = _clamp_score(
-            discovery_score * 0.35
-            + company_quality_score * 0.30
-            + stage_score * 0.20
-            + forecast_score_effective * 0.15
+        raw_composite_priority_score, composite_priority_score = compute_composite_priority(
+            discovery_score, company_quality_score, stage_score, forecast_score_effective,
+            external_attention_boost, external_crowding_penalty,
         )
-        composite_priority_score = _clamp_score(
-            raw_composite_priority_score + external_attention_boost - external_crowding_penalty
-        )
-        promoted_by_external = (
-            raw_composite_priority_score < 75 <= composite_priority_score
-        )
+        promoted_by_external = (raw_composite_priority_score < 75 <= composite_priority_score)
         demoted_by_crowding = (
             raw_composite_priority_score >= 75
             and composite_priority_score < 75
             and external_crowding_penalty >= 6
         )
-        composite_cap_score = None
-        composite_cap_reasons = []
-        composite_ceiling = None
-        if stage_score < 40:
-            composite_ceiling = 69.0 if composite_ceiling is None else min(composite_ceiling, 69.0)
-            composite_cap_reasons.append("阶段分低于40，综合分封顶69")
-        if company_quality_score < 45 and stock_archetype != "周期/事件驱动型":
-            composite_ceiling = 64.0 if composite_ceiling is None else min(composite_ceiling, 64.0)
-            composite_cap_reasons.append("质量分低于45，非周期/事件型综合分封顶64")
-        if external_crowding_penalty >= 8:
-            composite_ceiling = 69.0 if composite_ceiling is None else min(composite_ceiling, 69.0)
-            composite_cap_reasons.append("外部热度拥挤，综合分封顶69")
-        elif external_crowding_penalty >= 6 and stage_score < 60:
-            composite_ceiling = 74.0 if composite_ceiling is None else min(composite_ceiling, 74.0)
-            composite_cap_reasons.append("外部热度偏拥挤且阶段分不足60，综合分封顶74")
-        if composite_ceiling is not None and composite_priority_score > composite_ceiling:
-            composite_priority_score = min(composite_priority_score, composite_ceiling)
-            composite_cap_score = composite_ceiling
-            composite_cap_reason = "；".join(composite_cap_reasons[:2]) if composite_cap_reasons else None
-        else:
-            composite_cap_reason = None
-
-        priority_pool_reason = None
-        if stage_score < 40 or composite_priority_score < 45:
-            priority_pool = "D池"
-            if stage_score < 40:
-                priority_pool_reason = "阶段分低于40，进入D池"
-            else:
-                priority_pool_reason = "综合优先分低于45，进入D池"
-        elif (
-            composite_priority_score >= 75
-            and stage_score >= 50
-            and company_quality_score >= 55
-            and discovery_score >= 50
-        ):
-            priority_pool = "A池"
-            if promoted_by_external:
-                priority_pool_reason = "内部分接近A池，外部确认增强后进入A池"
-            else:
-                priority_pool_reason = "综合分达75且通过发现/质量/阶段门槛，进入A池"
-        elif composite_priority_score >= 60:
-            priority_pool = "B池"
-            blockers = []
-            if composite_priority_score >= 75 and discovery_score < 50:
-                blockers.append("发现分不足50")
-            if composite_priority_score >= 75 and company_quality_score < 55:
-                blockers.append("质量分不足55")
-            if composite_priority_score >= 75 and stage_score < 50:
-                blockers.append("阶段分不足50")
-            if blockers:
-                priority_pool_reason = "综合分虽高，但未满足A池门槛：" + "、".join(blockers[:2])
-            elif demoted_by_crowding:
-                priority_pool_reason = "内部分已达A池，但外部热度拥挤导致降至B池"
-            elif raw_composite_priority_score < 60 <= composite_priority_score and (external_attention_score or 0) >= 70:
-                priority_pool_reason = "外部确认增强后进入B池"
-            else:
-                priority_pool_reason = "综合优先分介于60-75，进入B池"
-        else:
-            priority_pool = "C池"
-            priority_pool_reason = "综合优先分介于45-60，进入C池"
-
-        if priority_pool_reason and external_crowding_penalty >= 6 and not demoted_by_crowding:
-            priority_pool_reason += "；外部热度拥挤"
-        elif priority_pool_reason and (external_attention_score or 0) >= 72 and not promoted_by_external:
-            priority_pool_reason += "；外部确认增强"
+        composite_priority_score, composite_cap_score, composite_cap_reason = apply_composite_ceiling(
+            composite_priority_score, stage_score, company_quality_score,
+            stock_archetype, external_crowding_penalty,
+        )
+        priority_pool, priority_pool_reason = assign_priority_pool(
+            composite_priority_score, raw_composite_priority_score,
+            discovery_score, company_quality_score, stage_score,
+            external_attention_score, external_crowding_penalty,
+            promoted_by_external, demoted_by_crowding,
+        )
 
         highlight_reasons = []
         risk_reasons = []
