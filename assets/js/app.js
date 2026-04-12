@@ -220,8 +220,176 @@
     } catch (e) { /* 候选池加载失败不影响主流程 */ }
   }
 
+  function topCountEntries(map, limit) {
+    return Object.keys(map || {}).map(function (key) {
+      return { key: key, count: map[key] || 0 };
+    }).sort(function (a, b) {
+      if (b.count !== a.count) return b.count - a.count;
+      return String(a.key).localeCompare(String(b.key), 'zh-CN');
+    }).slice(0, limit || 4);
+  }
+
+  function summarizeStocks(stocks) {
+    var summary = {
+      total: (stocks || []).length,
+      abTotal: 0,
+      followTotal: 0,
+      dualConfirm: 0,
+      setupTotal: 0,
+      pools: {},
+      gates: { follow: 0, watch: 0, observe: 0, avoid: 0 },
+      signals: {},
+      industries: {},
+      sources: {}
+    };
+    (stocks || []).forEach(function (s) {
+      var pool = s.priority_pool || '未分池';
+      var gate = stockGateInfo(s).key || '';
+      var source = stockSourceName(s);
+      var industry = s.setup_industry_name || s.sw_level2 || s.sw_level1 || '';
+      summary.pools[pool] = (summary.pools[pool] || 0) + 1;
+      if (pool === 'A池' || pool === 'B池') summary.abTotal += 1;
+      if (gate && summary.gates[gate] != null) summary.gates[gate] += 1;
+      if (gate === 'follow') summary.followTotal += 1;
+      if (s.setup_tag) {
+        summary.setupTotal += 1;
+        var signalKey = 'A' + (s.setup_priority != null ? s.setup_priority : '?');
+        summary.signals[signalKey] = (summary.signals[signalKey] || 0) + 1;
+      }
+      if (industry) summary.industries[industry] = (summary.industries[industry] || 0) + 1;
+      if (source && source !== '-') summary.sources[source] = (summary.sources[source] || 0) + 1;
+      if (s._dual_confirm) summary.dualConfirm += 1;
+    });
+    summary.topIndustries = topCountEntries(summary.industries, 4);
+    summary.topSignals = topCountEntries(summary.signals, 4);
+    summary.topSources = topCountEntries(summary.sources, 3);
+    return summary;
+  }
+
+  function summaryChip(label, count, tone) {
+    return '<span class="summary-chip summary-chip--' + tone + '">' + esc(label) + ' ' + fmt(count) + '</span>';
+  }
+
+  function summaryRow(label, count, tone, total) {
+    var pct = total > 0 ? Math.max(8, Math.round((count / total) * 100)) : 0;
+    return '<div class="summary-row">' +
+      '<div class="summary-row-main"><span class="summary-dot summary-dot--' + tone + '"></span><span>' + esc(label) + '</span></div>' +
+      '<div class="summary-row-value">' + fmt(count) + '</div>' +
+      '<div class="summary-row-track"><span style="width:' + pct + '%"></span></div>' +
+      '</div>';
+  }
+
+  function heroMetricCard(label, value, sub) {
+    return '<div class="hero-metric-card">' +
+      '<span class="hero-metric-label">' + esc(label) + '</span>' +
+      '<strong>' + esc(String(value == null ? '-' : value)) + '</strong>' +
+      '<small>' + esc(sub || '-') + '</small>' +
+      '</div>';
+  }
+
+  function renderDashboardOverview(stocks) {
+    var summary = summarizeStocks(stocks);
+    var heroMeta = el('dashboardHeroMeta');
+    var insightGrid = el('dashboardInsightGrid');
+    if (heroMeta) {
+      heroMeta.innerHTML = [
+        heroMetricCard('A/B 候选', fmt(summary.abTotal), 'A池 ' + fmt(summary.pools['A池'] || 0) + ' · B池 ' + fmt(summary.pools['B池'] || 0)),
+        heroMetricCard('可跟名单', fmt(summary.followTotal), '关注 ' + fmt(summary.gates.watch || 0) + ' · 观察 ' + fmt(summary.gates.observe || 0)),
+        heroMetricCard('双确认', fmt(summary.dualConfirm), 'Setup ' + fmt(summary.setupTotal) + ' · 总股票 ' + fmt(summary.total))
+      ].join('');
+    }
+    if (!insightGrid) return;
+    insightGrid.innerHTML =
+      '<section class="summary-card">' +
+        '<div class="summary-card-head"><span class="summary-card-kicker">Pool Mix</span><strong>候选池分布</strong></div>' +
+        '<div class="summary-card-body">' +
+          summaryRow('A池', summary.pools['A池'] || 0, 'a', summary.total) +
+          summaryRow('B池', summary.pools['B池'] || 0, 'b', summary.total) +
+          summaryRow('C池', summary.pools['C池'] || 0, 'c', summary.total) +
+          summaryRow('D池', summary.pools['D池'] || 0, 'd', summary.total) +
+        '</div>' +
+      '</section>' +
+      '<section class="summary-card">' +
+        '<div class="summary-card-head"><span class="summary-card-kicker">Execution</span><strong>执行档节奏</strong></div>' +
+        '<div class="summary-card-body">' +
+          summaryRow('可跟', summary.gates.follow || 0, 'follow', summary.total) +
+          summaryRow('关注', summary.gates.watch || 0, 'watch', summary.total) +
+          summaryRow('观察', summary.gates.observe || 0, 'observe', summary.total) +
+          summaryRow('回避', summary.gates.avoid || 0, 'avoid', summary.total) +
+        '</div>' +
+      '</section>' +
+      '<section class="summary-card">' +
+        '<div class="summary-card-head"><span class="summary-card-kicker">Sector Focus</span><strong>当前主线行业</strong></div>' +
+        '<div class="summary-card-tags">' +
+          (summary.topIndustries.length ? summary.topIndustries.map(function (item) { return summaryChip(item.key, item.count, 'neutral'); }).join('') : '<span class="summary-empty">暂无行业聚集</span>') +
+        '</div>' +
+        '<div class="summary-card-sub">来源集中：' +
+          (summary.topSources.length ? summary.topSources.map(function (item) { return esc(item.key) + ' ' + fmt(item.count); }).join(' · ') : '暂无') +
+        '</div>' +
+      '</section>' +
+      '<section class="summary-card">' +
+        '<div class="summary-card-head"><span class="summary-card-kicker">Signal Density</span><strong>Setup 与验证</strong></div>' +
+        '<div class="summary-card-tags">' +
+          (summary.topSignals.length ? summary.topSignals.map(function (item) { return summaryChip(item.key, item.count, 'signal'); }).join('') : '<span class="summary-empty">暂无 Setup</span>') +
+        '</div>' +
+        '<div class="summary-card-sub">双确认 ' + fmt(summary.dualConfirm) + ' · 可跟 ' + fmt(summary.followTotal) + ' · A/B池 ' + fmt(summary.abTotal) + '</div>' +
+      '</section>';
+  }
+
+  function renderStockResearchSummary(stocks) {
+    var summary = summarizeStocks(stocks);
+    var stockSummaryBar = el('stockSummaryBar');
+    var stockListMeta = el('stockListMeta');
+    if (stockSummaryBar) {
+      stockSummaryBar.innerHTML = [
+        { label: 'A/B 候选', value: fmt(summary.abTotal), sub: 'A池 ' + fmt(summary.pools['A池'] || 0) + ' · B池 ' + fmt(summary.pools['B池'] || 0), tone: 'primary' },
+        { label: '可跟', value: fmt(summary.followTotal), sub: '关注 ' + fmt(summary.gates.watch || 0), tone: 'success' },
+        { label: '双确认', value: fmt(summary.dualConfirm), sub: 'Setup ' + fmt(summary.setupTotal), tone: 'accent' },
+        { label: '主线行业', value: summary.topIndustries[0] ? summary.topIndustries[0].key : '-', sub: summary.topIndustries[0] ? fmt(summary.topIndustries[0].count) + ' 只' : '暂无', tone: 'neutral' }
+      ].map(function (item) {
+        return '<div class="stock-summary-chip stock-summary-chip--' + item.tone + '">' +
+          '<span class="stock-summary-label">' + esc(item.label) + '</span>' +
+          '<strong>' + esc(item.value) + '</strong>' +
+          '<small>' + esc(item.sub) + '</small>' +
+          '</div>';
+      }).join('');
+    }
+    if (stockListMeta) {
+      stockListMeta.innerHTML =
+        '<div class="table-meta-bar">' +
+          '<div class="table-meta-copy">' +
+            '<div class="table-meta-title">当前股票宇宙</div>' +
+            '<div class="table-meta-sub">共 ' + fmt(summary.total) + ' 只股票 · A/B池 ' + fmt(summary.abTotal) + ' · 可跟 ' + fmt(summary.followTotal) + ' · 双确认 ' + fmt(summary.dualConfirm) + '</div>' +
+          '</div>' +
+          '<div class="table-meta-tags">' +
+            (summary.topIndustries.length ? summary.topIndustries.map(function (item) { return summaryChip(item.key, item.count, 'neutral'); }).join('') : '') +
+            (summary.topSignals.length ? summary.topSignals.map(function (item) { return summaryChip(item.key, item.count, 'signal'); }).join('') : '') +
+          '</div>' +
+        '</div>';
+    }
+  }
+
+  function openStockFromCandidate(stockCode) {
+    document.querySelectorAll('.stock-tabs .tab-btn').forEach(function (btn) {
+      btn.classList.toggle('active', btn.dataset.stab === 'list');
+    });
+    document.querySelectorAll('.stab-content').forEach(function (panel) {
+      panel.classList.toggle('active', panel.id === 'stab-list');
+    });
+    setStockSearchContext('list');
+    showView('stocks');
+    var searchInput = el('stockSearch');
+    if (searchInput) searchInput.value = stockCode || '';
+    Promise.resolve(loadStockList()).then(function () {
+      applyStockFilters();
+      document.querySelector('.stock-banner')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
   function renderCandidatePool(stocks) {
     var container = el('candidatePoolSection');
+    renderDashboardOverview(stocks || []);
+    renderStockResearchSummary(stocks || []);
     if (!container) return;
     // 按综合分降序，取 A/B 池
     var pool = stocks
@@ -252,7 +420,8 @@
       var industry = s.setup_industry_name || s.sw_level3 || s.sw_level2 || s.sw_level1 || '';
       var signal = s.setup_tag ? setupBadge(s.setup_tag, s.setup_priority, s.setup_confidence) : '';
       var summary = stockCompositeSummary(s);
-      return '<div class="candidate-card" onclick="App.showStockDetail && App.showStockDetail(\'' + esc(s.stock_code) + '\')">' +
+      var gate = stockGateTag(s);
+      return '<div class="candidate-card" onclick="App.openStockFromCandidate && App.openStockFromCandidate(\'' + esc(s.stock_code) + '\')">' +
         '<div class="candidate-card-header">' +
           '<div class="candidate-card-name">' + esc(s.stock_name) + '</div>' +
           '<div class="candidate-card-code">' + esc(s.stock_code) + '</div>' +
@@ -262,6 +431,7 @@
         '</div>' +
         '<div class="candidate-card-tags">' +
           signal +
+          gate +
           (archetype ? '<span class="tag tag-sm" style="background:#f1f5f9;color:#475569">' + esc(archetype) + '</span>' : '') +
         '</div>' +
         '<div class="candidate-card-meta">' +
@@ -273,9 +443,9 @@
 
     container.innerHTML =
       '<div class="candidate-section">' +
-        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">' +
-          '<div style="font-size:15px;font-weight:600;color:#0f172a">候选池 Top ' + pool.length + '</div>' +
-          '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' + countHtml + '</div>' +
+        '<div class="candidate-section-head">' +
+          '<div class="candidate-section-title"><span>候选池 Top ' + pool.length + '</span><span class="badge">A/B 优先</span></div>' +
+          '<div class="candidate-count-strip">' + countHtml + '</div>' +
         '</div>' +
         '<div class="candidate-grid">' + cardsHtml + '</div>' +
       '</div>';
@@ -1115,15 +1285,18 @@
         '</tr>';
     };
     var data = stockListState.getData() || [];
+    renderStockResearchSummary(data);
     if (!data.length) {
-      c.innerHTML = '<div class="table-scroll-wrap"><table class="data-table data-table-compact data-table-cards">' + colgroup + '<thead>' + head + '</thead><tbody><tr><td class="empty-row" colspan="' + emptyCols + '">暂无数据</td></tr></tbody></table></div>';
+      c.innerHTML = '<div class="data-shell"><div class="table-scroll-wrap"><table class="data-table data-table-compact data-table-cards">' + colgroup + '<thead>' + head + '</thead><tbody><tr><td class="empty-row" colspan="' + emptyCols + '">暂无数据</td></tr></tbody></table></div></div>';
       return;
     }
     var renderSeq = ++_stockListRenderSeq;
     c.innerHTML =
-      '<div id="stockListRenderHint" class="muted" style="font-size:11px;margin-bottom:8px">正在渲染 0 / ' + data.length + ' ...</div>' +
+      '<div class="data-shell">' +
+      '<div id="stockListRenderHint" class="table-render-hint">正在渲染 0 / ' + data.length + ' ...</div>' +
       '<div class="table-scroll-wrap"><table class="data-table data-table-compact data-table-cards">' +
-      colgroup + '<thead>' + head + '</thead><tbody></tbody></table></div>';
+      colgroup + '<thead>' + head + '</thead><tbody></tbody></table></div>' +
+      '</div>';
     var tbody = c.querySelector('tbody');
     var hint = el('stockListRenderHint');
     var chunkSize = 180;
@@ -2155,10 +2328,12 @@
 
   function renderWorkbenchSummary(summary) {
     var progressBar = document.querySelector('#progressArea .progress-bar');
+    var pipelineSummary = el('pipelineSummary');
     if (!summary || summary.kind === 'idle') {
       el('progressArea').style.display = 'none';
       el('progressFill').style.width = '0%';
       el('progressText').textContent = '';
+      if (pipelineSummary) pipelineSummary.textContent = '默认折叠，只有在更新或排查时再展开';
       if (progressBar) progressBar.style.display = '';
       return;
     }
@@ -2172,6 +2347,7 @@
     if (progressBar) progressBar.style.display = summary.show_progress === false ? 'none' : '';
     el('progressFill').style.width = (summary.kind === 'noop' ? '0%' : pctVal + '%');
     el('progressText').textContent = message;
+    if (pipelineSummary) pipelineSummary.textContent = message;
   }
 
   function stepGridSignature(steps) {
@@ -6063,6 +6239,6 @@
       if (polls > 120) { clearInterval(timer); btn.disabled = false; btn.textContent = '救生艇'; }
     }, 3000);
   }
-  window.App = { saveModuleSettings, showView, setAlias, setType, toggleBlack, deleteInst, restoreInst, calcInstScore, resetInstScore, toggleInstDetail, toggleInstBreakdown, toggleStockDetail, switchInstDim, switchStockDim, runSingleStep, openSectorValidation, clearStockValidationFilter, _api: api };
+  window.App = { saveModuleSettings, showView, setAlias, setType, toggleBlack, deleteInst, restoreInst, calcInstScore, resetInstScore, toggleInstDetail, toggleInstBreakdown, toggleStockDetail, switchInstDim, switchStockDim, runSingleStep, openSectorValidation, clearStockValidationFilter, openStockFromCandidate, _api: api };
   document.addEventListener('DOMContentLoaded', init);
 })();

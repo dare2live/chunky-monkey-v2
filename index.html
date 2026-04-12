@@ -5,7 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chunky Monkey v2</title>
-  <link rel="stylesheet" href="assets/css/main.css?v=2.2.0">
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <link rel="stylesheet" href="assets/css/main.css?v=2.3.0">
 </head>
 
 <body>
@@ -43,6 +44,24 @@
   <main class="content">
     <!-- ==================== 工作台 ==================== -->
     <section class="view active" id="view-dashboard">
+      <div class="dashboard-hero panel panel-hero">
+        <div class="dashboard-hero-copy">
+          <div class="section-kicker">Candidate Discovery Workbench</div>
+          <h1>先看候选池，再决定跟踪深度</h1>
+          <p>把机构动作、候选池、执行档、行业与验证信号放进一条决策链里，优先筛出 A/B 池，再进入股票研究做验证与跟踪。</p>
+          <div class="dashboard-hero-flow">
+            <span class="hero-flow-pill">机构动作</span>
+            <span class="hero-flow-sep">/</span>
+            <span class="hero-flow-pill">候选池</span>
+            <span class="hero-flow-sep">/</span>
+            <span class="hero-flow-pill">执行档</span>
+            <span class="hero-flow-sep">/</span>
+            <span class="hero-flow-pill">行业验证</span>
+          </div>
+        </div>
+        <div class="dashboard-hero-side" id="dashboardHeroMeta"></div>
+      </div>
+
       <!-- 概览数字 -->
       <div class="stats-row">
         <div class="stat-card">
@@ -66,6 +85,8 @@
           <div class="stat-label">全市场记录</div>
         </div>
       </div>
+
+      <div id="dashboardInsightGrid" class="dashboard-summary-grid"></div>
 
       <!-- 候选池 -->
       <div id="candidatePoolSection" style="margin-top:14px"></div>
@@ -233,6 +254,14 @@
     <!-- ==================== 股票列表 ==================== -->
     <section class="view" id="view-stocks">
       <div class="stock-banner">
+        <div class="stock-banner-head">
+          <div>
+            <div class="section-kicker">Stock Research</div>
+            <h2>股票候选池工作区</h2>
+            <p>按候选池、执行档、来源行业和评分拆解快速缩到可跟名单，再进入验证与复盘。</p>
+          </div>
+          <div id="stockSummaryBar" class="stock-summary-strip"></div>
+        </div>
         <div class="stock-banner-nav">
           <div class="view-tabs stock-tabs" id="stockTabs">
             <button class="tab-btn active" data-stab="list">股票列表</button>
@@ -247,6 +276,7 @@
         <div id="stockFilterArea"></div>
       </div>
       <div class="stab-content active" id="stab-list">
+        <div id="stockListMeta"></div>
         <div id="stockListContainer">加载中...</div>
       </div>
       <div class="stab-content" id="stab-industry">
@@ -446,10 +476,10 @@
     </div>
   </div>
 
-  <script src="assets/js/app-cache.js?v=2.2.0"></script>
-  <script src="assets/js/app-nav.js?v=2.2.0"></script>
-  <script src="assets/js/app-list-state.js?v=2.2.0"></script>
-  <script src="assets/js/app.js?v=2.2.0"></script>
+  <script src="assets/js/app-cache.js?v=2.3.0"></script>
+  <script src="assets/js/app-nav.js?v=2.3.0"></script>
+  <script src="assets/js/app-list-state.js?v=2.3.0"></script>
+  <script src="assets/js/app.js?v=2.3.0"></script>
 </body>
 
 </html>
