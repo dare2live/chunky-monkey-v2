@@ -124,16 +124,7 @@ def save_scoring_config(conn, prefix: str, config: dict):
 # 辅助函数
 # ============================================================
 
-def _parse_any_date(value):
-    if not value:
-        return None
-    text = str(value).strip()
-    for fmt in ("%Y-%m-%d", "%Y%m%d"):
-        try:
-            return datetime.strptime(text, fmt)
-        except ValueError:
-            continue
-    return None
+from services.utils import parse_any_date as _parse_any_date
 
 
 def _days_since(value) -> Optional[int]:

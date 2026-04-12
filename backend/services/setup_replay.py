@@ -39,16 +39,7 @@ from services.utils import safe_float as _safe_float, clamp as _clamp
 logger = logging.getLogger("cm-api")
 
 
-def _parse_any_date(value) -> Optional[datetime]:
-    if not value:
-        return None
-    text = str(value).strip()
-    for fmt in ("%Y-%m-%d", "%Y%m%d"):
-        try:
-            return datetime.strptime(text, fmt)
-        except ValueError:
-            continue
-    return None
+from services.utils import parse_any_date as _parse_any_date
 
 
 def _iso_date(value) -> Optional[str]:

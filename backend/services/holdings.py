@@ -14,22 +14,9 @@ import logging
 from datetime import datetime
 
 from services.utils import safe_float as _safe_float
+from services.utils import parse_any_date as _parse_date_like
 
 logger = logging.getLogger("cm-api")
-
-
-def _parse_date_like(value):
-    """兼容 YYYYMMDD / YYYY-MM-DD 两种日期格式。"""
-    if not value:
-        return None
-    raw = str(value).strip()
-    digits = raw.replace("-", "")
-    try:
-        if len(digits) == 8 and digits.isdigit():
-            return datetime.strptime(digits, "%Y%m%d")
-        return datetime.strptime(raw[:10], "%Y-%m-%d")
-    except (ValueError, TypeError):
-        return None
 
 
 def _chunked(items, size=200):
@@ -232,8 +219,7 @@ def get_inst_summary(conn, inst_id):
 # 内部工具函数
 # ============================================================
 
-_CHANGE_MAP = {"新进": "new_entry", "加仓": "increase", "增加": "increase",
-               "减仓": "decrease", "减少": "decrease", "不变": "unchanged"}
+from services.constants import CHANGE_MAP as _CHANGE_MAP
 
 
 def _get_event_and_return(conn, inst_id, stock_code, report_date, hold_change=None):

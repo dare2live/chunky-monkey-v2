@@ -4,7 +4,7 @@ from pathlib import Path
 # Add backend directory to Python path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from services.utils import safe_float, percentile_ranks, normalize_ymd, clamp, clamp_score
+from services.utils import safe_float, percentile_ranks, normalize_ymd, clamp, clamp_score, parse_any_date
 
 def test_safe_float():
     assert safe_float(1.5) == 1.5
@@ -37,4 +37,13 @@ def test_clamp_score():
     assert clamp_score(50.123, 0.0, 100.0) == 50.12
     assert clamp_score(None, 20.0, 100.0) == 20.0
     assert clamp_score(150.0, 0.0, 100.0) == 100.0
+
+def test_parse_any_date():
+    from datetime import datetime
+    assert parse_any_date("2025-01-15") == datetime(2025, 1, 15)
+    assert parse_any_date("20250115") == datetime(2025, 1, 15)
+    assert parse_any_date(None) is None
+    assert parse_any_date("") is None
+    assert parse_any_date("abc") is None
+    assert parse_any_date("  2025-01-15  ") == datetime(2025, 1, 15)
 

@@ -4,6 +4,7 @@ utils.py — 全局共享工具函数
 所有模块共用的纯函数放在这里，消除跨文件重复定义。
 """
 
+from datetime import datetime
 from typing import Optional
 
 
@@ -69,3 +70,20 @@ def clamp_score(value: Optional[float], lo: float = 0.0, hi: float = 100.0) -> f
     if value is None:
         return lo
     return round(max(lo, min(hi, float(value))), 2)
+
+
+def parse_any_date(value) -> Optional[datetime]:
+    """
+    兼容 YYYY-MM-DD / YYYYMMDD 两种日期格式，返回 datetime。
+
+    所有模块共用的日期解析入口，禁止在其他文件重复定义。
+    """
+    if not value:
+        return None
+    text = str(value).strip()
+    for fmt in ("%Y-%m-%d", "%Y%m%d"):
+        try:
+            return datetime.strptime(text, fmt)
+        except ValueError:
+            continue
+    return None

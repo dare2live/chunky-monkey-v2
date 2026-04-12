@@ -8,17 +8,9 @@
 import logging
 from datetime import datetime
 
-logger = logging.getLogger("cm-api")
+from services.constants import CHANGE_MAP as _CHANGE_MAP
 
-# 东财 hold_change 字段映射
-_CHANGE_MAP = {
-    "新进": "new_entry",
-    "加仓": "increase",
-    "增加": "increase",
-    "减仓": "decrease",
-    "减少": "decrease",
-    "不变": "unchanged",
-}
+logger = logging.getLogger("cm-api")
 
 
 
