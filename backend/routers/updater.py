@@ -1396,6 +1396,9 @@ async def _step_build_trends(conn) -> int:
             qlib_map = {}
 
         count = 0
+        # 共享 market_data.db 连接，避免在循环中每只股票重复打开
+        from services.market_db import get_market_conn as _get_mkt_conn
+        _mkt = _get_mkt_conn()
         for stock in stocks:
             _raise_if_stop()
             code = stock["stock_code"]
@@ -1461,9 +1464,7 @@ async def _step_build_trends(conn) -> int:
             qlib_score = qlib_info.get("qlib_score")
             qlib_percentile = qlib_info.get("qlib_percentile")
 
-            # 股价趋势（从 market_data.db 读取）
-            from services.market_db import get_market_conn
-            _mkt = get_market_conn()
+            # 股价趋势（从共享 _mkt 连接读取）
             price_rows = _mkt.execute("""
                 SELECT date, close FROM price_kline
                 WHERE code = ? AND freq = 'monthly' AND adjust = 'qfq'
@@ -1482,7 +1483,6 @@ async def _step_build_trends(conn) -> int:
                 WHERE code = ? AND freq = 'daily' AND adjust = 'qfq'
                 ORDER BY date DESC LIMIT 21
             """, (code,)).fetchall()
-            _mkt.close()
             if len(daily_rows) >= 21 and daily_rows[-1][0] and daily_rows[-1][0] > 0:
                 price_20d = (daily_rows[0][0] - daily_rows[-1][0]) / daily_rows[-1][0] * 100
 
@@ -1512,8 +1512,10 @@ async def _step_build_trends(conn) -> int:
             ))
             count += 1
 
+        _mkt.close()
         conn.commit()
     except Exception:
+        _mkt.close()
         conn.rollback()
         raise
     logger.info(f"[趋势] 完成: {count} 只股票")

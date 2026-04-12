@@ -973,23 +973,28 @@ def _fill_top_industries(conn):
 # 路径分类
 # ============================================================
 
-def classify_price_path(conn, stock_code: str, notice_date: str) -> str:
+def classify_price_path(conn, stock_code: str, notice_date: str, *, mkt_conn=None) -> str:
     """
     分类公告日以来的价格路径。
 
     根据 K线数据计算总涨幅、最大涨幅、最大回撤，
     返回: "未充分演绎" | "温和验证" | "震荡待定" | "已充分演绎" | "失效破坏"
+
+    mkt_conn: 外部传入的 market_data.db 连接，避免在循环中重复打开。
     """
     thresholds = PATH_THRESHOLDS
 
     from services.market_db import get_market_conn, get_kline_range
     from datetime import datetime as _dt
-    mkt_conn = get_market_conn()
+    _own_conn = mkt_conn is None
+    if _own_conn:
+        mkt_conn = get_market_conn()
     try:
         today = _dt.now().strftime("%Y-%m-%d")
         klines = get_kline_range(mkt_conn, stock_code, notice_date, today, freq="daily")
     finally:
-        mkt_conn.close()
+        if _own_conn:
+            mkt_conn.close()
 
     if not klines or len(klines) < 2:
         return "未充分演绎"
@@ -1936,6 +1941,10 @@ def calculate_stock_scores(conn) -> int:
     results = []
     scored = 0
 
+    # 共享 market_data.db 连接，避免 classify_price_path 在循环中重复打开
+    from services.market_db import get_market_conn as _get_mkt
+    _shared_mkt = _get_mkt()
+
     for stock in stocks:
         stock = dict(stock)
         sc = stock["stock_code"]
@@ -2026,7 +2035,7 @@ def calculate_stock_scores(conn) -> int:
         if not stage_row and notice_date:
             ndt = _parse_any_date(notice_date)
             if ndt:
-                path_state = classify_price_path(conn, sc, ndt.strftime("%Y-%m-%d"))
+                path_state = classify_price_path(conn, sc, ndt.strftime("%Y-%m-%d"), mkt_conn=_shared_mkt)
 
         penalty = 0
 
@@ -2567,5 +2576,6 @@ def calculate_stock_scores(conn) -> int:
         """, results)
         conn.commit()
 
+    _shared_mkt.close()
     logger.info(f"[评分] 股票评分完成: {scored} 只")
     return scored
