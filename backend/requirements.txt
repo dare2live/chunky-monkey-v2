@@ -14,3 +14,4 @@ mootdx @ git+https://github.com/dare2live/mootdx.git@master
 # AI 模型（可选：缺失时 Qlib 功能降级但系统可用）
 lightgbm
 # pyqlib>=0.9.7         # 完整 Qlib 框架，需手动安装
+pytest-asyncio

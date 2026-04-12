@@ -7,7 +7,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from services.akshare_client import fetch_etf_kline, fetch_etf_list, test_kline_availability  # noqa: E402
+from services.akshare_client import fetch_etf_kline, fetch_etf_list, test_kline_availability as check_kline_availability  # noqa: E402
 
 
 def _kline_df():
@@ -43,7 +43,7 @@ class KlineSourceFallbackTests(unittest.IsolatedAsyncioTestCase):
             {"ok": True, "attempts": [{"source": "tx", "ok": True}]},
         )
 
-        probe = await test_kline_availability()
+        probe = await check_kline_availability()
 
         self.assertTrue(probe["available"])
         self.assertEqual(probe["effective_source"], "tx")
