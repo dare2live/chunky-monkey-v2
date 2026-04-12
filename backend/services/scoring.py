@@ -6,7 +6,6 @@
 纯计算模块，不含 FastAPI 路由。
 """
 
-import json
 import logging
 from datetime import datetime
 from typing import Optional, Tuple
@@ -1129,6 +1128,124 @@ def _pool_sort_key(pool: Optional[str]) -> int:
     }.get(pool or "", 9)
 
 
+def _attention_participation_pct(value: Optional[float]) -> Optional[float]:
+    score = _safe_float(value)
+    if score is None:
+        return None
+    if -1.5 <= score <= 1.5:
+        score *= 100.0
+    return _clamp_score(score)
+
+
+def _attention_survey_activity_score(
+    survey_count_30d: int,
+    survey_count_90d: int,
+    survey_org_total_30d: int,
+    survey_org_total_90d: int,
+) -> Optional[float]:
+    if max(survey_count_30d, survey_count_90d, survey_org_total_30d, survey_org_total_90d) <= 0:
+        return None
+
+    raw = 26.0
+    raw += min(survey_count_30d, 4) * 10.0
+    raw += min(max(survey_count_90d - survey_count_30d, 0), 8) * 3.0
+    raw += min(survey_org_total_30d, 40) * 0.55
+    raw += min(survey_org_total_90d, 100) * 0.10
+    return _clamp_score(raw)
+
+
+def _external_attention_score(attention_row: Optional[dict]) -> Optional[float]:
+    if not attention_row:
+        return None
+
+    comment_available = int(attention_row.get("comment_available") or 0)
+    survey_available = int(attention_row.get("survey_available") or 0)
+    focus_index = _safe_float(attention_row.get("focus_index"))
+    composite_score = _safe_float(attention_row.get("composite_score"))
+    participation = _attention_participation_pct(attention_row.get("institution_participation"))
+    survey_count_30d = int(attention_row.get("survey_count_30d") or 0)
+    survey_count_90d = int(attention_row.get("survey_count_90d") or 0)
+    survey_org_total_30d = int(attention_row.get("survey_org_total_30d") or 0)
+    survey_org_total_90d = int(attention_row.get("survey_org_total_90d") or 0)
+    survey_score = _attention_survey_activity_score(
+        survey_count_30d,
+        survey_count_90d,
+        survey_org_total_30d,
+        survey_org_total_90d,
+    )
+
+    weighted = []
+    if comment_available or any(value is not None for value in (focus_index, composite_score, participation)):
+        if composite_score is not None:
+            weighted.append((0.42, _clamp_score(composite_score)))
+        if focus_index is not None:
+            weighted.append((0.30, _clamp_score(focus_index)))
+        if participation is not None:
+            weighted.append((0.28, participation))
+    if survey_available and survey_score is not None:
+        weighted.append((0.18, survey_score))
+    if not weighted:
+        return None
+    total_weight = sum(weight for weight, _ in weighted)
+    return round(sum(weight * value for weight, value in weighted) / total_weight, 2)
+
+
+def _external_attention_boost(attention_score: Optional[float], survey_count_30d: int) -> float:
+    if attention_score is None:
+        return 0.0
+    boost = max(attention_score - 55.0, 0.0) * 0.18
+    if survey_count_30d >= 2:
+        boost += 0.8
+    elif survey_count_30d >= 1:
+        boost += 0.4
+    return round(min(boost, 8.0), 2)
+
+
+def _external_crowding_penalty(
+    attention_row: Optional[dict],
+    stage_score: Optional[float],
+    price_20d: Optional[float],
+    price_1m: Optional[float],
+) -> float:
+    if not attention_row:
+        return 0.0
+
+    focus_index = _safe_float(attention_row.get("focus_index"))
+    turnover_rate = _safe_float(attention_row.get("turnover_rate"))
+    participation = _attention_participation_pct(attention_row.get("institution_participation"))
+    rank_change = _safe_float(attention_row.get("rank_change"))
+    survey_count_30d = int(attention_row.get("survey_count_30d") or 0)
+
+    penalty = 0.0
+    penalty += _score_ge(focus_index, ((90, 3.5), (85, 2.0), (80, 1.0)), 0.0)
+    penalty += _score_ge(turnover_rate, ((10, 2.5), (6, 1.5), (4, 0.5)), 0.0)
+    penalty += _score_ge(participation, ((45, 2.0), (35, 1.0)), 0.0)
+    penalty += _score_ge(rank_change, ((1200, 2.0), (500, 1.2), (200, 0.6)), 0.0)
+    penalty += _score_ge(float(survey_count_30d), ((3, 1.2), (1, 0.4)), 0.0)
+    penalty += _score_ge(stage_score, ((68, 1.5), (60, 0.8)), 0.0)
+    penalty += _score_ge(price_20d, ((25, 1.5), (15, 0.8)), 0.0)
+    penalty += _score_ge(price_1m, ((30, 1.2), (18, 0.6)), 0.0)
+    return round(min(penalty, 10.0), 2)
+
+
+def _external_attention_signal(
+    attention_score: Optional[float],
+    crowding_penalty: float,
+    survey_count_30d: int,
+    survey_count_90d: int,
+) -> Optional[str]:
+    if crowding_penalty >= 6 and (attention_score or 0) >= 60:
+        return "热度拥挤"
+    if attention_score is not None:
+        if attention_score >= 72:
+            return "外部确认增强"
+        if attention_score >= 60:
+            return "关注度抬升"
+    if survey_count_30d >= 2 or survey_count_90d >= 4:
+        return "调研活跃"
+    return None
+
+
 # ============================================================
 # 股票评分
 # ============================================================
@@ -1149,6 +1266,26 @@ def calculate_stock_scores(conn) -> int:
     config = dict(STOCK_SCORE_DEFAULTS)
     path_thresholds = PATH_THRESHOLDS
     logger.info(f"[评分] 股票评分开始")
+
+    for column_def in [
+        "attention_comment_trade_date TEXT",
+        "attention_focus_index REAL",
+        "attention_composite_score REAL",
+        "attention_institution_participation REAL",
+        "attention_turnover_rate REAL",
+        "attention_rank_change REAL",
+        "attention_survey_count_30d INTEGER",
+        "attention_survey_count_90d INTEGER",
+        "attention_survey_org_total_30d INTEGER",
+        "attention_survey_org_total_90d INTEGER",
+        "external_attention_score REAL",
+        "external_crowding_penalty REAL",
+        "external_attention_signal TEXT",
+    ]:
+        try:
+            conn.execute(f"ALTER TABLE mart_stock_trend ADD COLUMN {column_def}")
+        except Exception:
+            pass
 
     # 加载股票趋势数据
     stocks = conn.execute("""
@@ -1427,6 +1564,21 @@ def calculate_stock_scores(conn) -> int:
             industry_context_by_stock[row["stock_code"]] = dict(row)
     except Exception:
         industry_context_by_stock = {}
+
+    attention_by_stock = {}
+    try:
+        attention_rows = conn.execute("""
+            SELECT stock_code, comment_trade_date, turnover_rate,
+                   institution_participation, composite_score, rank_change,
+                   focus_index, survey_count_30d, survey_count_90d,
+                   survey_org_total_30d, survey_org_total_90d,
+                   comment_available, survey_available
+            FROM dim_stock_attention_latest
+        """).fetchall()
+        for row in attention_rows:
+            attention_by_stock[row["stock_code"]] = dict(row)
+    except Exception:
+        attention_by_stock = {}
 
     # Phase 1: 机构-股票持仓改从 mart_current_relationship 读取（单一真相源）
     stock_institutions = {}
@@ -1938,13 +2090,54 @@ def calculate_stock_scores(conn) -> int:
             forecast_score * max(stage_score / 60.0, 0.5)
         )
 
+        attention_row = attention_by_stock.get(sc) or {}
+        attention_comment_trade_date = attention_row.get("comment_trade_date")
+        attention_focus_index = _safe_float(attention_row.get("focus_index"))
+        attention_composite_score = _safe_float(attention_row.get("composite_score"))
+        attention_institution_participation = _attention_participation_pct(
+            attention_row.get("institution_participation")
+        )
+        attention_turnover_rate = _safe_float(attention_row.get("turnover_rate"))
+        attention_rank_change = _safe_float(attention_row.get("rank_change"))
+        attention_survey_count_30d = int(attention_row.get("survey_count_30d") or 0)
+        attention_survey_count_90d = int(attention_row.get("survey_count_90d") or 0)
+        attention_survey_org_total_30d = int(attention_row.get("survey_org_total_30d") or 0)
+        attention_survey_org_total_90d = int(attention_row.get("survey_org_total_90d") or 0)
+        external_attention_score = _external_attention_score(attention_row)
+        external_attention_boost = _external_attention_boost(
+            external_attention_score,
+            attention_survey_count_30d,
+        )
+        external_crowding_penalty = _external_crowding_penalty(
+            attention_row,
+            stage_score,
+            price_20d,
+            price_1m,
+        )
+        external_attention_signal = _external_attention_signal(
+            external_attention_score,
+            external_crowding_penalty,
+            attention_survey_count_30d,
+            attention_survey_count_90d,
+        )
+
         raw_composite_priority_score = _clamp_score(
             discovery_score * 0.35
             + company_quality_score * 0.30
             + stage_score * 0.20
             + forecast_score_effective * 0.15
         )
-        composite_priority_score = raw_composite_priority_score
+        composite_priority_score = _clamp_score(
+            raw_composite_priority_score + external_attention_boost - external_crowding_penalty
+        )
+        promoted_by_external = (
+            raw_composite_priority_score < 75 <= composite_priority_score
+        )
+        demoted_by_crowding = (
+            raw_composite_priority_score >= 75
+            and composite_priority_score < 75
+            and external_crowding_penalty >= 6
+        )
         composite_cap_score = None
         composite_cap_reasons = []
         composite_ceiling = None
@@ -1954,7 +2147,13 @@ def calculate_stock_scores(conn) -> int:
         if company_quality_score < 45 and stock_archetype != "周期/事件驱动型":
             composite_ceiling = 64.0 if composite_ceiling is None else min(composite_ceiling, 64.0)
             composite_cap_reasons.append("质量分低于45，非周期/事件型综合分封顶64")
-        if composite_ceiling is not None and raw_composite_priority_score > composite_ceiling:
+        if external_crowding_penalty >= 8:
+            composite_ceiling = 69.0 if composite_ceiling is None else min(composite_ceiling, 69.0)
+            composite_cap_reasons.append("外部热度拥挤，综合分封顶69")
+        elif external_crowding_penalty >= 6 and stage_score < 60:
+            composite_ceiling = 74.0 if composite_ceiling is None else min(composite_ceiling, 74.0)
+            composite_cap_reasons.append("外部热度偏拥挤且阶段分不足60，综合分封顶74")
+        if composite_ceiling is not None and composite_priority_score > composite_ceiling:
             composite_priority_score = min(composite_priority_score, composite_ceiling)
             composite_cap_score = composite_ceiling
             composite_cap_reason = "；".join(composite_cap_reasons[:2]) if composite_cap_reasons else None
@@ -1975,7 +2174,10 @@ def calculate_stock_scores(conn) -> int:
             and discovery_score >= 50
         ):
             priority_pool = "A池"
-            priority_pool_reason = "综合分达75且通过发现/质量/阶段门槛，进入A池"
+            if promoted_by_external:
+                priority_pool_reason = "内部分接近A池，外部确认增强后进入A池"
+            else:
+                priority_pool_reason = "综合分达75且通过发现/质量/阶段门槛，进入A池"
         elif composite_priority_score >= 60:
             priority_pool = "B池"
             blockers = []
@@ -1987,11 +2189,20 @@ def calculate_stock_scores(conn) -> int:
                 blockers.append("阶段分不足50")
             if blockers:
                 priority_pool_reason = "综合分虽高，但未满足A池门槛：" + "、".join(blockers[:2])
+            elif demoted_by_crowding:
+                priority_pool_reason = "内部分已达A池，但外部热度拥挤导致降至B池"
+            elif raw_composite_priority_score < 60 <= composite_priority_score and (external_attention_score or 0) >= 70:
+                priority_pool_reason = "外部确认增强后进入B池"
             else:
                 priority_pool_reason = "综合优先分介于60-75，进入B池"
         else:
             priority_pool = "C池"
             priority_pool_reason = "综合优先分介于45-60，进入C池"
+
+        if priority_pool_reason and external_crowding_penalty >= 6 and not demoted_by_crowding:
+            priority_pool_reason += "；外部热度拥挤"
+        elif priority_pool_reason and (external_attention_score or 0) >= 72 and not promoted_by_external:
+            priority_pool_reason += "；外部确认增强"
 
         highlight_reasons = []
         risk_reasons = []
@@ -2019,6 +2230,16 @@ def calculate_stock_scores(conn) -> int:
             highlight_reasons.append("行业近3月相对走强")
         elif (_safe_float(industry_ctx.get("dual_confirm_recent_180d")) or 0) >= 2:
             highlight_reasons.append("行业双重确认活跃")
+        if external_attention_signal == "外部确认增强":
+            highlight_reasons.append("外部确认增强")
+        elif external_attention_signal == "关注度抬升":
+            highlight_reasons.append("市场关注度抬升")
+        elif external_attention_signal == "调研活跃":
+            highlight_reasons.append("近期机构调研活跃")
+        if attention_survey_count_30d >= 2:
+            highlight_reasons.append("近30天机构调研活跃")
+        elif attention_survey_count_90d >= 4:
+            highlight_reasons.append("近90天持续有机构调研")
         if stage_score >= 65:
             highlight_reasons.append("阶段位置友好")
         if (_safe_float(forecast_row.get("forecast_20d_score")) or 0) >= 75:
@@ -2042,6 +2263,12 @@ def calculate_stock_scores(conn) -> int:
             risk_reasons.append("阶段分低于D池阈值")
         elif stage_score < 50 and composite_priority_score >= 75:
             risk_reasons.append("阶段分未达A池门槛")
+        if external_crowding_penalty >= 7:
+            risk_reasons.append("外部热度拥挤")
+        elif external_crowding_penalty >= 4.5:
+            risk_reasons.append("短期外部热度偏高")
+        if composite_priority_score >= 75 and external_attention_score is not None and external_attention_score < 45:
+            risk_reasons.append("外部确认偏弱")
         if stock_gate == "avoid":
             risk_reasons.append("持仓机构给出回避")
         if has_conflict:
@@ -2111,6 +2338,11 @@ def calculate_stock_scores(conn) -> int:
             forecast_score, forecast_score_effective, raw_composite_priority_score,
             composite_priority_score, composite_cap_score, composite_cap_reason,
             stock_archetype, priority_pool, priority_pool_reason,
+            attention_comment_trade_date, attention_focus_index, attention_composite_score,
+            attention_institution_participation, attention_turnover_rate, attention_rank_change,
+            attention_survey_count_30d, attention_survey_count_90d,
+            attention_survey_org_total_30d, attention_survey_org_total_90d,
+            external_attention_score, external_crowding_penalty, external_attention_signal,
             highlights_text, risks_text,
             now, sc
         ))
@@ -2136,6 +2368,11 @@ def calculate_stock_scores(conn) -> int:
                 forecast_score = ?, forecast_score_effective = ?, raw_composite_priority_score = ?,
                 composite_priority_score = ?, composite_cap_score = ?, composite_cap_reason = ?,
                 stock_archetype = ?, priority_pool = ?, priority_pool_reason = ?,
+                attention_comment_trade_date = ?, attention_focus_index = ?, attention_composite_score = ?,
+                attention_institution_participation = ?, attention_turnover_rate = ?, attention_rank_change = ?,
+                attention_survey_count_30d = ?, attention_survey_count_90d = ?,
+                attention_survey_org_total_30d = ?, attention_survey_org_total_90d = ?,
+                external_attention_score = ?, external_crowding_penalty = ?, external_attention_signal = ?,
                 score_highlights = ?, score_risks = ?,
                 updated_at = ?
             WHERE stock_code = ?
