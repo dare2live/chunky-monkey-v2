@@ -23,10 +23,12 @@ _STOCK_TRENDS_CACHE_TTL_SEC = 10
 _stock_trends_cache = {"ts": 0.0, "data": None}
 
 
-def _latest_daily_close(stock_code: str):
+def _latest_daily_close(stock_code: str, mkt_conn=None):
     from services.market_db import get_market_conn
 
-    mkt_conn = get_market_conn()
+    own_conn = mkt_conn is None
+    if own_conn:
+        mkt_conn = get_market_conn()
     try:
         row = mkt_conn.execute(
             "SELECT date, close FROM price_kline "
@@ -36,7 +38,8 @@ def _latest_daily_close(stock_code: str):
         ).fetchone()
         return dict(row) if row else None
     finally:
-        mkt_conn.close()
+        if own_conn:
+            mkt_conn.close()
 
 
 def _extract_stage_payload(row: Optional[dict]) -> Optional[dict]:
@@ -333,13 +336,18 @@ async def delete_institution(inst_id: str):
     import asyncio
     conn = get_conn()
     try:
-        conn.execute("DELETE FROM inst_institutions WHERE id = ?", (inst_id,))
-        conn.execute("DELETE FROM inst_holdings WHERE institution_id = ?", (inst_id,))
-        conn.execute("DELETE FROM fact_institution_event WHERE institution_id = ?", (inst_id,))
-        conn.execute("DELETE FROM mart_current_relationship WHERE institution_id = ?", (inst_id,))
-        conn.execute("DELETE FROM mart_institution_profile WHERE institution_id = ?", (inst_id,))
-        conn.execute("DELETE FROM mart_institution_industry_stat WHERE institution_id = ?", (inst_id,))
-        conn.commit()
+        conn.execute("BEGIN IMMEDIATE")
+        try:
+            conn.execute("DELETE FROM inst_institutions WHERE id = ?", (inst_id,))
+            conn.execute("DELETE FROM inst_holdings WHERE institution_id = ?", (inst_id,))
+            conn.execute("DELETE FROM fact_institution_event WHERE institution_id = ?", (inst_id,))
+            conn.execute("DELETE FROM mart_current_relationship WHERE institution_id = ?", (inst_id,))
+            conn.execute("DELETE FROM mart_institution_profile WHERE institution_id = ?", (inst_id,))
+            conn.execute("DELETE FROM mart_institution_industry_stat WHERE institution_id = ?", (inst_id,))
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
 
         # 异步重算股票趋势（因为趋势按股票维度，需要整体重算）
         async def _refresh_trends():
