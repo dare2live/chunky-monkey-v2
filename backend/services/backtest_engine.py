@@ -12,7 +12,6 @@ backtest_engine.py — 历史回测引擎
 """
 
 import logging
-import json
 from datetime import datetime
 from collections import defaultdict
 
