@@ -72,8 +72,8 @@ class _UILogHandler(logging.Handler):
             })
             if len(_ui_logs) > _UI_LOG_LIMIT:
                 del _ui_logs[:-_UI_LOG_LIMIT]
-        except Exception:
-            pass
+        except Exception as _e:
+            import sys; print(f"[UILogHandler] emit error: {_e}", file=sys.stderr)
 
 
 if not getattr(logger, "_cm_ui_handler_attached", False):
@@ -210,8 +210,8 @@ def _finish_run_context(extra: Optional[dict] = None):
 
         invalidate_audit_cache()
         invalidate_etf_snapshot_cache()
-    except Exception:
-        pass
+    except Exception as e:
+        logger.warning(f"[更新结束] 缓存失效操作异常: {e}")
 
 
 def _is_audit_snapshot_refreshing() -> bool:
@@ -968,8 +968,8 @@ async def _step_match_inst(conn) -> int:
             try:
                 aliases = json.loads(inst["aliases"] or "[]")
                 names.extend([a for a in aliases if a])
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(f"[匹配] 机构 {inst_id} 别名解析失败: {e}")
 
             # 在 market_raw_holdings 中匹配
             for name in names:
@@ -1002,8 +1002,13 @@ async def _step_match_inst(conn) -> int:
                             now
                         ))
                         total += 1
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        _insert_errors = getattr(_step_match_inst, '_insert_errors', 0) + 1
+                        _step_match_inst._insert_errors = _insert_errors
+                        if _insert_errors <= 3:
+                            logger.warning(f"[匹配] 持仓插入失败 inst={inst_id} stock={r['stock_code']}: {e}")
+                        elif _insert_errors == 4:
+                            logger.warning("[匹配] 后续持仓插入错误将不再逐条打印")
 
         conn.commit()
     except Exception:
@@ -1255,7 +1260,7 @@ async def _step_build_profiles(conn) -> int:
                         if days > 0:
                             closed_periods.append(days)
                     except (ValueError, TypeError):
-                        pass
+                        pass  # 日期格式异常是预期内情况，静默跳过
                     _stock_entries.pop(sc, None)
 
             hist_median_days = None
@@ -2294,8 +2299,8 @@ def _calibrate_data_completeness(conn, step_id, skipped, failed):
                 returns_partial = True
                 logger.info(f"[data_completeness] 收益覆盖率 {events_with_gain}/{total_events} = "
                            f"{events_with_gain/total_events:.0%} < 50% → partial")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"[data_completeness] 收益覆盖率检测异常: {e}")
     if not industry_partial:
         try:
             coverage = summarize_industry_coverage(
@@ -2308,8 +2313,8 @@ def _calibrate_data_completeness(conn, step_id, skipped, failed):
                 industry_partial = True
                 logger.info(f"[data_completeness] 行业覆盖率 {with_industry}/{total_holdings} = "
                            f"{with_industry/total_holdings:.0%} < 80% → partial")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"[data_completeness] 行业覆盖率检测异常: {e}")
 
     table_map = {
         "build_profiles": ("mart_institution_profile", returns_partial),
@@ -2327,8 +2332,8 @@ def _calibrate_data_completeness(conn, step_id, skipped, failed):
             conn.commit()
             if is_partial:
                 logger.info(f"[data_completeness] {table} → partial")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"[data_completeness] 更新 {table} 完整度标记失败: {e}")
 
 
 def _update_step(conn, step_id, **kwargs):
