@@ -2,21 +2,25 @@
 数据更新管线
 
 当前主 DAG（Phase 5 清理后）：
-  1. sync_raw            — 下载十大股东
-  2. match_inst          — 匹配跟踪机构
-  3. sync_market_data    — 同步行情数据
-  4. gen_events          — 生成事件
-  5. calc_returns        — 计算收益
-  6. sync_industry       — 申万行业
-  7. build_current_rel   — 构建当前关系
-  8. build_profiles      — 机构画像
-  9. build_industry_stat — 行业统计
- 10. build_trends        — 生成股票列表
- 11. calc_sector_momentum — 板块动量分析
- 12. build_stage_features — 阶段特征构建
- 13. build_forecast_features — 预测特征构建
- 14. calc_inst_scores    — 机构评分
- 15. calc_stock_scores   — 股票评分
+    1. sync_raw                 — 下载十大股东
+    2. match_inst               — 匹配跟踪机构
+    3. sync_market_data         — 同步行情数据
+    4. sync_financial           — 同步财务数据
+    5. gen_events               — 生成事件
+    6. calc_returns             — 计算收益
+    7. sync_industry            — 申万行业
+    8. calc_financial_derived   — 计算财务指标
+    9. build_current_rel        — 构建当前关系
+ 10. build_profiles           — 机构画像
+ 11. build_industry_stat      — 行业统计
+ 12. build_trends             — 生成股票列表
+ 13. calc_screening           — TDX 选股筛选
+ 14. calc_sector_momentum     — 板块动量分析
+ 15. build_external_attention — 外部关注快照
+ 16. build_stage_features     — 阶段特征构建
+ 17. build_forecast_features  — 预测特征构建
+ 18. calc_inst_scores         — 机构评分
+ 19. calc_stock_scores        — 股票评分
 """
 
 import asyncio
@@ -102,10 +106,11 @@ STEPS = [
     {"id": "build_trends",          "name": "生成股票列表",    "group": "mart", "order": 12},
     {"id": "calc_screening",        "name": "TDX选股筛选",     "group": "mart", "order": 13},
     {"id": "calc_sector_momentum",  "name": "板块动量分析",    "group": "mart", "order": 14},
-    {"id": "build_stage_features",  "name": "阶段特征构建",    "group": "mart", "order": 15},
-    {"id": "build_forecast_features","name": "预测特征构建",   "group": "mart", "order": 16},
-    {"id": "calc_inst_scores",      "name": "机构评分",        "group": "mart", "order": 17},
-    {"id": "calc_stock_scores",     "name": "股票评分",        "group": "mart", "order": 18},
+    {"id": "build_external_attention","name": "外部关注快照",  "group": "mart", "order": 15},
+    {"id": "build_stage_features",  "name": "阶段特征构建",    "group": "mart", "order": 16},
+    {"id": "build_forecast_features","name": "预测特征构建",   "group": "mart", "order": 17},
+    {"id": "calc_inst_scores",      "name": "机构评分",        "group": "mart", "order": 18},
+    {"id": "calc_stock_scores",     "name": "股票评分",        "group": "mart", "order": 19},
 ]
 
 # 硬依赖：failed → 跳过本步骤
@@ -124,6 +129,7 @@ HARD_DEPS = {
     "build_trends": ["build_current_rel"],
     "calc_screening": ["sync_market_data"],
     "calc_sector_momentum": ["sync_market_data", "sync_industry"],
+    "build_external_attention": [],
     "build_stage_features": ["build_trends", "calc_sector_momentum"],
     "build_forecast_features": ["build_stage_features"],
     "calc_inst_scores": ["build_profiles", "build_industry_stat"],
@@ -139,10 +145,11 @@ SOFT_DEPS = {
     "build_trends": ["calc_returns", "sync_industry"],
     "calc_screening": ["calc_financial_derived"],
     "calc_sector_momentum": ["build_trends"],
+    "build_external_attention": [],
     "build_stage_features": ["calc_financial_derived"],
     "build_forecast_features": [],
     "calc_inst_scores": ["calc_returns"],
-    "calc_stock_scores": ["calc_returns", "calc_screening"],
+    "calc_stock_scores": ["calc_returns", "calc_screening", "build_external_attention"],
 }
 
 _is_running = False
@@ -2170,6 +2177,13 @@ async def _step_calc_sector_momentum(conn) -> int:
         mkt_conn.close()
 
 
+async def _step_build_external_attention(conn) -> int:
+    """外部关注快照"""
+    from services.external_attention import sync_external_attention_snapshot
+
+    return sync_external_attention_snapshot(conn)
+
+
 async def _step_build_stage_features(conn) -> int:
     """阶段特征构建"""
     from services.stock_stage_engine import build_stock_stage_features
@@ -2221,6 +2235,7 @@ RUNNERS = {
     "build_trends": _step_build_trends,
     "calc_screening": _step_calc_screening,
     "calc_sector_momentum": _step_calc_sector_momentum,
+    "build_external_attention": _step_build_external_attention,
     "build_stage_features": _step_build_stage_features,
     "build_forecast_features": _step_build_forecast_features,
     "calc_inst_scores": _step_calc_inst_scores,
@@ -2436,8 +2451,8 @@ async def update_all():
                     skipped.add(sid)
                     continue
 
-                # 软依赖检查：标注但不阻断
-                soft_missing = [d for d in soft if d in failed or d in skipped]
+                # 软依赖检查：仅作为日志或提示
+                _soft_missing = [d for d in soft if d in failed or d in skipped]
 
                 _update_step(conn, sid, status="running", started_at=datetime.now().isoformat())
                 logger.info(f"[更新] 开始: {step['name']}")
@@ -3001,7 +3016,7 @@ async def run_lifeboat():
     if _lifeboat_running:
         return {"ok": False, "message": "救生艇正在运行中，请稍候"}
 
-    import subprocess
+    # 移除未使用的 subprocess 导入
     script_path = Path(__file__).resolve().parent.parent.parent / "lifeboat" / "fetch_and_report.py"
     if not script_path.exists():
         return {"ok": False, "message": f"救生艇脚本不存在: {script_path}"}

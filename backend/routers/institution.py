@@ -4,6 +4,7 @@
 跟踪机构的 CRUD、简称映射、排除管理。
 """
 
+import asyncio
 import json
 import logging
 import time
@@ -544,6 +545,19 @@ async def list_stock_trends():
                    t.stock_archetype,
                    t.priority_pool,
                    t.priority_pool_reason,
+                   t.attention_comment_trade_date,
+                   t.attention_focus_index,
+                   t.attention_composite_score,
+                   t.attention_institution_participation,
+                   t.attention_turnover_rate,
+                   t.attention_rank_change,
+                   t.attention_survey_count_30d,
+                   t.attention_survey_count_90d,
+                   t.attention_survey_org_total_30d,
+                   t.attention_survey_org_total_90d,
+                   t.external_attention_score,
+                   t.external_crowding_penalty,
+                   t.external_attention_signal,
                    t.score_highlights,
                    t.score_risks,
                    t.qlib_rank,
@@ -694,6 +708,19 @@ async def list_stock_trends():
                 "stock_archetype": None,
                 "priority_pool": None,
                 "priority_pool_reason": None,
+                "attention_comment_trade_date": None,
+                "attention_focus_index": None,
+                "attention_composite_score": None,
+                "attention_institution_participation": None,
+                "attention_turnover_rate": None,
+                "attention_rank_change": None,
+                "attention_survey_count_30d": None,
+                "attention_survey_count_90d": None,
+                "attention_survey_org_total_30d": None,
+                "attention_survey_org_total_90d": None,
+                "external_attention_score": None,
+                "external_crowding_penalty": None,
+                "external_attention_signal": None,
                 "score_highlights": None,
                 "score_risks": None,
                 "generic_stage_raw": None,
@@ -922,7 +949,9 @@ async def list_watchlist():
             SELECT w.*,
                    t.setup_tag, t.setup_priority, t.setup_reason, t.setup_confidence,
                    t.discovery_score, t.company_quality_score, t.stage_score,
-                   t.forecast_score, t.composite_priority_score, t.priority_pool,
+                   t.forecast_score, t.raw_composite_priority_score, t.composite_priority_score, t.priority_pool,
+                   t.priority_pool_reason, t.composite_cap_reason,
+                   t.external_attention_score, t.external_crowding_penalty, t.external_attention_signal,
                    t.score_highlights, t.score_risks
             FROM stock_watchlist w
             LEFT JOIN mart_stock_trend t ON w.stock_code = t.stock_code
@@ -1210,7 +1239,13 @@ async def get_stock_detail(stock_code: str):
                    t.discovery_score, t.company_quality_score, t.stage_score,
                    t.forecast_score, t.forecast_score_effective, t.raw_composite_priority_score,
                    t.composite_priority_score, t.composite_cap_score, t.composite_cap_reason,
-                   t.stock_archetype, t.priority_pool, t.priority_pool_reason, t.score_highlights, t.score_risks,
+                   t.stock_archetype, t.priority_pool, t.priority_pool_reason,
+                   t.attention_comment_trade_date, t.attention_focus_index, t.attention_composite_score,
+                   t.attention_institution_participation, t.attention_turnover_rate, t.attention_rank_change,
+                   t.attention_survey_count_30d, t.attention_survey_count_90d,
+                   t.attention_survey_org_total_30d, t.attention_survey_org_total_90d,
+                   t.external_attention_score, t.external_crowding_penalty, t.external_attention_signal,
+                   t.score_highlights, t.score_risks,
                    st.path_max_gain_pct, st.path_max_drawdown_pct,
                    st.generic_stage_raw, st.stage_type_adjust_raw, st.stage_reason,
                    st.return_1m, st.return_3m, st.return_6m, st.return_12m,
@@ -1309,6 +1344,62 @@ async def get_stock_detail(stock_code: str):
         conn.close()
 
 
+@router.get("/stocks/attention/{stock_code}")
+async def get_stock_attention(stock_code: str):
+    """单股外部关注验证接口。"""
+    from services.external_attention import fetch_stock_attention_detail, get_latest_stock_attention
+
+    conn = get_conn()
+    try:
+        snapshot = get_latest_stock_attention(conn, stock_code)
+        stock_meta = conn.execute(
+            "SELECT stock_name FROM dim_active_a_stock WHERE stock_code = ? LIMIT 1",
+            (stock_code,),
+        ).fetchone()
+        if not stock_meta:
+            stock_meta = conn.execute(
+                "SELECT stock_name FROM market_raw_holdings WHERE stock_code = ? LIMIT 1",
+                (stock_code,),
+            ).fetchone()
+        industry_meta = conn.execute(
+            "SELECT sw_level1, sw_level2, sw_level3 FROM dim_stock_industry WHERE stock_code = ? LIMIT 1",
+            (stock_code,),
+        ).fetchone()
+    finally:
+        conn.close()
+
+    detail = await asyncio.to_thread(fetch_stock_attention_detail, stock_code)
+    basic_info = dict(detail.get("basic_info") or {})
+    fallback_name = (snapshot or {}).get("stock_name") or (stock_meta["stock_name"] if stock_meta else "")
+    fallback_industry = ""
+    if industry_meta:
+        fallback_industry = industry_meta["sw_level2"] or industry_meta["sw_level1"] or industry_meta["sw_level3"] or ""
+    if not basic_info:
+        basic_info = {
+            "股票代码": detail.get("stock_code") or stock_code,
+            "股票简称": fallback_name,
+            "行业": fallback_industry,
+        }
+    else:
+        basic_info.setdefault("股票代码", detail.get("stock_code") or stock_code)
+        if fallback_name:
+            basic_info.setdefault("股票简称", fallback_name)
+        if fallback_industry:
+            basic_info.setdefault("行业", fallback_industry)
+
+    return {
+        "ok": True,
+        "stock_code": detail.get("stock_code") or stock_code,
+        "stock_name": detail.get("stock_name") or fallback_name,
+        "snapshot": snapshot,
+        "basic_info": basic_info,
+        "series": detail.get("series") or {},
+        "research": detail.get("research") or {},
+        "news": detail.get("news") or {},
+        "diagnostics": detail.get("diagnostics") or {},
+    }
+
+
 @router.get("/profiles/returns-history/{inst_id}")
 async def get_returns_history(inst_id: str):
     """获取机构历史收益序列（用于绘制收益曲线）"""
@@ -1350,8 +1441,8 @@ async def get_exclusion_categories():
 
 STOCK_SCORING_FRAMEWORK = {
     "title": "四层研究评分框架",
-    "summary": "系统当前固定按 发现 -> 质量 -> 阶段 -> 预测 的顺序判断，先研究再排序；Qlib 只承担排序增强，不再替代研究逻辑本身。",
-    "formula": "Composite = 0.35*Discovery + 0.30*Quality + 0.20*Stage + 0.15*Forecast_effective",
+    "summary": "系统当前先按 发现 -> 质量 -> 阶段 -> 预测 得到内部原始分 Raw，再叠加外部关注确认与热度拥挤裁决；Qlib 仍只承担排序增强，不替代研究逻辑本身。",
+    "formula": "Raw = 0.35*Discovery + 0.30*Quality + 0.20*Stage + 0.15*Forecast_effective；Composite = clamp(Raw + ExternalBoost - CrowdingPenalty)",
     "layers": [
         {
             "key": "discovery",
@@ -1412,9 +1503,21 @@ STOCK_SCORING_FRAMEWORK = {
         "formula": "Forecast_effective = Forecast × max(Stage / 60, 0.5)",
         "meaning": "阶段差时自动压缩 Qlib 影响力，避免预测分在错误阶段把总分顶上去。",
     },
+    "external_overlay": {
+        "label": "外部关注叠加层",
+        "summary": "内部四层先给出 Raw，再用外部确认做加分、用热度拥挤做扣分，最后再判断是否晋升、降池或封顶。",
+        "items": [
+            "AttentionScore 以评论综合分 42% + 关注指数 30% + 机构参与度 28% 为主；有调研快照时再叠加调研活跃分 18%。",
+            "ExternalBoost = min(max(AttentionScore - 55, 0) × 0.18 + 调研补分, 8.0)。",
+            "CrowdingPenalty 由关注指数、换手率、机构参与、排名跃升、调研活跃、阶段分、近20日与近1月涨幅累加，最高 10 分。",
+            "Attention ≥ 72 记为“外部确认增强”；60-72 记为“关注度抬升”；Penalty ≥ 6 且 Attention ≥ 60 记为“热度拥挤”。"
+        ],
+    },
     "caps": [
         "Stage < 40：综合优先分最高封顶 69",
         "Quality < 45 且非周期/事件驱动型：综合优先分最高封顶 64",
+        "CrowdingPenalty ≥ 8：综合优先分最高封顶 69",
+        "CrowdingPenalty ≥ 6 且 Stage < 60：综合优先分最高封顶 74",
         "Discovery < 50：不允许进入 A 池",
     ],
     "pools": [
@@ -1718,8 +1821,7 @@ async def delete_scoring_config_api(card_type: str):
 @router.get("/scoring/breakdown/{card_type}/{object_id}")
 async def scoring_breakdown(card_type: str, object_id: str):
     """评分拆解：展示某个机构/股票的评分贡献明细（三可原则：可见+可追溯+可复核）"""
-    from services.scoring import load_scoring_config, INST_SCORE_DEFAULTS
-    from services.utils import safe_float as _safe_float
+    from services.scoring import load_scoring_config
     import math
     conn = get_conn()
     try:
